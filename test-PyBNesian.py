@@ -54,8 +54,8 @@ from pybnesian import hc, CLGNetworkType, load as pybn_load
 # ---------------------------
 
 RANDOM_STATE = 42
-MAX_UMAP_SAMPLE = 10_000          # "large random sample" upper bound for UMAP fitting/plotting
-SYNTHETIC_SAMPLE = 20_000         # number of synthetic samples to draw for fidelity + UMAP
+MAX_UMAP_SAMPLE = 1000          # "large random sample" upper bound for UMAP fitting/plotting
+SYNTHETIC_SAMPLE = 1000         # number of synthetic samples to draw for fidelity + UMAP
 TEST_SIZE = 0.2
 UMAP_N_NEIGHBORS = 30
 UMAP_MIN_DIST = 0.1
@@ -68,7 +68,6 @@ DATASETS: List[Tuple[str, Optional[str]]] = [
     ("credit-g", "class"),        # German credit (good/bad)
     ("titanic", "survived"),      # 0/1
     ("bank-marketing", "y"),      # yes/no
-    ("phishing", "Result"),       # -1/1 (many discretes + some numeric)
 ]
 
 # ---------------------------
@@ -115,6 +114,33 @@ def coerce_discrete_to_category(df: pd.DataFrame, discrete_cols: List[str]) -> p
     for c in discrete_cols:
         if not pd.api.types.is_categorical_dtype(df[c]):
             df[c] = df[c].astype("category")
+    return df
+
+def coerce_continuous_to_float(df: pd.DataFrame, continuous_cols: List[str]) -> pd.DataFrame:
+    """Ensure continuous variables use a floating dtype (required by CLGNetworkType)."""
+    df = df.copy()
+    for c in continuous_cols:
+        s = df[c]
+        # pandas boolean should not appear here per our inference, but guard anyway
+        if pd.api.types.is_integer_dtype(s):
+            df[c] = pd.to_numeric(s, errors="coerce").astype(float)
+    return df
+
+def rename_categorical_categories_to_str(df: pd.DataFrame, discrete_cols: List[str]) -> pd.DataFrame:
+    """Ensure categorical variables have string-valued categories (required by PyBNesian)."""
+    df = df.copy()
+    for c in discrete_cols:
+        s = df[c]
+        if pd.api.types.is_categorical_dtype(s):
+            try:
+                new_cats = [str(cat) for cat in s.cat.categories]
+                df[c] = s.cat.rename_categories(new_cats)
+            except Exception:
+                # Fallback: cast via string but keep NaN as NaN
+                mask = s.isna()
+                tmp = s.astype(str)
+                tmp[mask] = np.nan
+                df[c] = tmp.astype("category")
     return df
 
 def summarize_dataframe(df: pd.DataFrame, discrete_cols: List[str], continuous_cols: List[str]) -> pd.DataFrame:
@@ -248,10 +274,19 @@ class BNArtifacts:
     continuous_cols: List[str]
 
 def learn_clg_bn(train_df: pd.DataFrame) -> BNArtifacts:
-    # Let CLGNetworkType infer default FactorTypes from column dtypes
+    # Let CLGNetworkType infer default FactorTypes from column dtypes.
+    # Note: For CLGNetworkType, PyBNesian does not define default operators for the
+    # hill-climbing search. Explicitly pass the "arcs" operator set (add/remove/flip arcs).
     bn_type = CLGNetworkType()
     # Use BIC by default (fast, general). Alternatives: "cv-lik", "holdout-lik", "validated-lik", "bge"/"bde" where valid.
-    model = hc(train_df, bn_type=bn_type, score="bic", max_indegree=5, seed=RANDOM_STATE)
+    model = hc(
+        train_df,
+        bn_type=bn_type,
+        score="bic",
+        operators=["arcs"],
+        max_indegree=5,
+        seed=RANDOM_STATE,
+    )
     # Fit parameters on the training data
     model.fit(train_df)
     # Infer node types
@@ -433,7 +468,19 @@ def process_dataset(name: str, target: Optional[str], base_outdir: str, rng: np.
     print("Downloading from OpenML...")
     with warnings.catch_warnings():
         warnings.simplefilter("ignore", category=FutureWarning)
-        ds = fetch_openml(name=name, version="active", as_frame=True)
+
+        versions = openml.datasets.list_datasets(
+            output_format="dataframe",
+            status="active",
+            data_name=name,   # server-side filter
+        )
+        # Exact name match, then pick the highest version
+        versions = df[df["name"] == name]
+        if versions.empty:
+            raise ValueError(f"No active dataset named {name!r}.")
+        data_id = int(df.sort_values("version", ascending=False).iloc[0]["did"])
+        # Fetch by data_id to avoid version ambiguity
+        ds = fetch_openml(data_id=data_id, as_frame=True)
     df: pd.DataFrame = ds.frame.copy()
     # Drop index-like columns commonly found
     for col in df.columns:
@@ -451,6 +498,8 @@ def process_dataset(name: str, target: Optional[str], base_outdir: str, rng: np.
     # 2) Infer types and coerce discrete to categorical
     disc_cols, cont_cols = infer_types(df)
     df = coerce_discrete_to_category(df, disc_cols)
+    df = rename_categorical_categories_to_str(df, disc_cols)
+    df = coerce_continuous_to_float(df, cont_cols)
 
     # If dataset ends up all one type, try to force a few low-card int columns to discrete
     if len(disc_cols) == 0:
@@ -459,6 +508,8 @@ def process_dataset(name: str, target: Optional[str], base_outdir: str, rng: np.
         cand = sorted(cand, key=lambda c: df[c].nunique(dropna=True))[:3]
         df[cand] = df[cand].astype("category")
         disc_cols, cont_cols = infer_types(df)
+        df = rename_categorical_categories_to_str(df, disc_cols)
+        df = coerce_continuous_to_float(df, cont_cols)
 
     # 3) Baseline summary
     baseline = summarize_dataframe(df, disc_cols, cont_cols)
@@ -556,6 +607,7 @@ def main():
             process_dataset(name, target, base_outdir, rng)
         except Exception as e:
             print(f"[WARN] Skipped {name} due to error: {e}")
+            raise e
 
     print("\nDone. See the 'bn_reports/' folder for per-dataset subfolders with:")
     print("- Markdown report")

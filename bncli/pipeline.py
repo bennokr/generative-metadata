@@ -103,25 +103,6 @@ def process_dataset(
         df_no_na, test_size=cfg.test_size, random_state=cfg.random_state, shuffle=True
     )
 
-    rng = seed_all(cfg.random_state)
-    color_series2 = None
-    if isinstance(color_series, pd.Series) and color_series.name in df_no_na.columns:
-        color_series2 = df_no_na[color_series.name]
-    umap_art = build_umap(
-        df_no_na,
-        disc_cols,
-        cont_cols,
-        color_series=color_series2,
-        rng=rng,
-        random_state=cfg.random_state,
-        max_sample=cfg.max_umap_sample,
-        n_neighbors=cfg.umap_n_neighbors,
-        min_dist=cfg.umap_min_dist,
-        n_components=cfg.umap_n_components,
-    )
-    umap_png_real = os.path.join(outdir, f"umap_real.png")
-    plot_umap(umap_art.embedding, umap_png_real, title=f"{name}: real (sample)", color_labels=umap_art.color_labels)
-
     bn_art = learn_bn(train_df, bn_type=bn_type, random_state=cfg.random_state)
     model = bn_art.model
     node_types = model.node_types()
@@ -141,6 +122,26 @@ def process_dataset(
                 synth_df[c] = synth_df[c].cat.set_categories(df_no_na[c].cat.categories)
     dist_table = per_variable_distances(test_df, synth_df, bn_art.discrete_cols, bn_art.continuous_cols)
 
+
+    rng = seed_all(cfg.random_state)
+    color_series2 = None
+    if isinstance(color_series, pd.Series) and color_series.name in df_no_na.columns:
+        color_series2 = df_no_na[color_series.name]
+    umap_art = build_umap(
+        df_no_na,
+        disc_cols,
+        cont_cols,
+        color_series=color_series2,
+        rng=rng,
+        random_state=cfg.random_state,
+        max_sample=cfg.max_umap_sample,
+        n_neighbors=cfg.umap_n_neighbors,
+        min_dist=cfg.umap_min_dist,
+        n_components=cfg.umap_n_components,
+    )
+    umap_png_real = os.path.join(outdir, f"umap_real.png")
+    plot_umap(umap_art.embedding, umap_png_real, title=f"{name}: real (sample)", color_labels=umap_art.color_labels)
+    
     synth_no_na = synth_df.dropna(axis=0, how="any")
     synth_emb = transform_with_umap(umap_art, synth_no_na)
     umap_png_synth = os.path.join(outdir, f"umap_synth.png")
@@ -160,13 +161,14 @@ def process_dataset(
         disc_cols=disc_cols,
         cont_cols=cont_cols,
         baseline_md_table=baseline_md,
-        umap_png_real=umap_png_real,
-        umap_png_synth=umap_png_synth,
+        bn_type=bn_type,
         bn_png=bn_png,
         bn_human=bn_human,
         ll_metrics=ll,
         dist_table=dist_table,
         graphml_file=graphml_file,
         pickle_file=pickle_file,
+        umap_png_real=umap_png_real,
+        umap_png_synth=umap_png_synth,
     )
 

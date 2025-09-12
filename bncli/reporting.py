@@ -18,30 +18,29 @@ def write_report_md(
     disc_cols: List[str],
     cont_cols: List[str],
     baseline_md_table: str,
-    umap_png_real: str,
-    umap_png_synth: str,
+    bn_type: str,
     bn_png: str,
     bn_human: str,
     ll_metrics: Dict[str, float],
     dist_table: pd.DataFrame,
     graphml_file: str,
     pickle_file: str,
+    umap_png_real: str,
+    umap_png_synth: str,
 ) -> None:
     md_path = os.path.join(outdir, f"report.md")
     num_rows, num_cols = df.shape
     with open(md_path, "w", encoding="utf-8") as f:
         f.write(f"# Data Report — {dataset_name}\n\n")
-        f.write(f"Metadata file: {metadata_file}\n")
+        f.write(f"- Metadata file: {metadata_file}\n")
         f.write(f"- Rows: {num_rows}\n")
         f.write(f"- Columns: {num_cols}\n")
         f.write(f"- Discrete: {len(disc_cols)}  |  Continuous: {len(cont_cols)}\n\n")
         f.write("## Baseline summary\n\n")
         f.write(baseline_md_table + "\n\n")
-        f.write("## UMAP on real data (sample)\n\n")
-        f.write(f"![UMAP real]({os.path.basename(umap_png_real)})\n\n")
-        f.write("## Learned BN (structure)\n\n")
+        f.write(f"## Learned {bn_type} BN (structure)\n\n")
         f.write(f"![BN graph]({os.path.basename(bn_png)})\n\n")
-        f.write("### Human-readable BN summary\n\n")
+        f.write(f"### Human-readable {bn_type} BN summary\n\n")
         f.write("```\n" + bn_human + "\n```\n\n")
         f.write("### Serialization\n\n")
         f.write(f"- Structure (GraphML): `{os.path.basename(graphml_file)}`\n")
@@ -55,7 +54,9 @@ def write_report_md(
         f.write("### Per-variable distances (lower is closer)\n\n")
         if not dist_table.empty:
             f.write(dataframe_to_markdown_table(dist_table) + "\n\n")
-        f.write("## UMAP on synthetic data (same projection)\n\n")
+        f.write("## UMAP on real data (sample)\n\n")
+        f.write(f"![UMAP real]({os.path.basename(umap_png_real)})\n\n")
+        f.write(f"## UMAP on {bn_type} synthetic data (same projection)\n\n")
         f.write(f"![UMAP synthetic]({os.path.basename(umap_png_synth)})\n\n")
     logging.info(f"Wrote report: {md_path}")
 

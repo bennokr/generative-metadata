@@ -1,0 +1,9 @@
+defopt
+graphviz
+markdown
+pybnesian
+ucimlrepo
+umap-learn
+openml
+scikit-learn
+metasyn

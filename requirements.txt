@@ -7,3 +7,4 @@ umap-learn
 openml
 scikit-learn
 metasyn
+tabulate

@@ -64,6 +64,8 @@ def process_dataset(
     color_series: Optional[pd.Series],
     base_outdir: str,
     *,
+    provider: Optional[str] = None,
+    provider_id: Optional[int] = None,
     bn_configs: Optional[List[Dict[str, Any]]] = None,
     arc_blacklist: Optional[List[str]] = None,
     cfg: Config = Config(),
@@ -135,6 +137,21 @@ def process_dataset(
 
     description = meta_dict.get('description') or meta_dict.get('abstract') or meta_dict.get('summary')
     citation = meta_dict.get('citation') or meta_dict.get('bibliography')
+    # Build citation from uciml metadata if available and missing
+    if not citation and isinstance(meta_dict.get('intro_paper'), dict):
+        ip = meta_dict['intro_paper']
+        parts = []
+        if ip.get('title'):
+            parts.append(ip['title'])
+        if ip.get('authors'):
+            parts.append(ip['authors'])
+        if ip.get('venue'):
+            parts.append(ip['venue'])
+        if ip.get('year'):
+            parts.append(str(ip['year']))
+        if ip.get('DOI'):
+            parts.append('https://doi.org/' + str(ip['DOI']).replace('https://doi.org/',''))
+        citation = '. '.join([p for p in parts if p])
     creators_val = meta_dict.get('creators') or meta_dict.get('creator') or meta_dict.get('author') or meta_dict.get('donor')
     creators = normalize_creators(creators_val)
     date_published = meta_dict.get('upload_date') or meta_dict.get('collection_date') or meta_dict.get('year') or meta_dict.get('date')
@@ -219,7 +236,7 @@ def process_dataset(
         else:
             sensitive_vars = default_sensitive
 
-    # Build arc blacklist pairs: forbid arcs FROM sensitive vars TO non-sensitive variables only
+    # Build arc blacklist pairs: forbid arcs INTO sensitive vars FROM non-sensitive variables only
     cols = list(df.columns)
     col_map = {str(c).lower(): c for c in cols}
     sens_in_cols = []
@@ -231,7 +248,7 @@ def process_dataset(
     arc_blacklist_pairs: List[Tuple[str, str]] = []
     for u in sens_in_cols:
         for v in non_sensitive_cols:
-            arc_blacklist_pairs.append((u, v))
+            arc_blacklist_pairs.append((v, u))
 
     # BN configurations to run
     if isinstance(bn_configs, (list, tuple)) and len(bn_configs):
@@ -403,12 +420,29 @@ def process_dataset(
     )
     fidelity_table = pd.DataFrame(fidelity_rows)
 
+    # Determine provider and dataset page links
+    provider_name = (provider or '').lower() if provider else None
+    prov_id = provider_id
+    ident = dataset_jsonld.get('identifier') if isinstance(dataset_jsonld, dict) else None
+    if isinstance(ident, (int, np.integer)):
+        prov_id = int(ident)
+    else:
+        # Fall back on metadata
+        if isinstance(meta_dict.get('dataset_id') or meta_dict.get('did'), (int, np.integer)):
+            prov_id = int(meta_dict.get('dataset_id') or meta_dict.get('did'))
+            provider_name = provider_name or 'openml'
+        elif isinstance(meta_dict.get('uci_id') or meta_dict.get('id'), (int, np.integer)):
+            prov_id = int(meta_dict.get('uci_id') or meta_dict.get('id'))
+            provider_name = provider_name or 'uciml'
+
     write_report_md(
         outdir=outdir,
         dataset_name=name,
         metadata_file=metadata_file,
         dataset_jsonld_file=str(dataset_jsonld_file),
         dataset_jsonld=dataset_jsonld,
+        dataset_provider=provider_name,
+        dataset_provider_id=prov_id,
         df=df_no_na,
         disc_cols=disc_cols,
         cont_cols=cont_cols,
@@ -420,7 +454,7 @@ def process_dataset(
         pickle_files=[sect['pickle_file'] for sect in bn_sections],
         arc_blacklist_info=dict(
             sensitive_variables=sens_in_cols,
-            direction="forbid parent arcs from sensitive to non-sensitive",
+            direction="forbid incoming arcs into sensitive from non-sensitive",
             n_forbidden_arcs=len(arc_blacklist_pairs),
         ),
         umap_png_real=str(umap_png_real),

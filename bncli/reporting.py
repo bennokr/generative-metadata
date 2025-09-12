@@ -14,6 +14,8 @@ def write_report_md(
     metadata_file: str,
     dataset_jsonld_file: Optional[str],
     dataset_jsonld: Optional[dict],
+    dataset_provider: Optional[str],
+    dataset_provider_id: Optional[int],
     df: pd.DataFrame,
     disc_cols: List[str],
     cont_cols: List[str],
@@ -45,7 +47,16 @@ def write_report_md(
             f.write(f"- JSON-LD (schema.org/Dataset): [{jd_name}]({jd_name})\n")
         f.write(f"- Rows: {num_rows}\n")
         f.write(f"- Columns: {num_cols}\n")
-        f.write(f"- Discrete: {len(disc_cols)}  |  Continuous: {len(cont_cols)}\n\n")
+        f.write(f"- Discrete: {len(disc_cols)}  |  Continuous: {len(cont_cols)}\n")
+        # Provider-specific links
+        if dataset_provider and dataset_provider_id:
+            if dataset_provider == 'openml':
+                url = f"https://www.openml.org/search?type=data&id={dataset_provider_id}"
+                f.write(f"- OpenML page: {url}\n")
+            elif dataset_provider == 'uciml':
+                url = f"https://archive.ics.uci.edu/dataset/{dataset_provider_id}"
+                f.write(f"- UCI ML page: {url}\n")
+        f.write("\n")
 
         if isinstance(dataset_jsonld, dict):
             f.write("## Dataset metadata\n\n")
@@ -88,27 +99,29 @@ def write_report_md(
                 f.write("- Links:\n")
                 for label, u in urls:
                     f.write(f"  - {label}: {u}\n")
-            vars_meas = dataset_jsonld.get("variableMeasured")
-            if vars_meas:
-                f.write("\n### Variables\n\n")
-                rows = []
-                if isinstance(vars_meas, dict):
-                    vars_meas = [vars_meas]
-                for item in vars_meas:
-                    if isinstance(item, dict):
-                        rows.append({
-                            "variable": item.get("name", ""),
-                            "measurement": item.get("measurementTechnique", ""),
-                            "unit": item.get("unitText", "")
-                        })
-                if rows:
-                    var_df = pd.DataFrame(rows)
-                    var_df = var_df.fillna("")
-                    f.write(df_to_markdown(var_df, index=False) + "\n\n")
-        f.write("## Baseline summary\n\n")
+        # Merge variables and baseline summary into one table
         baseline_out = baseline_df.round(4).reset_index().rename(columns={baseline_df.index.name or 'index': 'variable'})
         baseline_out = baseline_out.fillna("")
-        f.write(df_to_markdown(baseline_out, index=False) + "\n\n")
+        vars_meas = dataset_jsonld.get("variableMeasured") if isinstance(dataset_jsonld, dict) else None
+        var_df = None
+        if vars_meas:
+            if isinstance(vars_meas, dict):
+                vars_meas = [vars_meas]
+            rows = []
+            for item in vars_meas:
+                if isinstance(item, dict):
+                    rows.append({
+                        "variable": item.get("name", ""),
+                        "measurement": item.get("measurementTechnique", ""),
+                        "unit": item.get("unitText", "")
+                    })
+            var_df = pd.DataFrame(rows).fillna("") if rows else None
+        if var_df is not None and not var_df.empty:
+            merged = var_df.merge(baseline_out, on="variable", how="right")
+        else:
+            merged = baseline_out
+        f.write("## Variables and summary\n\n")
+        f.write(df_to_markdown(merged, index=False) + "\n\n")
         f.write("## Learned BN structures and configurations\n\n")
         if arc_blacklist_info:
             f.write("### Arc blacklist\n\n")
@@ -178,6 +191,19 @@ def write_report_md(
                 parts.append(meta_part)
             if base is not None and parts:
                 comp_df = pd.concat([base] + parts, axis=1)
+                # Reorder MultiIndex columns as (metric, model)
+                mcols = [c for c in comp_df.columns if isinstance(c, tuple)]
+                if mcols:
+                    sub = comp_df.loc[:, mcols].copy()
+                    new_cols = pd.MultiIndex.from_tuples(mcols).swaplevel(0, 1)
+                    sub.columns = new_cols
+                    # Order metrics as JSD, KS, W1 if present
+                    desired = ["JSD", "KS", "W1"]
+                    first_levels = [lvl for lvl in desired if lvl in sub.columns.levels[0]]
+                    rest = [lvl for lvl in sub.columns.levels[0] if lvl not in first_levels]
+                    order = first_levels + rest
+                    sub = sub.reindex(columns=order, level=0)
+                    comp_df = pd.concat([comp_df[["variable", "type"]], sub], axis=1)
                 f.write(df_to_markdown(comp_df.round(4).fillna(""), index=False) + "\n\n")
         f.write("## UMAP overview (same projection)\n\n")
         # Dynamically build columns for UMAP images

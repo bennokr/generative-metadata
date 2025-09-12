@@ -44,17 +44,16 @@
     <node id="num">
       <data key="d0">DiscreteFactorType</data>
     </node>
+    <edge source="age" target="trestbps" />
+    <edge source="age" target="thalach" />
+    <edge source="sex" target="chol" />
     <edge source="cp" target="exang" />
-    <edge source="trestbps" target="age" />
-    <edge source="fbs" target="trestbps" />
-    <edge source="thalach" target="age" />
     <edge source="exang" target="slope" />
     <edge source="exang" target="num" />
-    <edge source="oldpeak" target="trestbps" />
-    <edge source="slope" target="oldpeak" />
     <edge source="slope" target="thalach" />
+    <edge source="slope" target="oldpeak" />
     <edge source="ca" target="oldpeak" />
-    <edge source="ca" target="age" />
+    <edge source="thal" target="chol" />
     <edge source="num" target="thal" />
     <edge source="num" target="ca" />
   </graph>

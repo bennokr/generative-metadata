@@ -9,13 +9,37 @@ from scipy.stats import ks_2samp, wasserstein_distance
 
 
 def heldout_loglik(model, df_test: pd.DataFrame) -> Dict[str, float]:
-    arr = model.logl(df_test)
-    arr = np.asarray(arr).reshape(-1)
+    try:
+        arr = model.logl(df_test)
+    except Exception:
+        return {
+            "mean_loglik": float("nan"),
+            "std_loglik": float("nan"),
+            "sum_loglik": float("nan"),
+            "n_rows": int(0),
+        }
+    try:
+        arr = np.asarray(arr, dtype=float).reshape(-1)
+    except Exception:
+        arr = np.asarray(arr).reshape(-1)
+        try:
+            arr = arr.astype(float)
+        except Exception:
+            arr = np.array([], dtype=float)
+    mask = np.isfinite(arr)
+    if mask.sum() == 0:
+        return {
+            "mean_loglik": float("nan"),
+            "std_loglik": float("nan"),
+            "sum_loglik": float("nan"),
+            "n_rows": int(0),
+        }
+    vals = arr[mask]
     return {
-        "mean_loglik": float(np.mean(arr)),
-        "std_loglik": float(np.std(arr)),
-        "sum_loglik": float(np.sum(arr)),
-        "n_rows": int(len(arr)),
+        "mean_loglik": float(np.mean(vals)),
+        "std_loglik": float(np.std(vals)),
+        "sum_loglik": float(np.sum(vals)),
+        "n_rows": int(len(vals)),
     }
 
 
@@ -51,4 +75,3 @@ def per_variable_distances(
             w1 = wasserstein_distance(a, b)
             rows.append(dict(variable=c, type="continuous", KS=ks, W1=w1))
     return pd.DataFrame(rows)
-

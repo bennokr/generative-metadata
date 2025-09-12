@@ -44,7 +44,7 @@ def report(
     provider: str = "openml",
     *,
     datasets: List[str] = [],
-    outdir: str = "bn_reports",
+    outdir: str = "docs",
     bn_types: List[str] = ("clg", "semiparametric"),
     configs_yaml: str = "",
     arc_blacklist: List[str] = (),
@@ -99,11 +99,25 @@ def report(
             meta, df, color = load_dataset(spec)
             # Pass arc_blacklist only if user provided it; otherwise None to use provider-specific default
             abl = list(arc_blacklist) if isinstance(arc_blacklist, (list, tuple)) and len(arc_blacklist) else None
+            # Try to extract provider_id for linking
+            prov_id = None
+            if spec.provider == 'uciml':
+                prov_id = spec.id
+            elif spec.provider == 'openml':
+                for attr in ('dataset_id', 'did', 'id'):
+                    if hasattr(meta, attr):
+                        try:
+                            prov_id = int(getattr(meta, attr))
+                            break
+                        except Exception:
+                            pass
             process_dataset(
                 meta,
                 df,
                 color,
                 outdir,
+                provider=spec.provider,
+                provider_id=prov_id,
                 bn_configs=bn_configs,
                 arc_blacklist=abl,
             )

@@ -1,13 +1,13 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Dict, List
+from typing import Dict, List, Optional, Sequence, Tuple, Iterable
 
 import numpy as np
 import networkx as nx
 from graphviz import Digraph
 
-from pybnesian import hc, CLGNetworkType
+from pybnesian import hc, CLGNetworkType, SemiparametricBNType
 
 
 @dataclass
@@ -17,17 +17,39 @@ class BNArtifacts:
     continuous_cols: List[str]
 
 
-def learn_bn(train_df, bn_type: str = "clg", random_state: int = 42) -> BNArtifacts:
-    if bn_type.lower() != "clg":
-        raise ValueError("Only 'clg' BN type is supported at the moment")
-    bn_type_obj = CLGNetworkType()
+def _bn_type_from_str(bn_type: str):
+    t = bn_type.lower().strip()
+    if t in {"clg", "clgnetwork", "clgnetworktype"}:
+        return CLGNetworkType()
+    if t in {"semiparametric", "semiparametricbn", "semiparametricbntype", "spbn", "semi"}:
+        return SemiparametricBNType()
+    raise ValueError(f"Unsupported bn_type: {bn_type!r}. Supported: 'clg', 'semiparametric'")
+
+
+def learn_bn(
+    train_df,
+    bn_type: str = "clg",
+    random_state: int = 42,
+    arc_blacklist: Optional[Sequence[Tuple[str, str]]] = None,
+    *,
+    score: Optional[str] = None,
+    operators: Optional[Iterable[str]] = None,
+    max_indegree: Optional[int] = None,
+) -> BNArtifacts:
+    bn_type_obj = _bn_type_from_str(bn_type)
+    # Defaults if not provided
+    score = score or "bic"
+    operators = list(operators) if operators is not None else ["arcs"]
+    max_indegree = 5 if max_indegree is None else int(max_indegree)
+
     model = hc(
         train_df,
         bn_type=bn_type_obj,
-        score="bic",
-        operators=["arcs"],
-        max_indegree=5,
+        score=score,
+        operators=operators,
+        max_indegree=max_indegree,
         seed=random_state,
+        arc_blacklist=arc_blacklist,
     )
     model.fit(train_df)
     node_types = model.node_types()
@@ -104,4 +126,3 @@ def save_graphml_structure(model, node_types: Dict[str, object], out_graphml: st
     for u, v in model.arcs():
         G.add_edge(u, v)
     nx.write_graphml(G, out_graphml)
-

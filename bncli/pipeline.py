@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Optional, Any
+from typing import Optional, Any, List, Dict, Sequence, Tuple
 import json
 import logging
 
@@ -18,7 +18,7 @@ from .utils import (
     ensure_dir,
 )
 from .umap_utils import build_umap, plot_umap, transform_with_umap
-from .bn import learn_bn, bn_to_graphviz, bn_human_readable, save_graphml_structure
+from .bn import learn_bn, bn_to_graphviz, save_graphml_structure
 from .metrics import heldout_loglik, per_variable_distances
 from .reporting import write_report_md
 from metasyn.metaframe import MetaFrame
@@ -63,7 +63,9 @@ def process_dataset(
     df: pd.DataFrame,
     color_series: Optional[pd.Series],
     base_outdir: str,
-    bn_type: str = "clg",
+    *,
+    bn_configs: Optional[List[Dict[str, Any]]] = None,
+    arc_blacklist: Optional[List[str]] = None,
     cfg: Config = Config(),
 ) -> None:
     name = getattr(meta, 'name', None) or (meta.get('name') if isinstance(meta, dict) else None) or 'dataset'
@@ -203,28 +205,46 @@ def process_dataset(
     )
     logging.info(f"Train/test split sizes: {len(train_df)}/{len(test_df)}")
 
-    logging.info(f"Learning BN model (type={bn_type})")
-    bn_art = learn_bn(train_df, bn_type=bn_type, random_state=cfg.random_state)
-    model = bn_art.model
-    node_types = model.node_types()
+    # Determine arc blacklist variables
+    default_sensitive = ["age", "sex", "race"]
+    sensitive_vars: List[str]
+    if isinstance(arc_blacklist, (list, tuple)) and len(arc_blacklist):
+        sensitive_vars = [str(x) for x in arc_blacklist]
+    else:
+        demo = meta_dict.get('demographics')
+        if isinstance(demo, (list, tuple)):
+            sensitive_vars = [str(x) for x in demo]
+        elif isinstance(demo, dict):
+            sensitive_vars = [str(k) for k in demo.keys()]
+        else:
+            sensitive_vars = default_sensitive
 
-    bn_png = outdir / f"bn_{bn_type}.png"
-    bn_to_graphviz(model, node_types, str(bn_png), title=f"{name} — {bn_type.upper()} BN")
+    # Build arc blacklist pairs: forbid arcs FROM sensitive vars TO non-sensitive variables only
+    cols = list(df.columns)
+    col_map = {str(c).lower(): c for c in cols}
+    sens_in_cols = []
+    for s in sensitive_vars:
+        t = str(s).lower()
+        if t in col_map:
+            sens_in_cols.append(col_map[t])
+    non_sensitive_cols = [c for c in cols if c not in sens_in_cols]
+    arc_blacklist_pairs: List[Tuple[str, str]] = []
+    for u in sens_in_cols:
+        for v in non_sensitive_cols:
+            arc_blacklist_pairs.append((u, v))
 
-    logging.info(f"Sampling BN synthetic n={cfg.synthetic_sample}")
-    synth = model.sample(cfg.synthetic_sample, seed=cfg.random_state)
-    synth_df = synth.to_pandas()
+    # BN configurations to run
+    if isinstance(bn_configs, (list, tuple)) and len(bn_configs):
+        configs_to_run = list(bn_configs)
+    else:
+        # Default: two configs that actually differ
+        configs_to_run = [
+            dict(name="clg_mi2", bn_type="clg", score="bic", operators=["arcs"], max_indegree=2),
+            dict(name="semi_mi5", bn_type="semiparametric", score="bic", operators=["arcs"], max_indegree=5),
+        ]
 
-    logging.info("Computing BN held-out log-likelihood")
-    ll = heldout_loglik(model, test_df)
-    synth_df = synth_df[df_no_na.columns]
-    for c in disc_cols:
-        if c in synth_df.columns:
-            synth_df[c] = synth_df[c].astype("category")
-            if pd.api.types.is_categorical_dtype(df_no_na[c]):
-                synth_df[c] = synth_df[c].cat.set_categories(df_no_na[c].cat.categories)
-    logging.info("Per-variable distances for BN computed")
-    dist_table_bn = per_variable_distances(test_df, synth_df, bn_art.discrete_cols, bn_art.continuous_cols)
+    # Placeholder to collect BN-specific results for reporting
+    bn_sections: List[Dict[str, Any]] = []
 
 
     rng = seed_all(cfg.random_state)
@@ -246,11 +266,76 @@ def process_dataset(
     )
     umap_png_real = outdir / "umap_real.png"
     plot_umap(umap_art.embedding, str(umap_png_real), title=f"{name}: real (sample)", color_labels=umap_art.color_labels)
-    
-    synth_no_na = synth_df.dropna(axis=0, how="any")
-    synth_emb = transform_with_umap(umap_art, synth_no_na)
-    umap_png_bn = outdir / "umap_bn.png"
-    plot_umap(synth_emb, str(umap_png_bn), title=f"{name}: synthetic (BN sample)")
+
+    # Learn and evaluate each BN configuration
+    for idx, cfg_item in enumerate(configs_to_run):
+        bn_type = str(cfg_item.get("bn_type", "clg"))
+        score = cfg_item.get("score")
+        operators = cfg_item.get("operators")
+        max_indegree = cfg_item.get("max_indegree")
+        seed = int(cfg_item.get("seed", cfg.random_state))
+        label = cfg_item.get("name") or f"{bn_type}_{idx+1}"
+        logging.info(f"Learning BN model (label={label}, type={bn_type}, score={score}, max_indegree={max_indegree}, seed={seed})")
+        bn_art = learn_bn(
+            train_df,
+            bn_type=bn_type,
+            random_state=seed,
+            arc_blacklist=arc_blacklist_pairs,
+            score=score,
+            operators=operators,
+            max_indegree=max_indegree,
+        )
+        model = bn_art.model
+        node_types = model.node_types()
+
+        bn_png = outdir / f"bn_{label}.png"
+        bn_to_graphviz(model, node_types, str(bn_png), title=f"{name} — {label} BN")
+
+        logging.info(f"Sampling BN synthetic n={cfg.synthetic_sample} for {label}")
+        synth = model.sample(cfg.synthetic_sample, seed=seed)
+        synth_df = synth.to_pandas()
+
+        logging.info("Computing BN held-out log-likelihood")
+        ll = heldout_loglik(model, test_df)
+        synth_df = synth_df[df_no_na.columns]
+        for c in disc_cols:
+            if c in synth_df.columns:
+                synth_df[c] = synth_df[c].astype("category")
+                if pd.api.types.is_categorical_dtype(df_no_na[c]):
+                    synth_df[c] = synth_df[c].cat.set_categories(df_no_na[c].cat.categories)
+        logging.info("Per-variable distances for BN computed")
+        dist_table_bn = per_variable_distances(test_df, synth_df, bn_art.discrete_cols, bn_art.continuous_cols)
+
+        # UMAP transform for this BN synthetic
+        synth_no_na = synth_df.dropna(axis=0, how="any")
+        synth_emb = transform_with_umap(umap_art, synth_no_na)
+        umap_png_bn = outdir / f"umap_bn_{label}.png"
+        plot_umap(synth_emb, str(umap_png_bn), title=f"{name}: synthetic (BN sample: {label})")
+
+        graphml_file = outdir / f"structure_{label}.graphml"
+        save_graphml_structure(model, node_types, graphml_file)
+        pickle_file = outdir / f"model_{label}.pickle"
+        model.save(str(pickle_file))
+
+        bn_sections.append(
+            dict(
+                label=label,
+                bn_type=bn_type,
+                bn_png=str(bn_png),
+                ll_metrics=ll,
+                dist_table=dist_table_bn,
+                graphml_file=str(graphml_file),
+                pickle_file=str(pickle_file),
+                umap_png=str(umap_png_bn),
+                params=dict(
+                    bn_type=bn_type,
+                    score=score or "bic",
+                    operators=list(operators) if operators is not None else ["arcs"],
+                    max_indegree=int(max_indegree) if max_indegree is not None else 5,
+                    seed=seed,
+                ),
+            )
+        )
 
     # ------------- MetaSyn fit and synthesize -------------
     # Fit MetaFrame (GMF) on the same training data
@@ -284,8 +369,8 @@ def process_dataset(
                 synth_meta_df[c] = synth_meta_df[c].cat.set_categories(df_no_na[c].cat.categories)
     synth_meta_df = coerce_continuous_to_float(synth_meta_df, cont_cols)
 
-    # Distances
-    dist_table_meta = per_variable_distances(test_df, synth_meta_df, bn_art.discrete_cols, bn_art.continuous_cols)
+    # Distances for MetaSyn model (use overall discrete/continuous cols inferred earlier)
+    dist_table_meta = per_variable_distances(test_df, synth_meta_df, disc_cols, cont_cols)
 
     # UMAP transform for metasyn
     synth_meta_no_na = synth_meta_df.dropna(axis=0, how="any")
@@ -305,19 +390,18 @@ def process_dataset(
         }
         return res
 
-    bn_summary = summarize_distances(dist_table_bn)
     meta_summary = summarize_distances(dist_table_meta)
-    fidelity_rows = [
-        dict(model='BN', mean_loglik=ll['mean_loglik'], std_loglik=ll['std_loglik'], sum_loglik=ll['sum_loglik'], **bn_summary),
-        dict(model='MetaSyn', mean_loglik=float('nan'), std_loglik=float('nan'), sum_loglik=float('nan'), **meta_summary),
-    ]
+    fidelity_rows = []
+    for sect in bn_sections:
+        llm = sect['ll_metrics']
+        bnsum = summarize_distances(sect['dist_table'])
+        fidelity_rows.append(
+            dict(model=f"BN:{sect.get('label') or sect['bn_type']}", mean_loglik=llm['mean_loglik'], std_loglik=llm['std_loglik'], sum_loglik=llm['sum_loglik'], **bnsum)
+        )
+    fidelity_rows.append(
+        dict(model='MetaSyn', mean_loglik=float('nan'), std_loglik=float('nan'), sum_loglik=float('nan'), **meta_summary)
+    )
     fidelity_table = pd.DataFrame(fidelity_rows)
-
-    bn_human = bn_human_readable(model)
-    graphml_file = outdir / "structure.graphml"
-    save_graphml_structure(model, node_types, graphml_file)
-    pickle_file = outdir / "model.pickle"
-    model.save(str(pickle_file))
 
     write_report_md(
         outdir=outdir,
@@ -329,17 +413,18 @@ def process_dataset(
         disc_cols=disc_cols,
         cont_cols=cont_cols,
         baseline_df=baseline_df,
-        bn_type=bn_type,
-        bn_png=str(bn_png),
-        bn_human=bn_human,
-        ll_metrics=ll,
-        dist_table_bn=dist_table_bn,
+        bn_sections=bn_sections,
         dist_table_meta=dist_table_meta,
         fidelity_table=fidelity_table,
-        graphml_file=str(graphml_file),
-        pickle_file=str(pickle_file),
+        graphml_files=[sect['graphml_file'] for sect in bn_sections],
+        pickle_files=[sect['pickle_file'] for sect in bn_sections],
+        arc_blacklist_info=dict(
+            sensitive_variables=sens_in_cols,
+            direction="forbid parent arcs from sensitive to non-sensitive",
+            n_forbidden_arcs=len(arc_blacklist_pairs),
+        ),
         umap_png_real=str(umap_png_real),
-        umap_png_bn=str(umap_png_bn),
+        umap_png_bns=[sect['umap_png'] for sect in bn_sections],
         umap_png_meta=str(umap_png_meta),
         metasyn_gmf_file=(str(metasyn_gmf) if metasyn_gmf is not None else None),
     )

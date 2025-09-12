@@ -45,7 +45,9 @@ def report(
     *,
     datasets: List[str] = [],
     outdir: str = "bn_reports",
-    bn_type: str = "clg",
+    bn_types: List[str] = ("clg", "semiparametric"),
+    configs_yaml: str = "",
+    arc_blacklist: List[str] = (),
     area: str = "Health and Medicine",
     verbose: bool = False
 ) -> None:
@@ -55,7 +57,9 @@ def report(
         provider: 'openml' or 'uciml'.
         datasets: For 'openml', dataset names; for 'uciml', dataset IDs as strings. If omitted, defaults are used.
         outdir: Output directory where per-dataset reports are written.
-        bn_type: Which BN type to learn. Currently only 'clg' is supported.
+        bn_types: One or more BN types to learn and compare. Supported: 'clg', 'semiparametric'. Ignored if configs_yaml is provided.
+        configs_yaml: Optional YAML file defining a list of BN structure-learning configurations. Each item can include: name, bn_type, score, operators, max_indegree, seed. If provided, these override bn_types.
+        arc_blacklist: Optional list of variable names treated as sensitive; structure learning forbids arcs from these variables to others. If omitted, defaults to ['age','sex','race'] or for UCI ML, the 'demographics' metadata if present.
         area: For default UCI selection, which Area to pull mixed-dtype datasets from.
     """
     if verbose:
@@ -66,11 +70,43 @@ def report(
 
     ds = datasets if datasets else None
     specs: List[DatasetSpec] = specs_from_input(provider=provider, datasets=ds, area=area)
+    # Try to load YAML configurations if provided
+    bn_configs = None
+    cfg_path = configs_yaml.strip()
+    if cfg_path:
+        try:
+            import yaml  # type: ignore
+        except Exception as e:
+            raise SystemExit("To use configs_yaml you need PyYAML installed. Please install pyyaml.")
+        import os
+        if not os.path.exists(cfg_path):
+            raise SystemExit(f"configs_yaml file not found: {cfg_path}")
+        with open(cfg_path, 'r', encoding='utf-8') as fr:
+            data = yaml.safe_load(fr)
+            if isinstance(data, dict) and 'configs' in data:
+                data = data['configs']
+            if not isinstance(data, list):
+                raise SystemExit("configs_yaml must contain a list of configuration dictionaries")
+            # ensure each item is dict
+            bn_configs = []
+            for i, item in enumerate(data):
+                if not isinstance(item, dict):
+                    raise SystemExit(f"Config item at index {i} is not a dict")
+                bn_configs.append(item)
     for spec in specs:
         logging.info(f'Loading {spec}')
         try:
             meta, df, color = load_dataset(spec)
-            process_dataset(meta, df, color, outdir, bn_type=bn_type)
+            # Pass arc_blacklist only if user provided it; otherwise None to use provider-specific default
+            abl = list(arc_blacklist) if isinstance(arc_blacklist, (list, tuple)) and len(arc_blacklist) else None
+            process_dataset(
+                meta,
+                df,
+                color,
+                outdir,
+                bn_configs=bn_configs,
+                arc_blacklist=abl,
+            )
         except Exception as e:
             print(f"[WARN] Skipped {spec.provider}:{spec.name} due to error: {e}")
             raise

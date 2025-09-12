@@ -1,0 +1,102 @@
+{
+  "cache_format": "pickle",
+  "citation": "Yoontae Hwang, Youngbin Lee, Yongjae Lee,Semi-Supervised Learning for Tabular Datasets with Continuous and Categorical Variables, Archive, 2023",
+  "collection_date": "01-27-2023",
+  "creator": "Yoontae Hwang, Youngbin Lee, Yongjae Lee",
+  "default_target_attribute": "class",
+  "description": "Prediction task is to determine whether a person makes over 50K a year. Extraction was done by Barry Becker from the 1994 Census database. A set of reasonably clean records was extracted using the following conditions: ((AAGE>16) && (AGI>100) && (AFNLWGT>1)&& (HRSWK>0))",
+  "format": "arff",
+  "language": "English",
+  "licence": "Public",
+  "md5_checksum": "a9147588c9fd0b0ce470db525686482a",
+  "name": "adult",
+  "openml_url": "https://www.openml.org/d/45068",
+  "parquet_file": "/Users/benno/.openml/org/openml/www/datasets/45068/dataset_45068.pq",
+  "upload_date": "2023-01-27T11:26:07",
+  "url": "https://api.openml.org/data/v1/download/22112026/adult.arff",
+  "version_label": "1",
+  "visibility": "public",
+  "features": [
+    {
+      "data_type": "numeric",
+      "name": "age"
+    },
+    {
+      "data_type": "numeric",
+      "name": "fnlwgt"
+    },
+    {
+      "data_type": "numeric",
+      "name": "education-num"
+    },
+    {
+      "data_type": "numeric",
+      "name": "capital-gain"
+    },
+    {
+      "data_type": "numeric",
+      "name": "capital-loss"
+    },
+    {
+      "data_type": "numeric",
+      "name": "hours-per-week"
+    },
+    {
+      "data_type": "nominal",
+      "name": "workclass"
+    },
+    {
+      "data_type": "nominal",
+      "name": "education"
+    },
+    {
+      "data_type": "nominal",
+      "name": "marital-status"
+    },
+    {
+      "data_type": "nominal",
+      "name": "occupation"
+    },
+    {
+      "data_type": "nominal",
+      "name": "relationship"
+    },
+    {
+      "data_type": "nominal",
+      "name": "race"
+    },
+    {
+      "data_type": "nominal",
+      "name": "sex"
+    },
+    {
+      "data_type": "nominal",
+      "name": "native-country"
+    },
+    {
+      "data_type": "string",
+      "name": "class"
+    }
+  ],
+  "qualities": {
+    "AutoCorrelation": 1.0,
+    "Dimensionality": 0.00030711273084640267,
+    "MajorityClassPercentage": 76.07182343065395,
+    "MajorityClassSize": 37155.0,
+    "MinorityClassPercentage": 23.928176569346054,
+    "MinorityClassSize": 11687.0,
+    "NumberOfBinaryFeatures": 1.0,
+    "NumberOfClasses": 2.0,
+    "NumberOfFeatures": 15.0,
+    "NumberOfInstances": 48842.0,
+    "NumberOfInstancesWithMissingValues": 0.0,
+    "NumberOfMissingValues": 0.0,
+    "NumberOfNumericFeatures": 6.0,
+    "NumberOfSymbolicFeatures": 8.0,
+    "PercentageOfBinaryFeatures": 6.666666666666667,
+    "PercentageOfInstancesWithMissingValues": 0.0,
+    "PercentageOfMissingValues": 0.0,
+    "PercentageOfNumericFeatures": 40.0,
+    "PercentageOfSymbolicFeatures": 53.333333333333336
+  }
+}

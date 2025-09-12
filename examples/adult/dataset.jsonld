@@ -1,0 +1,100 @@
+{
+  "@context": "https://schema.org",
+  "@type": "Dataset",
+  "name": "adult",
+  "url": "https://api.openml.org/data/v1/download/22112026/adult.arff",
+  "description": "Prediction task is to determine whether a person makes over 50K a year. Extraction was done by Barry Becker from the 1994 Census database. A set of reasonably clean records was extracted using the following conditions: ((AAGE>16) && (AGI>100) && (AFNLWGT>1)&& (HRSWK>0))",
+  "creator": [
+    {
+      "@type": "Person",
+      "name": "Yoontae Hwang"
+    },
+    {
+      "@type": "Person",
+      "name": "Youngbin Lee"
+    },
+    {
+      "@type": "Person",
+      "name": "Yongjae Lee"
+    }
+  ],
+  "citation": "Yoontae Hwang, Youngbin Lee, Yongjae Lee,Semi-Supervised Learning for Tabular Datasets with Continuous and Categorical Variables, Archive, 2023",
+  "datePublished": "2023-01-27T11:26:07",
+  "variableMeasured": [
+    {
+      "@type": "PropertyValue",
+      "name": "age",
+      "measurementTechnique": "continuous"
+    },
+    {
+      "@type": "PropertyValue",
+      "name": "fnlwgt",
+      "measurementTechnique": "continuous"
+    },
+    {
+      "@type": "PropertyValue",
+      "name": "education-num",
+      "measurementTechnique": "discrete"
+    },
+    {
+      "@type": "PropertyValue",
+      "name": "capital-gain",
+      "measurementTechnique": "continuous"
+    },
+    {
+      "@type": "PropertyValue",
+      "name": "capital-loss",
+      "measurementTechnique": "continuous"
+    },
+    {
+      "@type": "PropertyValue",
+      "name": "hours-per-week",
+      "measurementTechnique": "continuous"
+    },
+    {
+      "@type": "PropertyValue",
+      "name": "workclass",
+      "measurementTechnique": "discrete"
+    },
+    {
+      "@type": "PropertyValue",
+      "name": "education",
+      "measurementTechnique": "discrete"
+    },
+    {
+      "@type": "PropertyValue",
+      "name": "marital-status",
+      "measurementTechnique": "discrete"
+    },
+    {
+      "@type": "PropertyValue",
+      "name": "occupation",
+      "measurementTechnique": "discrete"
+    },
+    {
+      "@type": "PropertyValue",
+      "name": "relationship",
+      "measurementTechnique": "discrete"
+    },
+    {
+      "@type": "PropertyValue",
+      "name": "race",
+      "measurementTechnique": "discrete"
+    },
+    {
+      "@type": "PropertyValue",
+      "name": "sex",
+      "measurementTechnique": "discrete"
+    },
+    {
+      "@type": "PropertyValue",
+      "name": "native-country",
+      "measurementTechnique": "discrete"
+    },
+    {
+      "@type": "PropertyValue",
+      "name": "class",
+      "measurementTechnique": "discrete"
+    }
+  ]
+}

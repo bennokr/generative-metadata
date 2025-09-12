@@ -1,0 +1,61 @@
+<?xml version='1.0' encoding='utf-8'?>
+<graphml xmlns="http://graphml.graphdrawing.org/xmlns" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd">
+  <key id="d0" for="node" attr.name="bn_type" attr.type="string" />
+  <graph edgedefault="directed">
+    <node id="age">
+      <data key="d0">LinearGaussianCPDType</data>
+    </node>
+    <node id="sex">
+      <data key="d0">DiscreteFactorType</data>
+    </node>
+    <node id="cp">
+      <data key="d0">DiscreteFactorType</data>
+    </node>
+    <node id="trestbps">
+      <data key="d0">LinearGaussianCPDType</data>
+    </node>
+    <node id="chol">
+      <data key="d0">LinearGaussianCPDType</data>
+    </node>
+    <node id="fbs">
+      <data key="d0">DiscreteFactorType</data>
+    </node>
+    <node id="restecg">
+      <data key="d0">DiscreteFactorType</data>
+    </node>
+    <node id="thalach">
+      <data key="d0">LinearGaussianCPDType</data>
+    </node>
+    <node id="exang">
+      <data key="d0">DiscreteFactorType</data>
+    </node>
+    <node id="oldpeak">
+      <data key="d0">LinearGaussianCPDType</data>
+    </node>
+    <node id="slope">
+      <data key="d0">DiscreteFactorType</data>
+    </node>
+    <node id="ca">
+      <data key="d0">LinearGaussianCPDType</data>
+    </node>
+    <node id="thal">
+      <data key="d0">LinearGaussianCPDType</data>
+    </node>
+    <node id="num">
+      <data key="d0">DiscreteFactorType</data>
+    </node>
+    <edge source="cp" target="exang" />
+    <edge source="trestbps" target="age" />
+    <edge source="fbs" target="trestbps" />
+    <edge source="thalach" target="age" />
+    <edge source="exang" target="slope" />
+    <edge source="exang" target="num" />
+    <edge source="oldpeak" target="trestbps" />
+    <edge source="slope" target="oldpeak" />
+    <edge source="slope" target="thalach" />
+    <edge source="ca" target="oldpeak" />
+    <edge source="ca" target="age" />
+    <edge source="num" target="thal" />
+    <edge source="num" target="ca" />
+  </graph>
+</graphml>

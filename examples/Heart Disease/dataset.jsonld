@@ -1,0 +1,96 @@
+{
+  "@context": "https://schema.org",
+  "@type": "Dataset",
+  "name": "Heart Disease",
+  "description": "4 databases: Cleveland, Hungary, Switzerland, and the VA Long Beach",
+  "creator": [
+    {
+      "@type": "Person",
+      "name": "Andras Janosi"
+    },
+    {
+      "@type": "Person",
+      "name": "William Steinbrunn"
+    },
+    {
+      "@type": "Person",
+      "name": "Matthias Pfisterer"
+    },
+    {
+      "@type": "Person",
+      "name": "Robert Detrano"
+    }
+  ],
+  "variableMeasured": [
+    {
+      "@type": "PropertyValue",
+      "name": "age",
+      "measurementTechnique": "continuous"
+    },
+    {
+      "@type": "PropertyValue",
+      "name": "sex",
+      "measurementTechnique": "discrete"
+    },
+    {
+      "@type": "PropertyValue",
+      "name": "cp",
+      "measurementTechnique": "discrete"
+    },
+    {
+      "@type": "PropertyValue",
+      "name": "trestbps",
+      "measurementTechnique": "continuous"
+    },
+    {
+      "@type": "PropertyValue",
+      "name": "chol",
+      "measurementTechnique": "continuous"
+    },
+    {
+      "@type": "PropertyValue",
+      "name": "fbs",
+      "measurementTechnique": "discrete"
+    },
+    {
+      "@type": "PropertyValue",
+      "name": "restecg",
+      "measurementTechnique": "discrete"
+    },
+    {
+      "@type": "PropertyValue",
+      "name": "thalach",
+      "measurementTechnique": "continuous"
+    },
+    {
+      "@type": "PropertyValue",
+      "name": "exang",
+      "measurementTechnique": "discrete"
+    },
+    {
+      "@type": "PropertyValue",
+      "name": "oldpeak",
+      "measurementTechnique": "continuous"
+    },
+    {
+      "@type": "PropertyValue",
+      "name": "slope",
+      "measurementTechnique": "discrete"
+    },
+    {
+      "@type": "PropertyValue",
+      "name": "ca",
+      "measurementTechnique": "continuous"
+    },
+    {
+      "@type": "PropertyValue",
+      "name": "thal",
+      "measurementTechnique": "continuous"
+    },
+    {
+      "@type": "PropertyValue",
+      "name": "num",
+      "measurementTechnique": "discrete"
+    }
+  ]
+}

@@ -1,0 +1,71 @@
+<?xml version='1.0' encoding='utf-8'?>
+<graphml xmlns="http://graphml.graphdrawing.org/xmlns" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd">
+  <key id="d0" for="node" attr.name="bn_type" attr.type="string" />
+  <graph edgedefault="directed">
+    <node id="age">
+      <data key="d0">LinearGaussianCPDType</data>
+    </node>
+    <node id="fnlwgt">
+      <data key="d0">LinearGaussianCPDType</data>
+    </node>
+    <node id="education-num">
+      <data key="d0">DiscreteFactorType</data>
+    </node>
+    <node id="capital-gain">
+      <data key="d0">LinearGaussianCPDType</data>
+    </node>
+    <node id="capital-loss">
+      <data key="d0">LinearGaussianCPDType</data>
+    </node>
+    <node id="hours-per-week">
+      <data key="d0">LinearGaussianCPDType</data>
+    </node>
+    <node id="workclass">
+      <data key="d0">DiscreteFactorType</data>
+    </node>
+    <node id="education">
+      <data key="d0">DiscreteFactorType</data>
+    </node>
+    <node id="marital-status">
+      <data key="d0">DiscreteFactorType</data>
+    </node>
+    <node id="occupation">
+      <data key="d0">DiscreteFactorType</data>
+    </node>
+    <node id="relationship">
+      <data key="d0">DiscreteFactorType</data>
+    </node>
+    <node id="race">
+      <data key="d0">DiscreteFactorType</data>
+    </node>
+    <node id="sex">
+      <data key="d0">DiscreteFactorType</data>
+    </node>
+    <node id="native-country">
+      <data key="d0">DiscreteFactorType</data>
+    </node>
+    <node id="class">
+      <data key="d0">DiscreteFactorType</data>
+    </node>
+    <edge source="education-num" target="class" />
+    <edge source="education-num" target="capital-gain" />
+    <edge source="education-num" target="education" />
+    <edge source="hours-per-week" target="age" />
+    <edge source="workclass" target="fnlwgt" />
+    <edge source="workclass" target="occupation" />
+    <edge source="marital-status" target="age" />
+    <edge source="marital-status" target="relationship" />
+    <edge source="occupation" target="marital-status" />
+    <edge source="occupation" target="sex" />
+    <edge source="occupation" target="education-num" />
+    <edge source="occupation" target="hours-per-week" />
+    <edge source="relationship" target="class" />
+    <edge source="relationship" target="sex" />
+    <edge source="relationship" target="capital-loss" />
+    <edge source="native-country" target="race" />
+    <edge source="class" target="native-country" />
+    <edge source="class" target="hours-per-week" />
+    <edge source="class" target="capital-loss" />
+    <edge source="class" target="capital-gain" />
+  </graph>
+</graphml>

@@ -1,11 +1,12 @@
 # Data Report — adult
 
+**Source**: [OpenML dataset 45068](https://www.openml.org/search?type=data&id=45068)
+
 - Metadata file: [metadata.json](metadata.json)
-- JSON-LD (schema.org/Dataset): [dataset.jsonld](dataset.jsonld)
+- JSON-LD (schema.org/Dataset): [dataset.json](dataset.json)
 - Rows: 48842
 - Columns: 15
 - Discrete: 10  |  Continuous: 5
-- OpenML page: https://www.openml.org/search?type=data&id=45068
 
 ## Dataset metadata
 
@@ -39,7 +40,9 @@ Prediction task is to determine whether a person makes over 50K a year. Extracti
 | native-country | discrete   |   48842 | 42       | United-States      | 43832  |                    |                    |         |          |          |          |           |
 | class          | discrete   |   48842 | 2        | <=50K              | 37155  |                    |                    |         |          |          |          |           |
 
-## Learned BN structures and configurations
+## Learned structures and configurations
+
+MetaSyn GMF: [metasyn_gmf.json](metasyn_gmf.json)
 
 ### Arc blacklist
 
@@ -80,35 +83,236 @@ Serialization
 - Structure (GraphML): [structure_semi_mi5.graphml](structure_semi_mi5.graphml)
 - Full model (pickle): [model_semi_mi5.pickle](model_semi_mi5.pickle)
 
-MetaSyn GMF: [metasyn_gmf.json](metasyn_gmf.json)
-
 ## Fidelity (BN vs MetaSyn)
 
 | model       | mean_loglik   | std_loglik   | sum_loglik   |   disc_jsd_mean |   disc_jsd_median |   cont_ks_mean |   cont_w1_mean |
 |:------------|:--------------|:-------------|:-------------|----------------:|------------------:|---------------:|---------------:|
-| BN:clg_mi2  | -46.2333      | 17.6838      | -450867.3177 |          0.0349 |            0.0311 |         0.298  |        3711.92 |
+| BN:clg_mi2  | -46.2333      | 17.6838      | -450867.3177 |          0.0363 |            0.0318 |         0.301  |        3727.1  |
 | BN:semi_mi5 | -46.2188      | 17.6841      | -450725.5899 |          0.0363 |            0.0318 |         0.2984 |        4011.98 |
-| MetaSyn     |               |              |              |          0.0399 |            0.036  |         0.4581 |        5126.04 |
+| MetaSyn     |               |              |              |          0.0428 |            0.0364 |         0.4443 |        5180.55 |
 
 ### Per-variable distances (lower is closer)
 
-| variable       | type       | ('JSD', 'clg_mi2')   | ('JSD', 'semi_mi5')   | ('JSD', 'MetaSyn')   | ('KS', 'clg_mi2')   | ('KS', 'semi_mi5')   | ('KS', 'MetaSyn')   | ('W1', 'clg_mi2')   | ('W1', 'semi_mi5')   | ('W1', 'MetaSyn')   |
-|:---------------|:-----------|:---------------------|:----------------------|:---------------------|:--------------------|:---------------------|:--------------------|:--------------------|:---------------------|:--------------------|
-| age            | continuous |                      |                       |                      | 0.0647              | 0.0647               | 0.0649              | 1.9326              | 1.9326               | 1.3021              |
-| capital-gain   | continuous |                      |                       |                      | 0.0872              | 0.0982               | 0.1075              | 16008.75            | 17469.3816           | 23843.0704          |
-| capital-loss   | continuous | 0.0311               | 0.0434                | 0.0556               |                     |                      |                     |                     |                      |                     |
-| class          | discrete   |                      |                       |                      | 0.5276              | 0.5216               | 0.9106              | 2244.6671           | 2283.6989            | 1636.6148           |
-| education      | discrete   |                      |                       |                      | 0.563               | 0.566                | 0.952               | 300.9421            | 301.3958             | 145.5235            |
-| education-num  | discrete   |                      |                       |                      | 0.2476              | 0.2416               | 0.2556              | 3.2947              | 3.4741               | 3.6759              |
-| fnlwgt         | continuous | 0.0385               | 0.0385                | 0.0251               |                     |                      |                     |                     |                      |                     |
-| hours-per-week | continuous | 0.0311               | 0.0434                | 0.0399               |                     |                      |                     |                     |                      |                     |
-| marital-status | discrete   | 0.0114               | 0.0114                | 0.0322               |                     |                      |                     |                     |                      |                     |
-| native-country | discrete   | 0.0516               | 0.0516                | 0.0441               |                     |                      |                     |                     |                      |                     |
-| occupation     | discrete   | 0.0209               | 0.0209                | 0.0398               |                     |                      |                     |                     |                      |                     |
-| race           | discrete   | 0.0154               | 0.0154                | 0.0237               |                     |                      |                     |                     |                      |                     |
-| relationship   | discrete   | 0.0251               | 0.0251                | 0.0191               |                     |                      |                     |                     |                      |                     |
-| sex            | discrete   | 0.0929               | 0.0929                | 0.0998               |                     |                      |                     |                     |                      |                     |
-| workclass      | discrete   | 0.031                | 0.0207                | 0.0197               |                     |                      |                     |                     |                      |                     |
+<table class="dataframe table per-var-dist">
+  <thead>
+    <tr>
+      <th colspan="2" halign="left"></th>
+      <th colspan="3" halign="left">JSD</th>
+      <th colspan="3" halign="left">KS</th>
+      <th colspan="3" halign="left">W1</th>
+    </tr>
+    <tr>
+      <th>variable</th>
+      <th>type</th>
+      <th>clg_mi2</th>
+      <th>semi_mi5</th>
+      <th>MetaSyn</th>
+      <th>clg_mi2</th>
+      <th>semi_mi5</th>
+      <th>MetaSyn</th>
+      <th>clg_mi2</th>
+      <th>semi_mi5</th>
+      <th>MetaSyn</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>age</td>
+      <td>continuous</td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td>0.0647</td>
+      <td>0.0647</td>
+      <td>0.0456</td>
+      <td>1.9326</td>
+      <td>1.9326</td>
+      <td>0.6628</td>
+    </tr>
+    <tr>
+      <td>capital-gain</td>
+      <td>continuous</td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td>0.0872</td>
+      <td>0.0982</td>
+      <td>0.0678</td>
+      <td>16008.7500</td>
+      <td>17469.3816</td>
+      <td>24073.0913</td>
+    </tr>
+    <tr>
+      <td>capital-loss</td>
+      <td>continuous</td>
+      <td>0.0434</td>
+      <td>0.0434</td>
+      <td>0.0588</td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>class</td>
+      <td>discrete</td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td>0.5376</td>
+      <td>0.5216</td>
+      <td>0.9106</td>
+      <td>2320.0599</td>
+      <td>2283.6989</td>
+      <td>1679.7544</td>
+    </tr>
+    <tr>
+      <td>education</td>
+      <td>discrete</td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td>0.5660</td>
+      <td>0.5660</td>
+      <td>0.9520</td>
+      <td>301.3958</td>
+      <td>301.3958</td>
+      <td>145.8651</td>
+    </tr>
+    <tr>
+      <td>education-num</td>
+      <td>discrete</td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td>0.2496</td>
+      <td>0.2416</td>
+      <td>0.2456</td>
+      <td>3.3540</td>
+      <td>3.4741</td>
+      <td>3.3620</td>
+    </tr>
+    <tr>
+      <td>fnlwgt</td>
+      <td>continuous</td>
+      <td>0.0385</td>
+      <td>0.0385</td>
+      <td>0.0376</td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>hours-per-week</td>
+      <td>continuous</td>
+      <td>0.0434</td>
+      <td>0.0434</td>
+      <td>0.0352</td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>marital-status</td>
+      <td>discrete</td>
+      <td>0.0114</td>
+      <td>0.0114</td>
+      <td>0.0328</td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>native-country</td>
+      <td>discrete</td>
+      <td>0.0516</td>
+      <td>0.0516</td>
+      <td>0.0600</td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>occupation</td>
+      <td>discrete</td>
+      <td>0.0209</td>
+      <td>0.0209</td>
+      <td>0.0484</td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>race</td>
+      <td>discrete</td>
+      <td>0.0154</td>
+      <td>0.0154</td>
+      <td>0.0259</td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>relationship</td>
+      <td>discrete</td>
+      <td>0.0251</td>
+      <td>0.0251</td>
+      <td>0.0033</td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>sex</td>
+      <td>discrete</td>
+      <td>0.0929</td>
+      <td>0.0929</td>
+      <td>0.1033</td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>workclass</td>
+      <td>discrete</td>
+      <td>0.0207</td>
+      <td>0.0207</td>
+      <td>0.0228</td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+    </tr>
+  </tbody>
+</table>
 
 ## UMAP overview (same projection)
 

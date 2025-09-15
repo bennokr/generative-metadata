@@ -1,0 +1,385 @@
+{
+    "n_rows": 36168,
+    "n_columns": 14,
+    "provenance": {
+        "created by": {
+            "name": "metasyn",
+            "version": "1.1.0"
+        },
+        "creation time": "2025-09-15T16:48:28.331595"
+    },
+    "vars": [
+        {
+            "name": "age",
+            "type": "continuous",
+            "dtype": "Float64",
+            "prop_missing": 0.0,
+            "distribution": {
+                "implements": "core.lognormal",
+                "version": "1.0",
+                "provenance": "builtin",
+                "class_name": "LogNormalDistribution",
+                "unique": false,
+                "parameters": {
+                    "mean": 3.6796355437682835,
+                    "sd": 0.2535227788449044
+                }
+            },
+            "creation_method": {
+                "created_by": "metasyn"
+            }
+        },
+        {
+            "name": "job",
+            "type": "categorical",
+            "dtype": "Categorical(ordering='physical')",
+            "prop_missing": 0.0,
+            "distribution": {
+                "implements": "core.multinoulli",
+                "version": "1.0",
+                "provenance": "builtin",
+                "class_name": "MultinoulliDistribution",
+                "unique": false,
+                "parameters": {
+                    "labels": [
+                        "admin.",
+                        "blue-collar",
+                        "entrepreneur",
+                        "housemaid",
+                        "management",
+                        "retired",
+                        "self-employed",
+                        "services",
+                        "student",
+                        "technician",
+                        "unemployed",
+                        "unknown"
+                    ],
+                    "probs": [
+                        0.11385755363857554,
+                        0.2159367396593674,
+                        0.03301260783012608,
+                        0.02690223401902234,
+                        0.2079462508294625,
+                        0.050071886750718865,
+                        0.035583941605839414,
+                        0.09209798717097988,
+                        0.020543021455430216,
+                        0.16824264543242645,
+                        0.02925237779252378,
+                        0.006552753815527538
+                    ]
+                }
+            },
+            "creation_method": {
+                "created_by": "metasyn"
+            }
+        },
+        {
+            "name": "marital",
+            "type": "categorical",
+            "dtype": "Categorical(ordering='physical')",
+            "prop_missing": 0.0,
+            "distribution": {
+                "implements": "core.multinoulli",
+                "version": "1.0",
+                "provenance": "builtin",
+                "class_name": "MultinoulliDistribution",
+                "unique": false,
+                "parameters": {
+                    "labels": [
+                        "divorced",
+                        "married",
+                        "single"
+                    ],
+                    "probs": [
+                        0.1141616898916169,
+                        0.6012773722627737,
+                        0.2845609378456094
+                    ]
+                }
+            },
+            "creation_method": {
+                "created_by": "metasyn"
+            }
+        },
+        {
+            "name": "education",
+            "type": "categorical",
+            "dtype": "Categorical(ordering='physical')",
+            "prop_missing": 0.0,
+            "distribution": {
+                "implements": "core.multinoulli",
+                "version": "1.0",
+                "provenance": "builtin",
+                "class_name": "MultinoulliDistribution",
+                "unique": false,
+                "parameters": {
+                    "labels": [
+                        "primary",
+                        "secondary",
+                        "tertiary",
+                        "unknown"
+                    ],
+                    "probs": [
+                        0.15251050652510503,
+                        0.5125525326255252,
+                        0.29376797168767965,
+                        0.04116898916168989
+                    ]
+                }
+            },
+            "creation_method": {
+                "created_by": "metasyn"
+            }
+        },
+        {
+            "name": "default",
+            "type": "categorical",
+            "dtype": "Categorical(ordering='physical')",
+            "prop_missing": 0.0,
+            "distribution": {
+                "implements": "core.multinoulli",
+                "version": "1.0",
+                "provenance": "builtin",
+                "class_name": "MultinoulliDistribution",
+                "unique": false,
+                "parameters": {
+                    "labels": [
+                        "no",
+                        "yes"
+                    ],
+                    "probs": [
+                        0.9820006635700066,
+                        0.017999336429993365
+                    ]
+                }
+            },
+            "creation_method": {
+                "created_by": "metasyn"
+            }
+        },
+        {
+            "name": "balance",
+            "type": "continuous",
+            "dtype": "Float64",
+            "prop_missing": 0.0,
+            "distribution": {
+                "implements": "core.normal",
+                "version": "1.0",
+                "provenance": "builtin",
+                "class_name": "NormalDistribution",
+                "unique": false,
+                "parameters": {
+                    "mean": 1350.265704490157,
+                    "sd": 2984.5989706044998
+                }
+            },
+            "creation_method": {
+                "created_by": "metasyn"
+            }
+        },
+        {
+            "name": "housing",
+            "type": "categorical",
+            "dtype": "Categorical(ordering='physical')",
+            "prop_missing": 0.0,
+            "distribution": {
+                "implements": "core.multinoulli",
+                "version": "1.0",
+                "provenance": "builtin",
+                "class_name": "MultinoulliDistribution",
+                "unique": false,
+                "parameters": {
+                    "labels": [
+                        "no",
+                        "yes"
+                    ],
+                    "probs": [
+                        0.444702499447025,
+                        0.555297500552975
+                    ]
+                }
+            },
+            "creation_method": {
+                "created_by": "metasyn"
+            }
+        },
+        {
+            "name": "loan",
+            "type": "categorical",
+            "dtype": "Categorical(ordering='physical')",
+            "prop_missing": 0.0,
+            "distribution": {
+                "implements": "core.multinoulli",
+                "version": "1.0",
+                "provenance": "builtin",
+                "class_name": "MultinoulliDistribution",
+                "unique": false,
+                "parameters": {
+                    "labels": [
+                        "no",
+                        "yes"
+                    ],
+                    "probs": [
+                        0.8402455209024552,
+                        0.15975447909754478
+                    ]
+                }
+            },
+            "creation_method": {
+                "created_by": "metasyn"
+            }
+        },
+        {
+            "name": "contact",
+            "type": "categorical",
+            "dtype": "Categorical(ordering='physical')",
+            "prop_missing": 0.0,
+            "distribution": {
+                "implements": "core.multinoulli",
+                "version": "1.0",
+                "provenance": "builtin",
+                "class_name": "MultinoulliDistribution",
+                "unique": false,
+                "parameters": {
+                    "labels": [
+                        "cellular",
+                        "telephone",
+                        "unknown"
+                    ],
+                    "probs": [
+                        0.6463448352134483,
+                        0.06367507188675071,
+                        0.2899800928998009
+                    ]
+                }
+            },
+            "creation_method": {
+                "created_by": "metasyn"
+            }
+        },
+        {
+            "name": "campaign",
+            "type": "continuous",
+            "dtype": "Float64",
+            "prop_missing": 0.0,
+            "distribution": {
+                "implements": "core.truncated_normal",
+                "version": "1.0",
+                "provenance": "builtin",
+                "class_name": "TruncatedNormalDistribution",
+                "unique": false,
+                "parameters": {
+                    "lower": 0.99999999,
+                    "upper": 63.00000001,
+                    "mean": -699.1317569700796,
+                    "sd": 35.52084509402205
+                }
+            },
+            "creation_method": {
+                "created_by": "metasyn"
+            }
+        },
+        {
+            "name": "pdays",
+            "type": "continuous",
+            "dtype": "Float64",
+            "prop_missing": 0.0,
+            "distribution": {
+                "implements": "core.truncated_normal",
+                "version": "1.0",
+                "provenance": "builtin",
+                "class_name": "TruncatedNormalDistribution",
+                "unique": false,
+                "parameters": {
+                    "lower": -1.00000001,
+                    "upper": 871.00000001,
+                    "mean": -5230.998316003293,
+                    "sd": 472.60939250020436
+                }
+            },
+            "creation_method": {
+                "created_by": "metasyn"
+            }
+        },
+        {
+            "name": "previous",
+            "type": "continuous",
+            "dtype": "Float64",
+            "prop_missing": 0.0,
+            "distribution": {
+                "implements": "core.truncated_normal",
+                "version": "1.0",
+                "provenance": "builtin",
+                "class_name": "TruncatedNormalDistribution",
+                "unique": false,
+                "parameters": {
+                    "lower": -1e-08,
+                    "upper": 58.00000001,
+                    "mean": -582.8027507182065,
+                    "sd": 18.338643195252235
+                }
+            },
+            "creation_method": {
+                "created_by": "metasyn"
+            }
+        },
+        {
+            "name": "poutcome",
+            "type": "categorical",
+            "dtype": "Categorical(ordering='physical')",
+            "prop_missing": 0.0,
+            "distribution": {
+                "implements": "core.multinoulli",
+                "version": "1.0",
+                "provenance": "builtin",
+                "class_name": "MultinoulliDistribution",
+                "unique": false,
+                "parameters": {
+                    "labels": [
+                        "failure",
+                        "other",
+                        "success",
+                        "unknown"
+                    ],
+                    "probs": [
+                        0.10780247732802477,
+                        0.0413625304136253,
+                        0.033427339084273394,
+                        0.8174076531740765
+                    ]
+                }
+            },
+            "creation_method": {
+                "created_by": "metasyn"
+            }
+        },
+        {
+            "name": "SubscribeTermDeposit",
+            "type": "categorical",
+            "dtype": "Categorical(ordering='physical')",
+            "prop_missing": 0.0,
+            "distribution": {
+                "implements": "core.multinoulli",
+                "version": "1.0",
+                "provenance": "builtin",
+                "class_name": "MultinoulliDistribution",
+                "unique": false,
+                "parameters": {
+                    "labels": [
+                        "no",
+                        "yes"
+                    ],
+                    "probs": [
+                        0.8825204600752046,
+                        0.1174795399247954
+                    ]
+                }
+            },
+            "creation_method": {
+                "created_by": "metasyn"
+            }
+        }
+    ]
+}

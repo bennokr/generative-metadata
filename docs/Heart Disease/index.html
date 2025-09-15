@@ -1,11 +1,11 @@
 <h1>Data Report — Heart Disease</h1>
+<p><strong>Source</strong>: <a href="https://archive.ics.uci.edu/dataset/45">UCI dataset 45</a></p>
 <ul>
 <li>Metadata file: <a href="metadata.json">metadata.json</a></li>
-<li>JSON-LD (schema.org/Dataset): <a href="dataset.jsonld">dataset.jsonld</a></li>
+<li>JSON-LD (schema.org/Dataset): <a href="dataset.json">dataset.json</a></li>
 <li>Rows: 297</li>
 <li>Columns: 14</li>
 <li>Discrete: 7  |  Continuous: 7</li>
-<li>UCI ML page: https://archive.ics.uci.edu/dataset/45</li>
 </ul>
 <h2>Dataset metadata</h2>
 <h3>Description</h3>
@@ -13,14 +13,17 @@
 <ul>
 <li>Creators: Andras Janosi, William Steinbrunn, Matthias Pfisterer, Robert Detrano</li>
 <li>Citation: International application of a new probability algorithm for the diagnosis of coronary artery disease.. R. Detrano, A. Jánosi, W. Steinbrunn, M. Pfisterer, J. Schmid, S. Sandhu, K. Guppy, S. Lee, V. Froelicher. American Journal of Cardiology. 1989</li>
+<li>Links:</li>
+<li>URL: https://archive.ics.uci.edu/dataset/45</li>
 </ul>
 <h2>Variables and summary</h2>
 <table>
 <thead>
 <tr>
 <th style="text-align: left;">variable</th>
-<th style="text-align: left;">measurement</th>
-<th style="text-align: left;">unit</th>
+<th style="text-align: left;">description</th>
+<th style="text-align: left;">inferred</th>
+<th style="text-align: left;">declared</th>
 <th style="text-align: right;">count</th>
 <th style="text-align: left;">unique</th>
 <th style="text-align: left;">top</th>
@@ -37,8 +40,9 @@
 <tbody>
 <tr>
 <td style="text-align: left;">age</td>
-<td style="text-align: left;">continuous</td>
 <td style="text-align: left;"></td>
+<td style="text-align: left;">continuous</td>
+<td style="text-align: left;">Integer</td>
 <td style="text-align: right;">303</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
@@ -53,8 +57,9 @@
 </tr>
 <tr>
 <td style="text-align: left;">sex</td>
-<td style="text-align: left;">discrete</td>
 <td style="text-align: left;"></td>
+<td style="text-align: left;">discrete</td>
+<td style="text-align: left;">Categorical</td>
 <td style="text-align: right;">303</td>
 <td style="text-align: left;">2</td>
 <td style="text-align: left;">1</td>
@@ -69,8 +74,9 @@
 </tr>
 <tr>
 <td style="text-align: left;">cp</td>
-<td style="text-align: left;">discrete</td>
 <td style="text-align: left;"></td>
+<td style="text-align: left;">discrete</td>
+<td style="text-align: left;">Categorical</td>
 <td style="text-align: right;">303</td>
 <td style="text-align: left;">4</td>
 <td style="text-align: left;">4</td>
@@ -85,8 +91,9 @@
 </tr>
 <tr>
 <td style="text-align: left;">trestbps</td>
+<td style="text-align: left;">resting blood pressure (on admission to the hospital)</td>
 <td style="text-align: left;">continuous</td>
-<td style="text-align: left;"></td>
+<td style="text-align: left;">Integer</td>
 <td style="text-align: right;">303</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
@@ -101,8 +108,9 @@
 </tr>
 <tr>
 <td style="text-align: left;">chol</td>
+<td style="text-align: left;">serum cholestoral</td>
 <td style="text-align: left;">continuous</td>
-<td style="text-align: left;"></td>
+<td style="text-align: left;">Integer</td>
 <td style="text-align: right;">303</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
@@ -117,8 +125,9 @@
 </tr>
 <tr>
 <td style="text-align: left;">fbs</td>
+<td style="text-align: left;">fasting blood sugar &gt; 120 mg/dl</td>
 <td style="text-align: left;">discrete</td>
-<td style="text-align: left;"></td>
+<td style="text-align: left;">Categorical</td>
 <td style="text-align: right;">303</td>
 <td style="text-align: left;">2</td>
 <td style="text-align: left;">0</td>
@@ -133,8 +142,9 @@
 </tr>
 <tr>
 <td style="text-align: left;">restecg</td>
-<td style="text-align: left;">discrete</td>
 <td style="text-align: left;"></td>
+<td style="text-align: left;">discrete</td>
+<td style="text-align: left;">Categorical</td>
 <td style="text-align: right;">303</td>
 <td style="text-align: left;">3</td>
 <td style="text-align: left;">0</td>
@@ -149,8 +159,9 @@
 </tr>
 <tr>
 <td style="text-align: left;">thalach</td>
+<td style="text-align: left;">maximum heart rate achieved</td>
 <td style="text-align: left;">continuous</td>
-<td style="text-align: left;"></td>
+<td style="text-align: left;">Integer</td>
 <td style="text-align: right;">303</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
@@ -165,8 +176,9 @@
 </tr>
 <tr>
 <td style="text-align: left;">exang</td>
+<td style="text-align: left;">exercise induced angina</td>
 <td style="text-align: left;">discrete</td>
-<td style="text-align: left;"></td>
+<td style="text-align: left;">Categorical</td>
 <td style="text-align: right;">303</td>
 <td style="text-align: left;">2</td>
 <td style="text-align: left;">0</td>
@@ -181,8 +193,9 @@
 </tr>
 <tr>
 <td style="text-align: left;">oldpeak</td>
+<td style="text-align: left;">ST depression induced by exercise relative to rest</td>
 <td style="text-align: left;">continuous</td>
-<td style="text-align: left;"></td>
+<td style="text-align: left;">Integer</td>
 <td style="text-align: right;">303</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
@@ -197,8 +210,9 @@
 </tr>
 <tr>
 <td style="text-align: left;">slope</td>
-<td style="text-align: left;">discrete</td>
 <td style="text-align: left;"></td>
+<td style="text-align: left;">discrete</td>
+<td style="text-align: left;">Categorical</td>
 <td style="text-align: right;">303</td>
 <td style="text-align: left;">3</td>
 <td style="text-align: left;">1</td>
@@ -213,8 +227,9 @@
 </tr>
 <tr>
 <td style="text-align: left;">ca</td>
+<td style="text-align: left;">number of major vessels (0-3) colored by flourosopy</td>
 <td style="text-align: left;">continuous</td>
-<td style="text-align: left;"></td>
+<td style="text-align: left;">Integer</td>
 <td style="text-align: right;">299</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
@@ -229,8 +244,9 @@
 </tr>
 <tr>
 <td style="text-align: left;">thal</td>
-<td style="text-align: left;">continuous</td>
 <td style="text-align: left;"></td>
+<td style="text-align: left;">continuous</td>
+<td style="text-align: left;">Categorical</td>
 <td style="text-align: right;">301</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
@@ -245,8 +261,9 @@
 </tr>
 <tr>
 <td style="text-align: left;">num</td>
+<td style="text-align: left;">diagnosis of heart disease</td>
 <td style="text-align: left;">discrete</td>
-<td style="text-align: left;"></td>
+<td style="text-align: left;">Integer</td>
 <td style="text-align: right;">303</td>
 <td style="text-align: left;">5</td>
 <td style="text-align: left;">0</td>
@@ -261,12 +278,12 @@
 </tr>
 </tbody>
 </table>
-<h2>Learned BN structures and configurations</h2>
+<h2>Learned structures and configurations</h2>
+<p>MetaSyn GMF: <a href="metasyn_gmf.json">metasyn_gmf.json</a></p>
 <h3>Arc blacklist</h3>
 <ul>
-<li>Sensitive variables: age, sex</li>
-<li>Rule: forbid incoming arcs into sensitive from non-sensitive</li>
-<li>Forbidden arc count: 24</li>
+<li>Root variables: age, sex</li>
+<li>Forbidden arc count: 28</li>
 </ul>
 <h3>clg_mi2</h3>
 <table>
@@ -342,7 +359,6 @@
 <li>Structure (GraphML): <a href="structure_semi_mi5.graphml">structure_semi_mi5.graphml</a></li>
 <li>Full model (pickle): <a href="model_semi_mi5.pickle">model_semi_mi5.pickle</a></li>
 </ul>
-<p>MetaSyn GMF: <a href="metasyn_gmf.json">metasyn_gmf.json</a></p>
 <h2>Fidelity (BN vs MetaSyn)</h2>
 <table>
 <thead>
@@ -383,215 +399,222 @@
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
-<td style="text-align: right;">0.0962</td>
-<td style="text-align: right;">0.0995</td>
-<td style="text-align: right;">0.2894</td>
-<td style="text-align: right;">2.7986</td>
+<td style="text-align: right;">0.0952</td>
+<td style="text-align: right;">0.0868</td>
+<td style="text-align: right;">0.2907</td>
+<td style="text-align: right;">2.8371</td>
 </tr>
 </tbody>
 </table>
 <h3>Per-variable distances (lower is closer)</h3>
-<table>
-<thead>
-<tr>
-<th style="text-align: left;">variable</th>
-<th style="text-align: left;">type</th>
-<th style="text-align: left;">('JSD', 'clg_mi2')</th>
-<th style="text-align: left;">('JSD', 'semi_mi5')</th>
-<th style="text-align: left;">('JSD', 'MetaSyn')</th>
-<th style="text-align: left;">('KS', 'clg_mi2')</th>
-<th style="text-align: left;">('KS', 'semi_mi5')</th>
-<th style="text-align: left;">('KS', 'MetaSyn')</th>
-<th style="text-align: left;">('W1', 'clg_mi2')</th>
-<th style="text-align: left;">('W1', 'semi_mi5')</th>
-<th style="text-align: left;">('W1', 'MetaSyn')</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align: left;">age</td>
-<td style="text-align: left;">continuous</td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;">0.0803</td>
-<td style="text-align: left;">0.0803</td>
-<td style="text-align: left;">0.0923</td>
-<td style="text-align: left;">1.2421</td>
-<td style="text-align: left;">1.2421</td>
-<td style="text-align: left;">1.3608</td>
-</tr>
-<tr>
-<td style="text-align: left;">ca</td>
-<td style="text-align: left;">continuous</td>
-<td style="text-align: left;">0.0952</td>
-<td style="text-align: left;">0.0952</td>
-<td style="text-align: left;">0.0789</td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
-</tr>
-<tr>
-<td style="text-align: left;">chol</td>
-<td style="text-align: left;">continuous</td>
-<td style="text-align: left;">0.1094</td>
-<td style="text-align: left;">0.1094</td>
-<td style="text-align: left;">0.1202</td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
-</tr>
-<tr>
-<td style="text-align: left;">cp</td>
-<td style="text-align: left;">discrete</td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;">0.191</td>
-<td style="text-align: left;">0.191</td>
-<td style="text-align: left;">0.1637</td>
-<td style="text-align: left;">3.5802</td>
-<td style="text-align: left;">3.5802</td>
-<td style="text-align: left;">3.5881</td>
-</tr>
-<tr>
-<td style="text-align: left;">exang</td>
-<td style="text-align: left;">discrete</td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;">0.1727</td>
-<td style="text-align: left;">0.1727</td>
-<td style="text-align: left;">0.1043</td>
-<td style="text-align: left;">12.6292</td>
-<td style="text-align: left;">12.6292</td>
-<td style="text-align: left;">7.5447</td>
-</tr>
-<tr>
-<td style="text-align: left;">fbs</td>
-<td style="text-align: left;">discrete</td>
-<td style="text-align: left;">0.1128</td>
-<td style="text-align: left;">0.1128</td>
-<td style="text-align: left;">0.1094</td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
-</tr>
-<tr>
-<td style="text-align: left;">num</td>
-<td style="text-align: left;">discrete</td>
-<td style="text-align: left;">0.1089</td>
-<td style="text-align: left;">0.1089</td>
-<td style="text-align: left;">0.1039</td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
-</tr>
-<tr>
-<td style="text-align: left;">oldpeak</td>
-<td style="text-align: left;">continuous</td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;">0.2067</td>
-<td style="text-align: left;">0.2067</td>
-<td style="text-align: left;">0.1987</td>
-<td style="text-align: left;">6.3633</td>
-<td style="text-align: left;">6.3633</td>
-<td style="text-align: left;">5.6675</td>
-</tr>
-<tr>
-<td style="text-align: left;">restecg</td>
-<td style="text-align: left;">discrete</td>
-<td style="text-align: left;">0.1075</td>
-<td style="text-align: left;">0.1075</td>
-<td style="text-align: left;">0.0995</td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
-</tr>
-<tr>
-<td style="text-align: left;">sex</td>
-<td style="text-align: left;">discrete</td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;">0.175</td>
-<td style="text-align: left;">0.175</td>
-<td style="text-align: left;">0.2833</td>
-<td style="text-align: left;">0.2662</td>
-<td style="text-align: left;">0.2662</td>
-<td style="text-align: left;">0.216</td>
-</tr>
-<tr>
-<td style="text-align: left;">slope</td>
-<td style="text-align: left;">discrete</td>
-<td style="text-align: left;">0.0561</td>
-<td style="text-align: left;">0.0561</td>
-<td style="text-align: left;">0.0694</td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
-</tr>
-<tr>
-<td style="text-align: left;">thal</td>
-<td style="text-align: left;">continuous</td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;">0.3523</td>
-<td style="text-align: left;">0.3523</td>
-<td style="text-align: left;">0.5833</td>
-<td style="text-align: left;">0.3478</td>
-<td style="text-align: left;">0.3478</td>
-<td style="text-align: left;">0.2856</td>
-</tr>
-<tr>
-<td style="text-align: left;">thalach</td>
-<td style="text-align: left;">continuous</td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;">0.408</td>
-<td style="text-align: left;">0.408</td>
-<td style="text-align: left;">0.6</td>
-<td style="text-align: left;">0.984</td>
-<td style="text-align: left;">0.984</td>
-<td style="text-align: left;">0.9275</td>
-</tr>
-<tr>
-<td style="text-align: left;">trestbps</td>
-<td style="text-align: left;">continuous</td>
-<td style="text-align: left;">0.0952</td>
-<td style="text-align: left;">0.0952</td>
-<td style="text-align: left;">0.0923</td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
-</tr>
-</tbody>
+<table class="dataframe table per-var-dist">
+  <thead>
+    <tr>
+      <th colspan="2" halign="left"></th>
+      <th colspan="3" halign="left">JSD</th>
+      <th colspan="3" halign="left">KS</th>
+      <th colspan="3" halign="left">W1</th>
+    </tr>
+    <tr>
+      <th>variable</th>
+      <th>type</th>
+      <th>clg_mi2</th>
+      <th>semi_mi5</th>
+      <th>MetaSyn</th>
+      <th>clg_mi2</th>
+      <th>semi_mi5</th>
+      <th>MetaSyn</th>
+      <th>clg_mi2</th>
+      <th>semi_mi5</th>
+      <th>MetaSyn</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>age</td>
+      <td>continuous</td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td>0.0803</td>
+      <td>0.0803</td>
+      <td>0.0903</td>
+      <td>1.2421</td>
+      <td>1.2421</td>
+      <td>1.3481</td>
+    </tr>
+    <tr>
+      <td>ca</td>
+      <td>continuous</td>
+      <td>0.0952</td>
+      <td>0.0952</td>
+      <td>0.1128</td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>chol</td>
+      <td>continuous</td>
+      <td>0.1094</td>
+      <td>0.1094</td>
+      <td>0.1150</td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>cp</td>
+      <td>discrete</td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td>0.1910</td>
+      <td>0.1910</td>
+      <td>0.1317</td>
+      <td>3.5802</td>
+      <td>3.5802</td>
+      <td>2.8285</td>
+    </tr>
+    <tr>
+      <td>exang</td>
+      <td>discrete</td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td>0.1727</td>
+      <td>0.1727</td>
+      <td>0.1257</td>
+      <td>12.6292</td>
+      <td>12.6292</td>
+      <td>8.8700</td>
+    </tr>
+    <tr>
+      <td>fbs</td>
+      <td>discrete</td>
+      <td>0.1128</td>
+      <td>0.1128</td>
+      <td>0.0792</td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>num</td>
+      <td>discrete</td>
+      <td>0.1089</td>
+      <td>0.1089</td>
+      <td>0.0768</td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>oldpeak</td>
+      <td>continuous</td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td>0.2067</td>
+      <td>0.2067</td>
+      <td>0.2207</td>
+      <td>6.3633</td>
+      <td>6.3633</td>
+      <td>5.3542</td>
+    </tr>
+    <tr>
+      <td>restecg</td>
+      <td>discrete</td>
+      <td>0.1075</td>
+      <td>0.1075</td>
+      <td>0.1137</td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>sex</td>
+      <td>discrete</td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td>0.1750</td>
+      <td>0.1750</td>
+      <td>0.2833</td>
+      <td>0.2662</td>
+      <td>0.2662</td>
+      <td>0.2267</td>
+    </tr>
+    <tr>
+      <td>slope</td>
+      <td>discrete</td>
+      <td>0.0561</td>
+      <td>0.0561</td>
+      <td>0.0820</td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>thal</td>
+      <td>continuous</td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td>0.3523</td>
+      <td>0.3523</td>
+      <td>0.5833</td>
+      <td>0.3478</td>
+      <td>0.3478</td>
+      <td>0.3075</td>
+    </tr>
+    <tr>
+      <td>thalach</td>
+      <td>continuous</td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td>0.4080</td>
+      <td>0.4080</td>
+      <td>0.6000</td>
+      <td>0.9840</td>
+      <td>0.9840</td>
+      <td>0.9245</td>
+    </tr>
+    <tr>
+      <td>trestbps</td>
+      <td>continuous</td>
+      <td>0.0952</td>
+      <td>0.0952</td>
+      <td>0.0868</td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+    </tr>
+  </tbody>
 </table>
+
 <h2>UMAP overview (same projection)</h2>
 <table>
 <thead>

@@ -1,0 +1,101 @@
+{
+  "cache_format": "pickle",
+  "citation": "Moro, Sergio, Paulo Cortez, and Paulo Rita. 'A data-driven approach to predict the success of bank telemarketing.' Decision Support Systems 62 (2014): 22-31. https://doi.org/10.1016/j.dss.2014.03.001",
+  "collection_date": "2012",
+  "contributor": "TabArena Team",
+  "creator": "See original data source.",
+  "default_target_attribute": "SubscribeTermDeposit",
+  "description": "This dataset was curated for [TabArena](https://tabarena.ai/) by the TabArena team\nas part of the [TabArena Tabular ML IID Study](https://tabarena.ai/data-tabular-ml-iid-study).\nFor more details on the study, see our [paper](https://tabarena.ai/paper-tabular-ml-iid-study).\n\n**Dataset Focus**: This dataset shall be used for evaluating predictive machine\nlearning models for independent and identically distributed tabular data. The\nintended task is classification.\n\n---\n#### Dataset Metadata\n- **Licence:** CC BY 4.0\n- **Original Data Source:** https://doi.org/10.24432/C5K306\n- **Reference (please cite)**: Moro, Sergio, Paulo Cortez, and Paulo Rita. 'A data-driven approach to predict the success of bank telemarketing.' Decision Support Systems 62 (2014): 22-31. https://doi.org/10.1016/j.dss.2014.03.001\n- **Dataset Year:** 2012\n- **Dataset Description:** see the reference and the original data source for details.\n\n#### Curation comments by the TabArena team (for code see the [page of the study](https://tabarena.ai/data-tabular-ml-iid-study)):\n- We removed the \"duration\" feature following its original description to obtain a \"realistic predictive model\".\n- We further remove the \"month\" and \"day_of_week\" features, as they also relate to the last contact -- which is not available in a real-world scenario.",
+  "format": "arff",
+  "language": "English",
+  "licence": "CC BY 4.0",
+  "md5_checksum": "75c124340aed0a1ce542c51c68489418",
+  "name": "bank-marketing",
+  "openml_url": "https://www.openml.org/d/46910",
+  "original_data_url": "https://doi.org/10.24432/C5K306",
+  "paper_url": "https://tabarena.ai/paper-tabular-ml-iid-study",
+  "parquet_file": "/Users/benno/.openml/org/openml/www/datasets/46910/dataset_46910.pq",
+  "upload_date": "2025-04-30T19:54:48",
+  "url": "https://api.openml.org/data/v1/download/22125221/bank-marketing.arff",
+  "version_label": "tabular-ml-iid-study-0.0.1",
+  "visibility": "public",
+  "features": [
+    {
+      "data_type": "numeric",
+      "name": "age"
+    },
+    {
+      "data_type": "nominal",
+      "name": "job"
+    },
+    {
+      "data_type": "nominal",
+      "name": "marital"
+    },
+    {
+      "data_type": "nominal",
+      "name": "education"
+    },
+    {
+      "data_type": "nominal",
+      "name": "default"
+    },
+    {
+      "data_type": "numeric",
+      "name": "balance"
+    },
+    {
+      "data_type": "nominal",
+      "name": "housing"
+    },
+    {
+      "data_type": "nominal",
+      "name": "loan"
+    },
+    {
+      "data_type": "nominal",
+      "name": "contact"
+    },
+    {
+      "data_type": "numeric",
+      "name": "campaign"
+    },
+    {
+      "data_type": "numeric",
+      "name": "pdays"
+    },
+    {
+      "data_type": "numeric",
+      "name": "previous"
+    },
+    {
+      "data_type": "string",
+      "name": "poutcome"
+    },
+    {
+      "data_type": "nominal",
+      "name": "SubscribeTermDeposit"
+    }
+  ],
+  "qualities": {
+    "AutoCorrelation": 0.7935412519354125,
+    "Dimensionality": 0.00030965915374576986,
+    "MajorityClassPercentage": 88.30151954170445,
+    "MajorityClassSize": 39922.0,
+    "MinorityClassPercentage": 11.698480458295547,
+    "MinorityClassSize": 5289.0,
+    "NumberOfBinaryFeatures": 4.0,
+    "NumberOfClasses": 2.0,
+    "NumberOfFeatures": 14.0,
+    "NumberOfInstances": 45211.0,
+    "NumberOfInstancesWithMissingValues": 0.0,
+    "NumberOfMissingValues": 0.0,
+    "NumberOfNumericFeatures": 5.0,
+    "NumberOfSymbolicFeatures": 8.0,
+    "PercentageOfBinaryFeatures": 28.57142857142857,
+    "PercentageOfInstancesWithMissingValues": 0.0,
+    "PercentageOfMissingValues": 0.0,
+    "PercentageOfNumericFeatures": 35.714285714285715,
+    "PercentageOfSymbolicFeatures": 57.14285714285714
+  }
+}

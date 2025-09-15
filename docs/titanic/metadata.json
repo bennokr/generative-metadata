@@ -1,0 +1,69 @@
+{
+  "cache_format": "pickle",
+  "default_target_attribute": "survived",
+  "description": "xxx",
+  "format": "ARFF",
+  "licence": "CC0",
+  "md5_checksum": "af4921075f7890110b69124086fd9ddc",
+  "name": "titanic",
+  "openml_url": "https://www.openml.org/d/42638",
+  "parquet_file": "/Users/benno/.openml/org/openml/www/datasets/42638/dataset_42638.pq",
+  "upload_date": "2020-09-04T03:56:00",
+  "url": "https://api.openml.org/data/v1/download/22044399/titanic.arff",
+  "visibility": "public",
+  "features": [
+    {
+      "data_type": "nominal",
+      "name": "pclass"
+    },
+    {
+      "data_type": "nominal",
+      "name": "sex"
+    },
+    {
+      "data_type": "numeric",
+      "name": "age"
+    },
+    {
+      "data_type": "numeric",
+      "name": "sibsp"
+    },
+    {
+      "data_type": "numeric",
+      "name": "fare"
+    },
+    {
+      "data_type": "nominal",
+      "name": "cabin"
+    },
+    {
+      "data_type": "nominal",
+      "name": "embarked"
+    },
+    {
+      "data_type": "nominal",
+      "name": "survived"
+    }
+  ],
+  "qualities": {
+    "AutoCorrelation": 0.5370786516853933,
+    "Dimensionality": 0.008978675645342313,
+    "MajorityClassPercentage": 61.61616161616161,
+    "MajorityClassSize": 549.0,
+    "MinorityClassPercentage": 38.38383838383838,
+    "MinorityClassSize": 342.0,
+    "NumberOfBinaryFeatures": 2.0,
+    "NumberOfClasses": 2.0,
+    "NumberOfFeatures": 8.0,
+    "NumberOfInstances": 891.0,
+    "NumberOfInstancesWithMissingValues": 689.0,
+    "NumberOfMissingValues": 689.0,
+    "NumberOfNumericFeatures": 3.0,
+    "NumberOfSymbolicFeatures": 5.0,
+    "PercentageOfBinaryFeatures": 25.0,
+    "PercentageOfInstancesWithMissingValues": 77.32884399551067,
+    "PercentageOfMissingValues": 9.666105499438833,
+    "PercentageOfNumericFeatures": 37.5,
+    "PercentageOfSymbolicFeatures": 62.5
+  }
+}

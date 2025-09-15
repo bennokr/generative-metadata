@@ -2,6 +2,8 @@
   "@context": "https://schema.org",
   "@type": "Dataset",
   "name": "Heart Disease",
+  "identifier": 45,
+  "url": "https://archive.ics.uci.edu/dataset/45",
   "description": "4 databases: Cleveland, Hungary, Switzerland, and the VA Long Beach",
   "creator": [
     {
@@ -41,17 +43,20 @@
     {
       "@type": "PropertyValue",
       "name": "trestbps",
-      "measurementTechnique": "continuous"
+      "measurementTechnique": "continuous",
+      "description": "resting blood pressure (on admission to the hospital)"
     },
     {
       "@type": "PropertyValue",
       "name": "chol",
-      "measurementTechnique": "continuous"
+      "measurementTechnique": "continuous",
+      "description": "serum cholestoral"
     },
     {
       "@type": "PropertyValue",
       "name": "fbs",
-      "measurementTechnique": "discrete"
+      "measurementTechnique": "discrete",
+      "description": "fasting blood sugar > 120 mg/dl"
     },
     {
       "@type": "PropertyValue",
@@ -61,17 +66,20 @@
     {
       "@type": "PropertyValue",
       "name": "thalach",
-      "measurementTechnique": "continuous"
+      "measurementTechnique": "continuous",
+      "description": "maximum heart rate achieved"
     },
     {
       "@type": "PropertyValue",
       "name": "exang",
-      "measurementTechnique": "discrete"
+      "measurementTechnique": "discrete",
+      "description": "exercise induced angina"
     },
     {
       "@type": "PropertyValue",
       "name": "oldpeak",
-      "measurementTechnique": "continuous"
+      "measurementTechnique": "continuous",
+      "description": "ST depression induced by exercise relative to rest"
     },
     {
       "@type": "PropertyValue",
@@ -81,7 +89,8 @@
     {
       "@type": "PropertyValue",
       "name": "ca",
-      "measurementTechnique": "continuous"
+      "measurementTechnique": "continuous",
+      "description": "number of major vessels (0-3) colored by flourosopy"
     },
     {
       "@type": "PropertyValue",
@@ -91,7 +100,8 @@
     {
       "@type": "PropertyValue",
       "name": "num",
-      "measurementTechnique": "discrete"
+      "measurementTechnique": "discrete",
+      "description": "diagnosis of heart disease"
     }
   ]
 }

@@ -21,6 +21,13 @@ from .umap_utils import build_umap, plot_umap, transform_with_umap
 from .bn import learn_bn, bn_to_graphviz, save_graphml_structure
 from .metrics import heldout_loglik, per_variable_distances
 from .reporting import write_report_md
+from .metadata import (
+    meta_to_dict,
+    build_dataset_jsonld,
+    select_declared_types,
+    resolve_provider_and_id,
+    get_uciml_variable_descriptions,
+)
 from metasyn.metaframe import MetaFrame
 
 
@@ -32,29 +39,6 @@ class Config:
     umap_n_neighbors = 30
     umap_min_dist = 0.1
     umap_n_components = 2
-
-def string_attributes(obj):
-    return {
-        name: value
-        for name in dir(obj)
-        if not name.startswith("_")  # skip dunder attributes
-        and isinstance((value := getattr(obj, name, None)), str)
-    }
-
-def dict_attributes(obj):
-    dict_atts = {
-        name: value
-        for name in dir(obj)
-        if not name.startswith("_")  # skip dunder attributes
-        and isinstance((value := getattr(obj, name, None)), dict)
-    }
-    for key, d in list(dict_atts.items()):
-        for k,v in d.items():
-            if not isinstance(v, (int, str, float)):
-                d[k] = string_attributes(v)
-        if all(isinstance(k, int) for k in d.keys()):
-            dict_atts[key] = list(d.values())
-    return dict_atts
 
 
 
@@ -77,118 +61,14 @@ def process_dataset(
     ensure_dir(str(outdir))
 
     metadata_file = outdir / "metadata.json"
-    try:
-        meta_dict = dict(meta)
-    except:
-        meta_dict = string_attributes(meta)
-        meta_dict.update(**dict_attributes(meta))
+    meta_dict = meta_to_dict(meta)
     with metadata_file.open('w', encoding='utf-8') as f:
         json.dump(meta_dict, f, indent=2)
     logging.info(f"Wrote raw metadata JSON: {metadata_file}")
 
     # Build schema.org/Dataset JSON-LD
-    def normalize_creators(val):
-        creators = []
-        if val is None:
-            return creators
-        if isinstance(val, str):
-            parts = [p.strip() for p in val.replace(';', ',').split(',') if p.strip()]
-            for p in parts:
-                creators.append({"@type": "Person", "name": p})
-        elif isinstance(val, (list, tuple, set)):
-            for item in val:
-                if isinstance(item, dict):
-                    nm = item.get('name') or item.get('fullname') or item.get('full_name')
-                    if not nm:
-                        nm = " ".join(filter(None, [item.get('givenName'), item.get('familyName')])).strip()
-                    if nm:
-                        creators.append({"@type": item.get('@type') or "Person", "name": nm})
-                else:
-                    creators.append({"@type": "Person", "name": str(item)})
-        elif isinstance(val, dict):
-            nm = val.get('name') or val.get('fullname') or val.get('full_name')
-            if nm:
-                creators.append({"@type": val.get('@type') or "Person", "name": nm})
-        return creators
-
-    def extract_doi(texts):
-        import re
-        dois = []
-        if texts is None:
-            return dois
-        if not isinstance(texts, (list, tuple)):
-            texts = [texts]
-        pat = re.compile(r"10\.\d{4,9}/[-._;()/:A-Za-z0-9]+")
-        for t in texts:
-            if not isinstance(t, str):
-                continue
-            for m in pat.findall(t):
-                dois.append("https://doi.org/" + m)
-        # dedupe
-        return list(dict.fromkeys(dois))
-
-    provider_url = meta_dict.get('url') or meta_dict.get('original_data_url')
-    openml_id = meta_dict.get('dataset_id') or meta_dict.get('did')
-    if not provider_url and openml_id:
-        provider_url = f"https://www.openml.org/d/{openml_id}"
-    uci_id = meta_dict.get('id') if isinstance(meta_dict.get('id'), int) else None
-    if not provider_url and uci_id:
-        provider_url = f"https://archive.ics.uci.edu/dataset/{uci_id}"
-
-    description = meta_dict.get('description') or meta_dict.get('abstract') or meta_dict.get('summary')
-    citation = meta_dict.get('citation') or meta_dict.get('bibliography')
-    # Build citation from uciml metadata if available and missing
-    if not citation and isinstance(meta_dict.get('intro_paper'), dict):
-        ip = meta_dict['intro_paper']
-        parts = []
-        if ip.get('title'):
-            parts.append(ip['title'])
-        if ip.get('authors'):
-            parts.append(ip['authors'])
-        if ip.get('venue'):
-            parts.append(ip['venue'])
-        if ip.get('year'):
-            parts.append(str(ip['year']))
-        if ip.get('DOI'):
-            parts.append('https://doi.org/' + str(ip['DOI']).replace('https://doi.org/',''))
-        citation = '. '.join([p for p in parts if p])
-    creators_val = meta_dict.get('creators') or meta_dict.get('creator') or meta_dict.get('author') or meta_dict.get('donor')
-    creators = normalize_creators(creators_val)
-    date_published = meta_dict.get('upload_date') or meta_dict.get('collection_date') or meta_dict.get('year') or meta_dict.get('date')
-    same_as = []
-    if meta_dict.get('doi'):
-        doi_val = meta_dict.get('doi')
-        if isinstance(doi_val, str):
-            same_as.append('https://doi.org/' + doi_val.replace('https://doi.org/', '').strip())
-        elif isinstance(doi_val, (list, tuple)):
-            for s in doi_val:
-                same_as.append('https://doi.org/' + str(s).replace('https://doi.org/', '').strip())
-    same_as.extend(extract_doi([citation, provider_url]))
-
-    variable_measured = []
-    try:
-        disc_cols_tmp, _cont_cols_tmp = infer_types(df)
-        for c in df.columns:
-            mt = 'discrete' if c in disc_cols_tmp else 'continuous'
-            variable_measured.append({"@type": "PropertyValue", "name": c, "measurementTechnique": mt})
-    except Exception:
-        pass
-
-    dataset_jsonld = {
-        "@context": "https://schema.org",
-        "@type": "Dataset",
-        "name": name,
-        "identifier": openml_id or uci_id,
-        "url": provider_url,
-        "description": description,
-        "creator": creators if creators else None,
-        "citation": citation,
-        "datePublished": date_published,
-        "sameAs": same_as or None,
-        "variableMeasured": variable_measured or None,
-    }
-    dataset_jsonld = {k: v for k, v in dataset_jsonld.items() if v not in (None, [], {})}
-    dataset_jsonld_file = outdir / 'dataset.jsonld'
+    dataset_jsonld = build_dataset_jsonld(name, meta_dict, df)
+    dataset_jsonld_file = outdir / 'dataset.json'
     with dataset_jsonld_file.open('w', encoding='utf-8') as fw:
         json.dump(dataset_jsonld, fw, indent=2)
     logging.info(f"Wrote JSON-LD metadata: {dataset_jsonld_file}")
@@ -218,79 +98,14 @@ def process_dataset(
     # Build declared and inferred type maps for reporting
     inferred_map = {c: ("discrete" if c in disc_cols else "continuous") for c in df.columns}
 
-    def get_uciml_declared_types(uci_dataset_id: Optional[int]) -> dict:
-        declared = {}
-        if not uci_dataset_id:
-            return declared
-        import requests
-        import json as _json
-        import pathlib as _pl
-        cachedir = _pl.Path('.') / 'uciml-cache'
-        cachedir.mkdir(exist_ok=True)
-        cache = cachedir / f"{uci_dataset_id}.json"
-        data_url = "https://archive.ics.uci.edu/api/dataset"
-        try:
-            if not cache.exists():
-                r = requests.get(data_url, params={'id': uci_dataset_id}, timeout=30)
-                if r.ok:
-                    content = r.json().get('data')
-                    cache.write_text(_json.dumps(content))
-            if cache.exists():
-                data = _json.loads(cache.read_text())
-                vars_meta = data.get('variables') or []
-                for v in vars_meta:
-                    nm = v.get('name')
-                    tp = v.get('type')
-                    if nm:
-                        declared[str(nm)] = str(tp) if tp is not None else ''
-        except Exception:
-            # Best-effort; swallow errors and return what we have
-            pass
-        return declared
-
-    def get_openml_declared_types(openml_meta_obj: Any) -> dict:
-        declared = {}
-        obj = openml_meta_obj
-        try:
-            # Try OpenML Python dataset object's features list
-            feats = getattr(obj, 'features', None)
-            if feats is not None:
-                for f in feats:
-                    # Common attributes on Feature objects: name, data_type
-                    nm = getattr(f, 'name', None) or getattr(f, 'index', None)
-                    dt = getattr(f, 'data_type', None) or getattr(f, 'dtype', None)
-                    if nm is not None:
-                        declared[str(nm)] = str(dt) if dt is not None else ''
-            # Fallback: data_features dict mapping names to dicts
-            if not declared:
-                dfeat = getattr(obj, 'data_features', None)
-                if isinstance(dfeat, dict):
-                    for nm, info in dfeat.items():
-                        if isinstance(info, dict):
-                            dt = info.get('data_type') or info.get('type')
-                        else:
-                            dt = None
-                        declared[str(nm)] = str(dt) if dt is not None else ''
-        except Exception:
-            pass
-        return declared
-
-    declared_map = {}
-    prov_name_lower = (provider or '').lower() if provider else None
-    prov_id_value = provider_id
-    # Try to resolve provider_name/id similarly to how we prepare links below
-    ident = dataset_jsonld.get('identifier') if isinstance(dataset_jsonld, dict) else None
-    if isinstance(ident, (int, np.integer)):
-        prov_id_value = int(ident)
-    if prov_name_lower == 'uciml' or (uci_id and not prov_name_lower):
-        declared_map = get_uciml_declared_types(prov_id_value or uci_id)
-        prov_name_lower = 'uciml'
-    elif prov_name_lower == 'openml' or (openml_id and not prov_name_lower):
-        declared_map = get_openml_declared_types(meta)
-        prov_name_lower = 'openml'
-    # Only keep declared entries for present columns; preserve order of df columns
-    if declared_map:
-        declared_map = {c: declared_map.get(str(c), '') for c in df.columns}
+    declared_map = select_declared_types(
+        provider=provider,
+        provider_id=provider_id,
+        meta_obj=meta,
+        df_columns=list(df.columns),
+        meta_dict=meta_dict,
+        dataset_jsonld=dataset_jsonld,
+    )
 
     logging.info("Dropping rows with any NA for modeling")
     df_no_na = df.dropna(axis=0, how="any").reset_index(drop=True)
@@ -499,19 +314,19 @@ def process_dataset(
     fidelity_table = pd.DataFrame(fidelity_rows)
 
     # Determine provider and dataset page links
-    provider_name = (provider or '').lower() if provider else None
-    prov_id = provider_id
-    ident = dataset_jsonld.get('identifier') if isinstance(dataset_jsonld, dict) else None
-    if isinstance(ident, (int, np.integer)):
-        prov_id = int(ident)
-    else:
-        # Fall back on metadata
-        if isinstance(meta_dict.get('dataset_id') or meta_dict.get('did'), (int, np.integer)):
-            prov_id = int(meta_dict.get('dataset_id') or meta_dict.get('did'))
-            provider_name = provider_name or 'openml'
-        elif isinstance(meta_dict.get('uci_id') or meta_dict.get('id'), (int, np.integer)):
-            prov_id = int(meta_dict.get('uci_id') or meta_dict.get('id'))
-            provider_name = provider_name or 'uciml'
+    provider_name, prov_id = resolve_provider_and_id(
+        provider=provider,
+        provider_id=provider_id,
+        meta_dict=meta_dict,
+        dataset_jsonld=dataset_jsonld,
+    )
+    # If UCI, get variable descriptions from cached metadata for report table
+    var_desc_map = {}
+    if provider_name == 'uciml' and isinstance(prov_id, int):
+        try:
+            var_desc_map = get_uciml_variable_descriptions(prov_id)
+        except Exception:
+            var_desc_map = {}
 
     write_report_md(
         outdir=outdir,
@@ -528,8 +343,6 @@ def process_dataset(
         bn_sections=bn_sections,
         dist_table_meta=dist_table_meta,
         fidelity_table=fidelity_table,
-        graphml_files=[sect['graphml_file'] for sect in bn_sections],
-        pickle_files=[sect['pickle_file'] for sect in bn_sections],
         roots_info=dict(
             root_variables=sens_in_cols,
             n_forbidden_arcs=len(arc_blacklist_pairs),
@@ -540,4 +353,5 @@ def process_dataset(
         metasyn_gmf_file=(str(metasyn_gmf) if metasyn_gmf is not None else None),
         declared_types=declared_map or None,
         inferred_types=inferred_map or None,
+        variable_descriptions=var_desc_map or None,
     )

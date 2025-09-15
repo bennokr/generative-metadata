@@ -1,6 +1,8 @@
 # Data Reports
 
-- [Autistic Spectrum Disorder Screening Data for Children  ](Autistic Spectrum Disorder Screening Data for Children  /)
+- [Chronic Kidney Disease](Chronic Kidney Disease/)
 - [Heart Disease](Heart Disease/)
-- [Risk Factor Prediction of Chronic Kidney Disease](Risk Factor Prediction of Chronic Kidney Disease/)
 - [adult](adult/)
+- [bank-marketing](bank-marketing/)
+- [credit-g](credit-g/)
+- [titanic](titanic/)

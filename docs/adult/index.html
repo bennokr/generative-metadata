@@ -1,11 +1,11 @@
 <h1>Data Report — adult</h1>
+<p><strong>Source</strong>: <a href="https://www.openml.org/search?type=data&amp;id=45068">OpenML dataset 45068</a></p>
 <ul>
 <li>Metadata file: <a href="metadata.json">metadata.json</a></li>
-<li>JSON-LD (schema.org/Dataset): <a href="dataset.jsonld">dataset.jsonld</a></li>
+<li>JSON-LD (schema.org/Dataset): <a href="dataset.json">dataset.json</a></li>
 <li>Rows: 48842</li>
 <li>Columns: 15</li>
 <li>Discrete: 10  |  Continuous: 5</li>
-<li>OpenML page: https://www.openml.org/search?type=data&amp;id=45068</li>
 </ul>
 <h2>Dataset metadata</h2>
 <h3>Description</h3>
@@ -264,7 +264,8 @@
 </tr>
 </tbody>
 </table>
-<h2>Learned BN structures and configurations</h2>
+<h2>Learned structures and configurations</h2>
+<p>MetaSyn GMF: <a href="metasyn_gmf.json">metasyn_gmf.json</a></p>
 <h3>Arc blacklist</h3>
 <ul>
 <li>Root variables: age, sex, race</li>
@@ -344,7 +345,6 @@
 <li>Structure (GraphML): <a href="structure_semi_mi5.graphml">structure_semi_mi5.graphml</a></li>
 <li>Full model (pickle): <a href="model_semi_mi5.pickle">model_semi_mi5.pickle</a></li>
 </ul>
-<p>MetaSyn GMF: <a href="metasyn_gmf.json">metasyn_gmf.json</a></p>
 <h2>Fidelity (BN vs MetaSyn)</h2>
 <table>
 <thead>
@@ -365,10 +365,10 @@
 <td style="text-align: left;">-46.2333</td>
 <td style="text-align: left;">17.6838</td>
 <td style="text-align: left;">-450867.3177</td>
-<td style="text-align: right;">0.0349</td>
-<td style="text-align: right;">0.0311</td>
-<td style="text-align: right;">0.298</td>
-<td style="text-align: right;">3711.92</td>
+<td style="text-align: right;">0.0363</td>
+<td style="text-align: right;">0.0318</td>
+<td style="text-align: right;">0.301</td>
+<td style="text-align: right;">3727.1</td>
 </tr>
 <tr>
 <td style="text-align: left;">BN:semi_mi5</td>
@@ -385,228 +385,235 @@
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
-<td style="text-align: right;">0.0399</td>
-<td style="text-align: right;">0.036</td>
-<td style="text-align: right;">0.4581</td>
-<td style="text-align: right;">5126.04</td>
+<td style="text-align: right;">0.0428</td>
+<td style="text-align: right;">0.0364</td>
+<td style="text-align: right;">0.4443</td>
+<td style="text-align: right;">5180.55</td>
 </tr>
 </tbody>
 </table>
 <h3>Per-variable distances (lower is closer)</h3>
-<table>
-<thead>
-<tr>
-<th style="text-align: left;">variable</th>
-<th style="text-align: left;">type</th>
-<th style="text-align: left;">('JSD', 'clg_mi2')</th>
-<th style="text-align: left;">('JSD', 'semi_mi5')</th>
-<th style="text-align: left;">('JSD', 'MetaSyn')</th>
-<th style="text-align: left;">('KS', 'clg_mi2')</th>
-<th style="text-align: left;">('KS', 'semi_mi5')</th>
-<th style="text-align: left;">('KS', 'MetaSyn')</th>
-<th style="text-align: left;">('W1', 'clg_mi2')</th>
-<th style="text-align: left;">('W1', 'semi_mi5')</th>
-<th style="text-align: left;">('W1', 'MetaSyn')</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align: left;">age</td>
-<td style="text-align: left;">continuous</td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;">0.0647</td>
-<td style="text-align: left;">0.0647</td>
-<td style="text-align: left;">0.0649</td>
-<td style="text-align: left;">1.9326</td>
-<td style="text-align: left;">1.9326</td>
-<td style="text-align: left;">1.3021</td>
-</tr>
-<tr>
-<td style="text-align: left;">capital-gain</td>
-<td style="text-align: left;">continuous</td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;">0.0872</td>
-<td style="text-align: left;">0.0982</td>
-<td style="text-align: left;">0.1075</td>
-<td style="text-align: left;">16008.75</td>
-<td style="text-align: left;">17469.3816</td>
-<td style="text-align: left;">23843.0704</td>
-</tr>
-<tr>
-<td style="text-align: left;">capital-loss</td>
-<td style="text-align: left;">continuous</td>
-<td style="text-align: left;">0.0311</td>
-<td style="text-align: left;">0.0434</td>
-<td style="text-align: left;">0.0556</td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
-</tr>
-<tr>
-<td style="text-align: left;">class</td>
-<td style="text-align: left;">discrete</td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;">0.5276</td>
-<td style="text-align: left;">0.5216</td>
-<td style="text-align: left;">0.9106</td>
-<td style="text-align: left;">2244.6671</td>
-<td style="text-align: left;">2283.6989</td>
-<td style="text-align: left;">1636.6148</td>
-</tr>
-<tr>
-<td style="text-align: left;">education</td>
-<td style="text-align: left;">discrete</td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;">0.563</td>
-<td style="text-align: left;">0.566</td>
-<td style="text-align: left;">0.952</td>
-<td style="text-align: left;">300.9421</td>
-<td style="text-align: left;">301.3958</td>
-<td style="text-align: left;">145.5235</td>
-</tr>
-<tr>
-<td style="text-align: left;">education-num</td>
-<td style="text-align: left;">discrete</td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;">0.2476</td>
-<td style="text-align: left;">0.2416</td>
-<td style="text-align: left;">0.2556</td>
-<td style="text-align: left;">3.2947</td>
-<td style="text-align: left;">3.4741</td>
-<td style="text-align: left;">3.6759</td>
-</tr>
-<tr>
-<td style="text-align: left;">fnlwgt</td>
-<td style="text-align: left;">continuous</td>
-<td style="text-align: left;">0.0385</td>
-<td style="text-align: left;">0.0385</td>
-<td style="text-align: left;">0.0251</td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
-</tr>
-<tr>
-<td style="text-align: left;">hours-per-week</td>
-<td style="text-align: left;">continuous</td>
-<td style="text-align: left;">0.0311</td>
-<td style="text-align: left;">0.0434</td>
-<td style="text-align: left;">0.0399</td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
-</tr>
-<tr>
-<td style="text-align: left;">marital-status</td>
-<td style="text-align: left;">discrete</td>
-<td style="text-align: left;">0.0114</td>
-<td style="text-align: left;">0.0114</td>
-<td style="text-align: left;">0.0322</td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
-</tr>
-<tr>
-<td style="text-align: left;">native-country</td>
-<td style="text-align: left;">discrete</td>
-<td style="text-align: left;">0.0516</td>
-<td style="text-align: left;">0.0516</td>
-<td style="text-align: left;">0.0441</td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
-</tr>
-<tr>
-<td style="text-align: left;">occupation</td>
-<td style="text-align: left;">discrete</td>
-<td style="text-align: left;">0.0209</td>
-<td style="text-align: left;">0.0209</td>
-<td style="text-align: left;">0.0398</td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
-</tr>
-<tr>
-<td style="text-align: left;">race</td>
-<td style="text-align: left;">discrete</td>
-<td style="text-align: left;">0.0154</td>
-<td style="text-align: left;">0.0154</td>
-<td style="text-align: left;">0.0237</td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
-</tr>
-<tr>
-<td style="text-align: left;">relationship</td>
-<td style="text-align: left;">discrete</td>
-<td style="text-align: left;">0.0251</td>
-<td style="text-align: left;">0.0251</td>
-<td style="text-align: left;">0.0191</td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
-</tr>
-<tr>
-<td style="text-align: left;">sex</td>
-<td style="text-align: left;">discrete</td>
-<td style="text-align: left;">0.0929</td>
-<td style="text-align: left;">0.0929</td>
-<td style="text-align: left;">0.0998</td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
-</tr>
-<tr>
-<td style="text-align: left;">workclass</td>
-<td style="text-align: left;">discrete</td>
-<td style="text-align: left;">0.031</td>
-<td style="text-align: left;">0.0207</td>
-<td style="text-align: left;">0.0197</td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
-</tr>
-</tbody>
+<table class="dataframe table per-var-dist">
+  <thead>
+    <tr>
+      <th colspan="2" halign="left"></th>
+      <th colspan="3" halign="left">JSD</th>
+      <th colspan="3" halign="left">KS</th>
+      <th colspan="3" halign="left">W1</th>
+    </tr>
+    <tr>
+      <th>variable</th>
+      <th>type</th>
+      <th>clg_mi2</th>
+      <th>semi_mi5</th>
+      <th>MetaSyn</th>
+      <th>clg_mi2</th>
+      <th>semi_mi5</th>
+      <th>MetaSyn</th>
+      <th>clg_mi2</th>
+      <th>semi_mi5</th>
+      <th>MetaSyn</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>age</td>
+      <td>continuous</td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td>0.0647</td>
+      <td>0.0647</td>
+      <td>0.0456</td>
+      <td>1.9326</td>
+      <td>1.9326</td>
+      <td>0.6628</td>
+    </tr>
+    <tr>
+      <td>capital-gain</td>
+      <td>continuous</td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td>0.0872</td>
+      <td>0.0982</td>
+      <td>0.0678</td>
+      <td>16008.7500</td>
+      <td>17469.3816</td>
+      <td>24073.0913</td>
+    </tr>
+    <tr>
+      <td>capital-loss</td>
+      <td>continuous</td>
+      <td>0.0434</td>
+      <td>0.0434</td>
+      <td>0.0588</td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>class</td>
+      <td>discrete</td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td>0.5376</td>
+      <td>0.5216</td>
+      <td>0.9106</td>
+      <td>2320.0599</td>
+      <td>2283.6989</td>
+      <td>1679.7544</td>
+    </tr>
+    <tr>
+      <td>education</td>
+      <td>discrete</td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td>0.5660</td>
+      <td>0.5660</td>
+      <td>0.9520</td>
+      <td>301.3958</td>
+      <td>301.3958</td>
+      <td>145.8651</td>
+    </tr>
+    <tr>
+      <td>education-num</td>
+      <td>discrete</td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td>0.2496</td>
+      <td>0.2416</td>
+      <td>0.2456</td>
+      <td>3.3540</td>
+      <td>3.4741</td>
+      <td>3.3620</td>
+    </tr>
+    <tr>
+      <td>fnlwgt</td>
+      <td>continuous</td>
+      <td>0.0385</td>
+      <td>0.0385</td>
+      <td>0.0376</td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>hours-per-week</td>
+      <td>continuous</td>
+      <td>0.0434</td>
+      <td>0.0434</td>
+      <td>0.0352</td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>marital-status</td>
+      <td>discrete</td>
+      <td>0.0114</td>
+      <td>0.0114</td>
+      <td>0.0328</td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>native-country</td>
+      <td>discrete</td>
+      <td>0.0516</td>
+      <td>0.0516</td>
+      <td>0.0600</td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>occupation</td>
+      <td>discrete</td>
+      <td>0.0209</td>
+      <td>0.0209</td>
+      <td>0.0484</td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>race</td>
+      <td>discrete</td>
+      <td>0.0154</td>
+      <td>0.0154</td>
+      <td>0.0259</td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>relationship</td>
+      <td>discrete</td>
+      <td>0.0251</td>
+      <td>0.0251</td>
+      <td>0.0033</td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>sex</td>
+      <td>discrete</td>
+      <td>0.0929</td>
+      <td>0.0929</td>
+      <td>0.1033</td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>workclass</td>
+      <td>discrete</td>
+      <td>0.0207</td>
+      <td>0.0207</td>
+      <td>0.0228</td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+    </tr>
+  </tbody>
 </table>
+
 <h2>UMAP overview (same projection)</h2>
 <table>
 <thead>

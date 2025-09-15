@@ -84,7 +84,7 @@ If you need continuous modeling for binned columns
 
 ## Outputs per dataset
 - `report.md` and `index.html`: Full report (HTML rendered from Markdown).
-- Dataset metadata: `metadata.json` and `dataset.jsonld`.
+- Dataset metadata: `dataset.json`.
 - BN structures: `bn_<label>.png` (Graphviz), `structure_<label>.graphml`, `model_<label>.pickle`.
 - UMAP images: `umap_real.png`, `umap_metasyn.png`, `umap_bn_<label>.png`.
 - MetaSyn model: `metasyn_gmf.json` (when available).

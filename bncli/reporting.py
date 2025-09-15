@@ -23,8 +23,6 @@ def write_report_md(
     bn_sections: List[Dict],
     dist_table_meta: pd.DataFrame,
     fidelity_table: pd.DataFrame,
-    graphml_files: Optional[List[str]],
-    pickle_files: Optional[List[str]],
     roots_info: Optional[Dict],
     umap_png_real: str,
     umap_png_bns: List[str],
@@ -32,6 +30,7 @@ def write_report_md(
     metasyn_gmf_file: Optional[str] = None,
     declared_types: Optional[dict] = None,
     inferred_types: Optional[dict] = None,
+    variable_descriptions: Optional[dict] = None,
 ) -> None:
     md_path = Path(outdir) / "report.md"
     num_rows, num_cols = df.shape
@@ -42,6 +41,18 @@ def write_report_md(
             except Exception:
                 return d.to_string(index=index)
         f.write(f"# Data Report — {dataset_name}\n\n")
+        
+        # Provider-specific links
+        if dataset_provider and dataset_provider_id:
+            if dataset_provider == 'openml':
+                url = f"https://www.openml.org/search?type=data&id={dataset_provider_id}"
+                f.write(f"**Source**: [OpenML dataset {dataset_provider_id}]({url})\n")
+            elif dataset_provider == 'uciml':
+                url = f"https://archive.ics.uci.edu/dataset/{dataset_provider_id}"
+                f.write(f"**Source**: [UCI dataset {dataset_provider_id}]({url})\n")
+        f.write("\n")
+        
+        # Overview
         mf_name = Path(metadata_file).name
         f.write(f"- Metadata file: [{mf_name}]({mf_name})\n")
         if dataset_jsonld_file:
@@ -50,14 +61,6 @@ def write_report_md(
         f.write(f"- Rows: {num_rows}\n")
         f.write(f"- Columns: {num_cols}\n")
         f.write(f"- Discrete: {len(disc_cols)}  |  Continuous: {len(cont_cols)}\n")
-        # Provider-specific links
-        if dataset_provider and dataset_provider_id:
-            if dataset_provider == 'openml':
-                url = f"https://www.openml.org/search?type=data&id={dataset_provider_id}"
-                f.write(f"- OpenML page: {url}\n")
-            elif dataset_provider == 'uciml':
-                url = f"https://archive.ics.uci.edu/dataset/{dataset_provider_id}"
-                f.write(f"- UCI ML page: {url}\n")
         f.write("\n")
 
         if isinstance(dataset_jsonld, dict):
@@ -104,7 +107,7 @@ def write_report_md(
         # Merge variables and baseline summary into one table
         baseline_out = baseline_df.round(4).reset_index().rename(columns={baseline_df.index.name or 'index': 'variable'})
         baseline_out = baseline_out.fillna("")
-        # Build declared and inferred type tables (if provided)
+        # Build declared, inferred, and description tables (if provided)
         declared_df = None
         if isinstance(declared_types, dict) and declared_types:
             declared_df = pd.DataFrame(
@@ -115,15 +118,30 @@ def write_report_md(
             inferred_df = pd.DataFrame(
                 [{"variable": k, "inferred": v} for k, v in inferred_types.items()]
             )
+        desc_df = None
+        if isinstance(variable_descriptions, dict) and variable_descriptions:
+            desc_df = pd.DataFrame(
+                [{"variable": k, "description": v} for k, v in variable_descriptions.items()]
+            )
         # Merge into baseline summary
         merged = baseline_out
         if declared_df is not None and not declared_df.empty:
             merged = declared_df.merge(merged, on="variable", how="right")
         if inferred_df is not None and not inferred_df.empty:
             merged = inferred_df.merge(merged, on="variable", how="right")
+        if desc_df is not None and not desc_df.empty:
+            merged = desc_df.merge(merged, on="variable", how="right")
+        merged = merged.fillna("")
+        
+        
         f.write("## Variables and summary\n\n")
         f.write(df_to_markdown(merged, index=False) + "\n\n")
-        f.write("## Learned BN structures and configurations\n\n")
+
+        f.write("## Learned structures and configurations\n\n")
+        if metasyn_gmf_file:
+            mname = Path(metasyn_gmf_file).name
+            f.write(f"MetaSyn GMF: [{mname}]({mname})\n\n")
+
         if roots_info:
             f.write("### Arc blacklist\n\n")
             sens = roots_info.get('root_variables')
@@ -132,6 +150,7 @@ def write_report_md(
             nf = roots_info.get('n_forbidden_arcs')
             if nf is not None:
                 f.write(f"- Forbidden arc count: {nf}\n\n")
+        
         for i, sect in enumerate(bn_sections):
             label = sect.get("label") or sect.get("bn_type", f"BN{i+1}")
             bn_png = sect.get("bn_png")
@@ -154,9 +173,7 @@ def write_report_md(
                 pname = Path(pickle_file).name
                 f.write(f"- Full model (pickle): [{pname}]({pname})\n")
             f.write("\n")
-        if metasyn_gmf_file:
-            mname = Path(metasyn_gmf_file).name
-            f.write(f"MetaSyn GMF: [{mname}]({mname})\n\n")
+        
         f.write("## Fidelity (BN vs MetaSyn)\n\n")
         # Add BN held-out likelihood as text for clarity as well
         # If available, include BN likelihoods in the table below; drop separate line
@@ -179,13 +196,13 @@ def write_report_md(
                     base = base.merge(dt[["variable", "type"]], on=["variable", "type"], how="outer")
                 cols = [c for c in ["JSD", "KS", "W1"] if c in dt.columns]
                 part = dt[cols].copy()
-                part.columns = pd.MultiIndex.from_tuples([ (bnt, c) for c in cols ])
+                part.columns = pd.MultiIndex.from_tuples([(bnt, c) for c in cols])
                 parts.append(part)
             # Add MetaSyn distances
             if isinstance(dist_table_meta, pd.DataFrame) and not dist_table_meta.empty:
                 cols = [c for c in ["JSD", "KS", "W1"] if c in dist_table_meta.columns]
                 meta_part = dist_table_meta[cols].copy()
-                meta_part.columns = pd.MultiIndex.from_tuples([ ("MetaSyn", c) for c in cols])
+                meta_part.columns = pd.MultiIndex.from_tuples([("MetaSyn", c) for c in cols])
                 parts.append(meta_part)
             if base is not None and parts:
                 comp_df = pd.concat([base] + parts, axis=1)
@@ -201,10 +218,16 @@ def write_report_md(
                     rest = [lvl for lvl in sub.columns.levels[0] if lvl not in first_levels]
                     order = first_levels + rest
                     sub = sub.reindex(columns=order, level=0)
-                    comp_df = pd.concat([comp_df[["variable", "type"]], sub], axis=1)
-                f.write(df_to_markdown(comp_df.round(4).fillna(""), index=False) + "\n\n")
-        f.write("## UMAP overview (same projection)\n\n")
+                    # Promote variable/type to MultiIndex columns for hierarchical headers
+                    left = comp_df[["variable", "type"]].copy()
+                    left.columns = pd.MultiIndex.from_tuples([(" ", "variable"), (" ", "type")])
+                    comp_df = pd.concat([left, sub], axis=1)
+                # Write a clean HTML table with hierarchical headers, grouped by metric
+                html_table = comp_df.round(4).to_html(index=False, na_rep="", classes=["table", "per-var-dist"], border=0)
+                f.write(html_table + "\n\n")
+        
         # Dynamically build columns for UMAP images
+        f.write("## UMAP overview (same projection)\n\n")
         headers = ["Real (sample)", "MetaSyn (synthetic)"] + [f"BN: {sect.get('label') or sect.get('bn_type','')}" for sect in bn_sections]
         tbl = "| " + " | ".join(headers) + " |\n"
         tbl += "| " + " | ".join(["---"] * len(headers)) + " |\n"

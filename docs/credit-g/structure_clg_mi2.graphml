@@ -1,0 +1,86 @@
+<?xml version='1.0' encoding='utf-8'?>
+<graphml xmlns="http://graphml.graphdrawing.org/xmlns" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd">
+  <key id="d0" for="node" attr.name="bn_type" attr.type="string" />
+  <graph edgedefault="directed">
+    <node id="checking_status">
+      <data key="d0">DiscreteFactorType</data>
+    </node>
+    <node id="duration_months">
+      <data key="d0">LinearGaussianCPDType</data>
+    </node>
+    <node id="credit_history">
+      <data key="d0">DiscreteFactorType</data>
+    </node>
+    <node id="credit_purpose">
+      <data key="d0">DiscreteFactorType</data>
+    </node>
+    <node id="credit_amount">
+      <data key="d0">LinearGaussianCPDType</data>
+    </node>
+    <node id="savings_status">
+      <data key="d0">DiscreteFactorType</data>
+    </node>
+    <node id="employment_since">
+      <data key="d0">DiscreteFactorType</data>
+    </node>
+    <node id="installment_rate_percent">
+      <data key="d0">DiscreteFactorType</data>
+    </node>
+    <node id="personal_status_sex">
+      <data key="d0">DiscreteFactorType</data>
+    </node>
+    <node id="other_debtors">
+      <data key="d0">DiscreteFactorType</data>
+    </node>
+    <node id="residence_since">
+      <data key="d0">DiscreteFactorType</data>
+    </node>
+    <node id="property">
+      <data key="d0">DiscreteFactorType</data>
+    </node>
+    <node id="age_years">
+      <data key="d0">LinearGaussianCPDType</data>
+    </node>
+    <node id="other_installment_plans">
+      <data key="d0">DiscreteFactorType</data>
+    </node>
+    <node id="housing">
+      <data key="d0">DiscreteFactorType</data>
+    </node>
+    <node id="existing_credits_count">
+      <data key="d0">DiscreteFactorType</data>
+    </node>
+    <node id="job">
+      <data key="d0">DiscreteFactorType</data>
+    </node>
+    <node id="people_liable">
+      <data key="d0">DiscreteFactorType</data>
+    </node>
+    <node id="telephone">
+      <data key="d0">DiscreteFactorType</data>
+    </node>
+    <node id="foreign_worker">
+      <data key="d0">DiscreteFactorType</data>
+    </node>
+    <node id="good_or_bad_customer">
+      <data key="d0">DiscreteFactorType</data>
+    </node>
+    <edge source="checking_status" target="good_or_bad_customer" />
+    <edge source="duration_months" target="credit_amount" />
+    <edge source="credit_history" target="other_installment_plans" />
+    <edge source="credit_history" target="existing_credits_count" />
+    <edge source="employment_since" target="job" />
+    <edge source="employment_since" target="age_years" />
+    <edge source="personal_status_sex" target="people_liable" />
+    <edge source="residence_since" target="employment_since" />
+    <edge source="property" target="duration_months" />
+    <edge source="property" target="housing" />
+    <edge source="housing" target="personal_status_sex" />
+    <edge source="housing" target="residence_since" />
+    <edge source="job" target="telephone" />
+    <edge source="job" target="credit_amount" />
+    <edge source="foreign_worker" target="property" />
+    <edge source="good_or_bad_customer" target="credit_history" />
+    <edge source="good_or_bad_customer" target="savings_status" />
+  </graph>
+</graphml>

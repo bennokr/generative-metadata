@@ -49,23 +49,20 @@
     </node>
     <edge source="age" target="fnlwgt" />
     <edge source="education-num" target="class" />
+    <edge source="education-num" target="capital-gain" />
     <edge source="workclass" target="occupation" />
-    <edge source="education" target="capital-gain" />
     <edge source="education" target="education-num" />
     <edge source="marital-status" target="relationship" />
-    <edge source="occupation" target="hours-per-week" />
     <edge source="occupation" target="education" />
+    <edge source="occupation" target="hours-per-week" />
     <edge source="relationship" target="workclass" />
     <edge source="relationship" target="class" />
     <edge source="relationship" target="capital-loss" />
     <edge source="race" target="fnlwgt" />
     <edge source="race" target="native-country" />
-    <edge source="race" target="age" />
     <edge source="race" target="marital-status" />
     <edge source="sex" target="fnlwgt" />
-    <edge source="sex" target="age" />
     <edge source="sex" target="hours-per-week" />
-    <edge source="sex" target="race" />
     <edge source="sex" target="occupation" />
     <edge source="sex" target="marital-status" />
     <edge source="sex" target="relationship" />

@@ -47,7 +47,7 @@ def report(
     outdir: str = "docs",
     bn_types: List[str] = ("clg", "semiparametric"),
     configs_yaml: str = "",
-    arc_blacklist: List[str] = (),
+    roots: List[str] = (),
     area: str = "Health and Medicine",
     verbose: bool = False
 ) -> None:
@@ -59,7 +59,7 @@ def report(
         outdir: Output directory where per-dataset reports are written.
         bn_types: One or more BN types to learn and compare. Supported: 'clg', 'semiparametric'. Ignored if configs_yaml is provided.
         configs_yaml: Optional YAML file defining a list of BN structure-learning configurations. Each item can include: name, bn_type, score, operators, max_indegree, seed. If provided, these override bn_types.
-        arc_blacklist: Optional list of variable names treated as sensitive; structure learning forbids arcs from these variables to others. If omitted, defaults to ['age','sex','race'] or for UCI ML, the 'demographics' metadata if present.
+        roots: Optional list of variable names treated as roots; structure learning forbids arcs from these variables to others. If omitted, defaults to ['age','sex','race'] or for UCI ML, the 'demographics' metadata if present.
         area: For default UCI selection, which Area to pull mixed-dtype datasets from.
     """
     if verbose:
@@ -97,8 +97,8 @@ def report(
         logging.info(f'Loading {spec}')
         try:
             meta, df, color = load_dataset(spec)
-            # Pass arc_blacklist only if user provided it; otherwise None to use provider-specific default
-            abl = list(arc_blacklist) if isinstance(arc_blacklist, (list, tuple)) and len(arc_blacklist) else None
+            # Pass roots only if user provided it; otherwise None to use provider-specific default
+            abl = list(roots) if isinstance(roots, (list, tuple)) and len(roots) else None
             # Try to extract provider_id for linking
             prov_id = None
             if spec.provider == 'uciml':
@@ -119,7 +119,7 @@ def report(
                 provider=spec.provider,
                 provider_id=prov_id,
                 bn_configs=bn_configs,
-                arc_blacklist=abl,
+                roots=abl,
             )
         except Exception as e:
             print(f"[WARN] Skipped {spec.provider}:{spec.name} due to error: {e}")

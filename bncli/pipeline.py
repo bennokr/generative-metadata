@@ -67,7 +67,7 @@ def process_dataset(
     provider: Optional[str] = None,
     provider_id: Optional[int] = None,
     bn_configs: Optional[List[Dict[str, Any]]] = None,
-    arc_blacklist: Optional[List[str]] = None,
+    roots: Optional[List[str]] = None,
     cfg: Config = Config(),
 ) -> None:
     name = getattr(meta, 'name', None) or (meta.get('name') if isinstance(meta, dict) else None) or 'dataset'
@@ -215,6 +215,83 @@ def process_dataset(
     baseline_df = df.describe(include='all').transpose()
     baseline_df.index.name = 'variable'
 
+    # Build declared and inferred type maps for reporting
+    inferred_map = {c: ("discrete" if c in disc_cols else "continuous") for c in df.columns}
+
+    def get_uciml_declared_types(uci_dataset_id: Optional[int]) -> dict:
+        declared = {}
+        if not uci_dataset_id:
+            return declared
+        import requests
+        import json as _json
+        import pathlib as _pl
+        cachedir = _pl.Path('.') / 'uciml-cache'
+        cachedir.mkdir(exist_ok=True)
+        cache = cachedir / f"{uci_dataset_id}.json"
+        data_url = "https://archive.ics.uci.edu/api/dataset"
+        try:
+            if not cache.exists():
+                r = requests.get(data_url, params={'id': uci_dataset_id}, timeout=30)
+                if r.ok:
+                    content = r.json().get('data')
+                    cache.write_text(_json.dumps(content))
+            if cache.exists():
+                data = _json.loads(cache.read_text())
+                vars_meta = data.get('variables') or []
+                for v in vars_meta:
+                    nm = v.get('name')
+                    tp = v.get('type')
+                    if nm:
+                        declared[str(nm)] = str(tp) if tp is not None else ''
+        except Exception:
+            # Best-effort; swallow errors and return what we have
+            pass
+        return declared
+
+    def get_openml_declared_types(openml_meta_obj: Any) -> dict:
+        declared = {}
+        obj = openml_meta_obj
+        try:
+            # Try OpenML Python dataset object's features list
+            feats = getattr(obj, 'features', None)
+            if feats is not None:
+                for f in feats:
+                    # Common attributes on Feature objects: name, data_type
+                    nm = getattr(f, 'name', None) or getattr(f, 'index', None)
+                    dt = getattr(f, 'data_type', None) or getattr(f, 'dtype', None)
+                    if nm is not None:
+                        declared[str(nm)] = str(dt) if dt is not None else ''
+            # Fallback: data_features dict mapping names to dicts
+            if not declared:
+                dfeat = getattr(obj, 'data_features', None)
+                if isinstance(dfeat, dict):
+                    for nm, info in dfeat.items():
+                        if isinstance(info, dict):
+                            dt = info.get('data_type') or info.get('type')
+                        else:
+                            dt = None
+                        declared[str(nm)] = str(dt) if dt is not None else ''
+        except Exception:
+            pass
+        return declared
+
+    declared_map = {}
+    prov_name_lower = (provider or '').lower() if provider else None
+    prov_id_value = provider_id
+    # Try to resolve provider_name/id similarly to how we prepare links below
+    ident = dataset_jsonld.get('identifier') if isinstance(dataset_jsonld, dict) else None
+    if isinstance(ident, (int, np.integer)):
+        prov_id_value = int(ident)
+    if prov_name_lower == 'uciml' or (uci_id and not prov_name_lower):
+        declared_map = get_uciml_declared_types(prov_id_value or uci_id)
+        prov_name_lower = 'uciml'
+    elif prov_name_lower == 'openml' or (openml_id and not prov_name_lower):
+        declared_map = get_openml_declared_types(meta)
+        prov_name_lower = 'openml'
+    # Only keep declared entries for present columns; preserve order of df columns
+    if declared_map:
+        declared_map = {c: declared_map.get(str(c), '') for c in df.columns}
+
     logging.info("Dropping rows with any NA for modeling")
     df_no_na = df.dropna(axis=0, how="any").reset_index(drop=True)
     train_df, test_df = train_test_split(
@@ -223,31 +300,32 @@ def process_dataset(
     logging.info(f"Train/test split sizes: {len(train_df)}/{len(test_df)}")
 
     # Determine arc blacklist variables
-    default_sensitive = ["age", "sex", "race"]
-    sensitive_vars: List[str]
-    if isinstance(arc_blacklist, (list, tuple)) and len(arc_blacklist):
-        sensitive_vars = [str(x) for x in arc_blacklist]
+    default_root = ["age", "sex", "race"]
+    root_vars: List[str]
+    if isinstance(roots, (list, tuple)) and len(roots):
+        root_vars = [str(x) for x in roots]
     else:
         demo = meta_dict.get('demographics')
         if isinstance(demo, (list, tuple)):
-            sensitive_vars = [str(x) for x in demo]
+            root_vars = [str(x) for x in demo]
         elif isinstance(demo, dict):
-            sensitive_vars = [str(k) for k in demo.keys()]
+            root_vars = [str(k) for k in demo.keys()]
         else:
-            sensitive_vars = default_sensitive
+            root_vars = default_root
+    logging.info(f'Using {root_vars=}')
 
-    # Build arc blacklist pairs: forbid arcs INTO sensitive vars FROM non-sensitive variables only
+    # Build arc blacklist pairs: forbid arcs INTO root vars FROM non-root variables only
     cols = list(df.columns)
     col_map = {str(c).lower(): c for c in cols}
     sens_in_cols = []
-    for s in sensitive_vars:
+    for s in root_vars:
         t = str(s).lower()
         if t in col_map:
             sens_in_cols.append(col_map[t])
-    non_sensitive_cols = [c for c in cols if c not in sens_in_cols]
+    logging.info(f'Using {sens_in_cols=}')
     arc_blacklist_pairs: List[Tuple[str, str]] = []
     for u in sens_in_cols:
-        for v in non_sensitive_cols:
+        for v in cols:
             arc_blacklist_pairs.append((v, u))
 
     # BN configurations to run
@@ -452,13 +530,14 @@ def process_dataset(
         fidelity_table=fidelity_table,
         graphml_files=[sect['graphml_file'] for sect in bn_sections],
         pickle_files=[sect['pickle_file'] for sect in bn_sections],
-        arc_blacklist_info=dict(
-            sensitive_variables=sens_in_cols,
-            direction="forbid incoming arcs into sensitive from non-sensitive",
+        roots_info=dict(
+            root_variables=sens_in_cols,
             n_forbidden_arcs=len(arc_blacklist_pairs),
         ),
         umap_png_real=str(umap_png_real),
         umap_png_bns=[sect['umap_png'] for sect in bn_sections],
         umap_png_meta=str(umap_png_meta),
         metasyn_gmf_file=(str(metasyn_gmf) if metasyn_gmf is not None else None),
+        declared_types=declared_map or None,
+        inferred_types=inferred_map or None,
     )

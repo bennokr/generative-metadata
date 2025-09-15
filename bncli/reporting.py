@@ -25,11 +25,13 @@ def write_report_md(
     fidelity_table: pd.DataFrame,
     graphml_files: Optional[List[str]],
     pickle_files: Optional[List[str]],
-    arc_blacklist_info: Optional[Dict],
+    roots_info: Optional[Dict],
     umap_png_real: str,
     umap_png_bns: List[str],
     umap_png_meta: str,
     metasyn_gmf_file: Optional[str] = None,
+    declared_types: Optional[dict] = None,
+    inferred_types: Optional[dict] = None,
 ) -> None:
     md_path = Path(outdir) / "report.md"
     num_rows, num_cols = df.shape
@@ -102,36 +104,32 @@ def write_report_md(
         # Merge variables and baseline summary into one table
         baseline_out = baseline_df.round(4).reset_index().rename(columns={baseline_df.index.name or 'index': 'variable'})
         baseline_out = baseline_out.fillna("")
-        vars_meas = dataset_jsonld.get("variableMeasured") if isinstance(dataset_jsonld, dict) else None
-        var_df = None
-        if vars_meas:
-            if isinstance(vars_meas, dict):
-                vars_meas = [vars_meas]
-            rows = []
-            for item in vars_meas:
-                if isinstance(item, dict):
-                    rows.append({
-                        "variable": item.get("name", ""),
-                        "measurement": item.get("measurementTechnique", ""),
-                        "unit": item.get("unitText", "")
-                    })
-            var_df = pd.DataFrame(rows).fillna("") if rows else None
-        if var_df is not None and not var_df.empty:
-            merged = var_df.merge(baseline_out, on="variable", how="right")
-        else:
-            merged = baseline_out
+        # Build declared and inferred type tables (if provided)
+        declared_df = None
+        if isinstance(declared_types, dict) and declared_types:
+            declared_df = pd.DataFrame(
+                [{"variable": k, "declared": v} for k, v in declared_types.items()]
+            )
+        inferred_df = None
+        if isinstance(inferred_types, dict) and inferred_types:
+            inferred_df = pd.DataFrame(
+                [{"variable": k, "inferred": v} for k, v in inferred_types.items()]
+            )
+        # Merge into baseline summary
+        merged = baseline_out
+        if declared_df is not None and not declared_df.empty:
+            merged = declared_df.merge(merged, on="variable", how="right")
+        if inferred_df is not None and not inferred_df.empty:
+            merged = inferred_df.merge(merged, on="variable", how="right")
         f.write("## Variables and summary\n\n")
         f.write(df_to_markdown(merged, index=False) + "\n\n")
         f.write("## Learned BN structures and configurations\n\n")
-        if arc_blacklist_info:
+        if roots_info:
             f.write("### Arc blacklist\n\n")
-            sens = arc_blacklist_info.get('sensitive_variables')
+            sens = roots_info.get('root_variables')
             if sens:
-                f.write("- Sensitive variables: " + ", ".join(map(str, sens)) + "\n")
-            dirn = arc_blacklist_info.get('direction')
-            if dirn:
-                f.write(f"- Rule: {dirn}\n")
-            nf = arc_blacklist_info.get('n_forbidden_arcs')
+                f.write("- Root variables: " + ", ".join(map(str, sens)) + "\n")
+            nf = roots_info.get('n_forbidden_arcs')
             if nf is not None:
                 f.write(f"- Forbidden arc count: {nf}\n\n")
         for i, sect in enumerate(bn_sections):

@@ -7,7 +7,7 @@
 ## Key features
 - Multiple BN configurations in a single run: compare structures, likelihoods, and per-variable distances across configurations.
 - BN structure-learning tuning knobs: bn_type, score, operators, max_indegree, seed.
-- Arc blacklist: prevent incoming arcs into sensitive variables (sensitive <- non-sensitive), while allowing outgoing arcs from sensitive variables.
+- Arc blacklist: prevent incoming arcs into root variables (root <- others), while allowing outgoing arcs from root variables.
 - YAML configuration: define multiple BN learning configurations in a file.
 - Provider-aware metadata: include links to the dataset’s OpenML/UCI page, JSON-LD metadata, and a merged “Variables and summary” table.
 
@@ -36,7 +36,7 @@ Run from the repository root.
   - semi_mi5: Semiparametric BN, score=bic, operators=[arcs], max_indegree=5, seed=42
 - `--arc-blacklist`: Root variable names (repeatable). If omitted, defaults to:
   - OpenML: [age, sex, race]
-  - UCI ML: the metadata “demographics” field, when present (case-insensitive match to columns), otherwise the default above.
+  - UCI ML: the metadata “demographics” field, when present (case-inroot match to columns), otherwise the default above.
 
 ## Arc blacklist semantics
 - For a set of root variables S and the remaining variables R, the pipeline forbids incoming arcs into root variables from non-root variables.
@@ -68,6 +68,20 @@ configs:
 - operators is passed directly to hc (e.g., ["arcs"]).
 - max_indegree controls parent count constraints and directly affects the learned structure.
 
+## Limitation: UCI API metadata vs. actual on-disk datatypes
+- For UCI ML Repository datasets, we fetch descriptive metadata from the UCI API (cached under uciml-cache/) but we always infer variable types from the actual data file (via ucimlrepo -> data.csv).
+- Some UCI datasets publish pre-discretized/binned numeric attributes as strings (e.g., "112 - 154", "< 3.65", "≥ 1.023"). When loaded, pandas treats these as object dtype. Our type inference therefore marks such columns as discrete, even if the UCI API metadata calls them Integer/Real.
+- Integer-coded flags (e.g., 0/1) are also treated as discrete by design (low cardinality integers are considered discrete in bncli/utils.infer_types).
+- As a result, the report may show more discrete variables than suggested by the UCI API. This is expected and reflects the data as provided in the file, which is what the models are fit to.
+
+Example: Risk Factor Prediction of Chronic Kidney Disease (UCI id 857)
+- UCI metadata lists feature_types = ["Real"] and per-variable types such as Integer/Continuous.
+- The actual CSV contains many range-labeled strings and threshold bins for clinical measurements (e.g., bgr, bu, sc, hemo, etc.), so the pipeline infers these as discrete and the report shows mostly discrete variables.
+
+If you need continuous modeling for binned columns
+- Preprocess the dataset to convert bin labels to numeric values (e.g., midpoint of range) before running the pipeline, or customize the inference to coerce specific columns to floats.
+- Alternatively, the reporting could be extended to display both the UCI-declared type and the inferred type; open an issue if you want this surfaced in the reports.
+
 ## Outputs per dataset
 - `report.md` and `index.html`: Full report (HTML rendered from Markdown).
 - Dataset metadata: `metadata.json` and `dataset.jsonld`.
@@ -78,4 +92,3 @@ configs:
 ## Troubleshooting
 - If log-likelihood columns appear empty in the report, the pipeline automatically ignores non-finite values when calculating the held-out log-likelihood; ensure the training/test splits contain no missing values for the variables used.
 - If using `--configs-yaml`, ensure PyYAML is available in your environment.
-

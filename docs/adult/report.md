@@ -21,31 +21,30 @@ Prediction task is to determine whether a person makes over 50K a year. Extracti
   - URL: https://api.openml.org/data/v1/download/22112026/adult.arff
 ## Variables and summary
 
-| variable       | measurement   | unit   |   count | unique   | top                | freq   | mean               | std                | min     | 25%      | 50%      | 75%      | max       |
-|:---------------|:--------------|:-------|--------:|:---------|:-------------------|:-------|:-------------------|:-------------------|:--------|:---------|:---------|:---------|:----------|
-| age            | continuous    |        |   48842 |          |                    |        | 38.64358543876172  | 13.71050993444316  | 17.0    | 28.0     | 37.0     | 48.0     | 90.0      |
-| fnlwgt         | continuous    |        |   48842 |          |                    |        | 189664.13459727284 | 105604.02542315786 | 12285.0 | 117550.5 | 178144.5 | 237642.0 | 1490400.0 |
-| education-num  | discrete      |        |   48842 | 16       | 9                  | 15784  |                    |                    |         |          |          |          |           |
-| capital-gain   | continuous    |        |   48842 |          |                    |        | 1079.0676262233324 | 7452.01905765375   | 0.0     | 0.0      | 0.0      | 0.0      | 99999.0   |
-| capital-loss   | continuous    |        |   48842 |          |                    |        | 87.50231358257237  | 403.00455212445047 | 0.0     | 0.0      | 0.0      | 0.0      | 4356.0    |
-| hours-per-week | continuous    |        |   48842 |          |                    |        | 40.422382375824085 | 12.391444024255906 | 1.0     | 40.0     | 40.0     | 45.0     | 99.0      |
-| workclass      | discrete      |        |   48842 | 9        | Private            | 33906  |                    |                    |         |          |          |          |           |
-| education      | discrete      |        |   48842 | 16       | HS-grad            | 15784  |                    |                    |         |          |          |          |           |
-| marital-status | discrete      |        |   48842 | 7        | Married-civ-spouse | 22379  |                    |                    |         |          |          |          |           |
-| occupation     | discrete      |        |   48842 | 15       | Prof-specialty     | 6172   |                    |                    |         |          |          |          |           |
-| relationship   | discrete      |        |   48842 | 6        | Husband            | 19716  |                    |                    |         |          |          |          |           |
-| race           | discrete      |        |   48842 | 5        | White              | 41762  |                    |                    |         |          |          |          |           |
-| sex            | discrete      |        |   48842 | 2        | Male               | 32650  |                    |                    |         |          |          |          |           |
-| native-country | discrete      |        |   48842 | 42       | United-States      | 43832  |                    |                    |         |          |          |          |           |
-| class          | discrete      |        |   48842 | 2        | <=50K              | 37155  |                    |                    |         |          |          |          |           |
+| variable       | inferred   |   count | unique   | top                | freq   | mean               | std                | min     | 25%      | 50%      | 75%      | max       |
+|:---------------|:-----------|--------:|:---------|:-------------------|:-------|:-------------------|:-------------------|:--------|:---------|:---------|:---------|:----------|
+| age            | continuous |   48842 |          |                    |        | 38.64358543876172  | 13.71050993444316  | 17.0    | 28.0     | 37.0     | 48.0     | 90.0      |
+| fnlwgt         | continuous |   48842 |          |                    |        | 189664.13459727284 | 105604.02542315786 | 12285.0 | 117550.5 | 178144.5 | 237642.0 | 1490400.0 |
+| education-num  | discrete   |   48842 | 16       | 9                  | 15784  |                    |                    |         |          |          |          |           |
+| capital-gain   | continuous |   48842 |          |                    |        | 1079.0676262233324 | 7452.01905765375   | 0.0     | 0.0      | 0.0      | 0.0      | 99999.0   |
+| capital-loss   | continuous |   48842 |          |                    |        | 87.50231358257237  | 403.00455212445047 | 0.0     | 0.0      | 0.0      | 0.0      | 4356.0    |
+| hours-per-week | continuous |   48842 |          |                    |        | 40.422382375824085 | 12.391444024255906 | 1.0     | 40.0     | 40.0     | 45.0     | 99.0      |
+| workclass      | discrete   |   48842 | 9        | Private            | 33906  |                    |                    |         |          |          |          |           |
+| education      | discrete   |   48842 | 16       | HS-grad            | 15784  |                    |                    |         |          |          |          |           |
+| marital-status | discrete   |   48842 | 7        | Married-civ-spouse | 22379  |                    |                    |         |          |          |          |           |
+| occupation     | discrete   |   48842 | 15       | Prof-specialty     | 6172   |                    |                    |         |          |          |          |           |
+| relationship   | discrete   |   48842 | 6        | Husband            | 19716  |                    |                    |         |          |          |          |           |
+| race           | discrete   |   48842 | 5        | White              | 41762  |                    |                    |         |          |          |          |           |
+| sex            | discrete   |   48842 | 2        | Male               | 32650  |                    |                    |         |          |          |          |           |
+| native-country | discrete   |   48842 | 42       | United-States      | 43832  |                    |                    |         |          |          |          |           |
+| class          | discrete   |   48842 | 2        | <=50K              | 37155  |                    |                    |         |          |          |          |           |
 
 ## Learned BN structures and configurations
 
 ### Arc blacklist
 
-- Sensitive variables: age, sex, race
-- Rule: forbid incoming arcs into sensitive from non-sensitive
-- Forbidden arc count: 36
+- Root variables: age, sex, race
+- Forbidden arc count: 45
 
 ### clg_mi2
 
@@ -87,29 +86,29 @@ MetaSyn GMF: [metasyn_gmf.json](metasyn_gmf.json)
 
 | model       | mean_loglik   | std_loglik   | sum_loglik   |   disc_jsd_mean |   disc_jsd_median |   cont_ks_mean |   cont_w1_mean |
 |:------------|:--------------|:-------------|:-------------|----------------:|------------------:|---------------:|---------------:|
-| BN:clg_mi2  | -46.2197      | 17.6846      | -450734.5953 |          0.0393 |            0.0311 |         0.3024 |        3787.54 |
-| BN:semi_mi5 | -46.2052      | 17.685       | -450592.8675 |          0.0393 |            0.0311 |         0.3057 |        4035.03 |
-| MetaSyn     |               |              |              |          0.0401 |            0.0409 |         0.4581 |        5056.04 |
+| BN:clg_mi2  | -46.2333      | 17.6838      | -450867.3177 |          0.0349 |            0.0311 |         0.298  |        3711.92 |
+| BN:semi_mi5 | -46.2188      | 17.6841      | -450725.5899 |          0.0363 |            0.0318 |         0.2984 |        4011.98 |
+| MetaSyn     |               |              |              |          0.0399 |            0.036  |         0.4581 |        5126.04 |
 
 ### Per-variable distances (lower is closer)
 
 | variable       | type       | ('JSD', 'clg_mi2')   | ('JSD', 'semi_mi5')   | ('JSD', 'MetaSyn')   | ('KS', 'clg_mi2')   | ('KS', 'semi_mi5')   | ('KS', 'MetaSyn')   | ('W1', 'clg_mi2')   | ('W1', 'semi_mi5')   | ('W1', 'MetaSyn')   |
 |:---------------|:-----------|:---------------------|:----------------------|:---------------------|:--------------------|:---------------------|:--------------------|:--------------------|:---------------------|:--------------------|
-| age            | continuous |                      |                       |                      | 0.0833              | 0.0833               | 0.0489              | 2.0701              | 2.0701               | 0.5968              |
-| capital-gain   | continuous |                      |                       |                      | 0.0943              | 0.1048               | 0.1353              | 16363.4901          | 17554.3394           | 23496.0059          |
-| capital-loss   | continuous | 0.0434               | 0.0434                | 0.0431               |                     |                      |                     |                     |                      |                     |
-| class          | discrete   |                      |                       |                      | 0.5206              | 0.5366               | 0.9106              | 2268.4204           | 2314.9021            | 1636.1787           |
-| education      | discrete   |                      |                       |                      | 0.563               | 0.563                | 0.952               | 300.3598            | 300.3598             | 143.8699            |
-| education-num  | discrete   |                      |                       |                      | 0.2506              | 0.2406               | 0.2436              | 3.3566              | 3.4827               | 3.5677              |
-| fnlwgt         | continuous | 0.037                | 0.037                 | 0.0471               |                     |                      |                     |                     |                      |                     |
-| hours-per-week | continuous | 0.0434               | 0.0434                | 0.0486               |                     |                      |                     |                     |                      |                     |
-| marital-status | discrete   | 0.0134               | 0.0134                | 0.0309               |                     |                      |                     |                     |                      |                     |
-| native-country | discrete   | 0.0531               | 0.0531                | 0.0463               |                     |                      |                     |                     |                      |                     |
-| occupation     | discrete   | 0.0184               | 0.0184                | 0.0387               |                     |                      |                     |                     |                      |                     |
-| race           | discrete   | 0.0246               | 0.0246                | 0.0188               |                     |                      |                     |                     |                      |                     |
-| relationship   | discrete   | 0.0251               | 0.0251                | 0.0156               |                     |                      |                     |                     |                      |                     |
-| sex            | discrete   | 0.1104               | 0.1104                | 0.0978               |                     |                      |                     |                     |                      |                     |
-| workclass      | discrete   | 0.0238               | 0.0238                | 0.0136               |                     |                      |                     |                     |                      |                     |
+| age            | continuous |                      |                       |                      | 0.0647              | 0.0647               | 0.0649              | 1.9326              | 1.9326               | 1.3021              |
+| capital-gain   | continuous |                      |                       |                      | 0.0872              | 0.0982               | 0.1075              | 16008.75            | 17469.3816           | 23843.0704          |
+| capital-loss   | continuous | 0.0311               | 0.0434                | 0.0556               |                     |                      |                     |                     |                      |                     |
+| class          | discrete   |                      |                       |                      | 0.5276              | 0.5216               | 0.9106              | 2244.6671           | 2283.6989            | 1636.6148           |
+| education      | discrete   |                      |                       |                      | 0.563               | 0.566                | 0.952               | 300.9421            | 301.3958             | 145.5235            |
+| education-num  | discrete   |                      |                       |                      | 0.2476              | 0.2416               | 0.2556              | 3.2947              | 3.4741               | 3.6759              |
+| fnlwgt         | continuous | 0.0385               | 0.0385                | 0.0251               |                     |                      |                     |                     |                      |                     |
+| hours-per-week | continuous | 0.0311               | 0.0434                | 0.0399               |                     |                      |                     |                     |                      |                     |
+| marital-status | discrete   | 0.0114               | 0.0114                | 0.0322               |                     |                      |                     |                     |                      |                     |
+| native-country | discrete   | 0.0516               | 0.0516                | 0.0441               |                     |                      |                     |                     |                      |                     |
+| occupation     | discrete   | 0.0209               | 0.0209                | 0.0398               |                     |                      |                     |                     |                      |                     |
+| race           | discrete   | 0.0154               | 0.0154                | 0.0237               |                     |                      |                     |                     |                      |                     |
+| relationship   | discrete   | 0.0251               | 0.0251                | 0.0191               |                     |                      |                     |                     |                      |                     |
+| sex            | discrete   | 0.0929               | 0.0929                | 0.0998               |                     |                      |                     |                     |                      |                     |
+| workclass      | discrete   | 0.031                | 0.0207                | 0.0197               |                     |                      |                     |                     |                      |                     |
 
 ## UMAP overview (same projection)
 

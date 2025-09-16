@@ -1,0 +1,82 @@
+{
+  "dataset": {
+    "@context": "https://w3id.org/semmap/context/v1",
+    "@type": ["disco:LogicalDataSet", "dsv:Dataset", "dcat:Dataset"],
+    "dct:title": "Heart Disease (UCI id 45)",
+    "dct:description": "4 databases: Cleveland, Hungary, Switzerland, and the VA Long Beach",
+    "dct:license": "https://creativecommons.org/publicdomain/zero/1.0/"
+  },
+  "disco:variable": [
+    {
+      "@context": "https://w3id.org/semmap/context/v1",
+      "@type": ["disco:Variable", "dsv:Column"],
+      "skos:notation": "cp",
+      "skos:prefLabel": "Chest pain type",
+      "disco:representation": {
+        "@type": ["disco:Representation", "skos:ConceptScheme"],
+        "skos:hasTopConcept": [
+          {"@type": "skos:Concept", "skos:notation": "1", "skos:prefLabel": "Typical angina", "skos:exactMatch": "http://snomed.info/id/429559004"},
+          {"@type": "skos:Concept", "skos:notation": "2", "skos:prefLabel": "Atypical angina", "skos:exactMatch": "http://snomed.info/id/371807002"},
+          {"@type": "skos:Concept", "skos:notation": "3", "skos:prefLabel": "Non-cardiac chest pain", "skos:exactMatch": "http://snomed.info/id/274668005"},
+          {"@type": "skos:Concept", "skos:notation": "4", "skos:prefLabel": "Asymptomatic", "skos:exactMatch": "http://snomed.info/id/161971004"}
+        ],
+        "dct:source": "https://dicom.nema.org/medical/dicom/current/output/chtml/part16/sect_CID_3202.html"
+      },
+      "dct:source": "https://dicom.nema.org/medical/dicom/current/output/chtml/part16/sect_CID_3202.html"
+    },
+    {
+      "@context": "https://w3id.org/semmap/context/v1",
+      "@type": ["disco:Variable", "dsv:Column"],
+      "skos:notation": "fbs",
+      "skos:prefLabel": "Fasting blood sugar >120 mg/dL (indicator)",
+      "disco:representation": {
+        "@type": ["disco:Representation", "skos:ConceptScheme"],
+        "skos:hasTopConcept": [
+          {"@type": "skos:Concept", "skos:notation": "0", "skos:prefLabel": "≤120 mg/dL"},
+          {"@type": "skos:Concept", "skos:notation": "1", "skos:prefLabel": ">120 mg/dL"}
+        ],
+        "dct:source": "https://loinc.org/2345-7"
+      },
+      "dct:source": "https://loinc.org/2345-7"
+    },
+    {
+      "@context": "https://w3id.org/semmap/context/v1",
+      "@type": ["disco:Variable", "dsv:Column"],
+      "skos:notation": "trestbps",
+      "skos:prefLabel": "Resting systolic blood pressure",
+      "disco:representation": {
+        "@type": "disco:Representation",
+        "dsv:valueType": "xsd:integer",
+        "qudt:hasUnit": "unit:MilliM_HG",
+        "semmap:pintUnit": "mmHg"
+      },
+      "dct:source": "https://loinc.org/8480-6"
+    },
+    {
+      "@context": "https://w3id.org/semmap/context/v1",
+      "@type": ["disco:Variable", "dsv:Column"],
+      "skos:notation": "chol",
+      "skos:prefLabel": "Total cholesterol",
+      "disco:representation": {
+        "@type": "disco:Representation",
+        "dsv:valueType": "xsd:integer",
+        "qudt:hasUnit": "unit:MilliGM-PER-DeciL",
+        "semmap:pintUnit": "mg/dL"
+      },
+      "dct:source": "https://loinc.org/2093-3"
+    },
+    {
+      "@context": "https://w3id.org/semmap/context/v1",
+      "@type": ["disco:Variable", "dsv:Column"],
+      "skos:notation": "age",
+      "skos:prefLabel": "Age",
+      "disco:representation": {
+        "@type": "disco:Representation",
+        "dsv:valueType": "xsd:integer",
+        "qudt:hasUnit": "unit:YR",
+        "semmap:pintUnit": "year"
+      }
+    }
+  ]
+}
+

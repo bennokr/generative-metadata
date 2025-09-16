@@ -1,0 +1,82 @@
+{
+  "dataset": {
+    "@context": "https://w3id.org/semmap/context/v1",
+    "@type": ["disco:LogicalDataSet", "dsv:Dataset", "dcat:Dataset"],
+    "dct:title": "Chronic Kidney Disease (UCI id 336)",
+    "dct:description": "Clinical records for early detection of CKD (subset of variables mapped)."
+  },
+  "disco:variable": [
+    {
+      "@context": "https://w3id.org/semmap/context/v1",
+      "@type": ["disco:Variable", "dsv:Column"],
+      "skos:notation": "age",
+      "skos:prefLabel": "Age",
+      "disco:representation": {
+        "@type": "disco:Representation",
+        "dsv:valueType": "xsd:integer",
+        "qudt:hasUnit": "unit:YR",
+        "semmap:pintUnit": "year"
+      }
+    },
+    {
+      "@context": "https://w3id.org/semmap/context/v1",
+      "@type": ["disco:Variable", "dsv:Column"],
+      "skos:notation": "bp",
+      "skos:prefLabel": "Blood pressure (resting)",
+      "disco:representation": {
+        "@type": "disco:Representation",
+        "dsv:valueType": "xsd:integer",
+        "qudt:hasUnit": "unit:MilliM_HG",
+        "semmap:pintUnit": "mmHg"
+      },
+      "dct:description": "blood pressure"
+    },
+    {
+      "@context": "https://w3id.org/semmap/context/v1",
+      "@type": ["disco:Variable", "dsv:Column"],
+      "skos:notation": "bgr",
+      "skos:prefLabel": "Blood glucose (random)",
+      "disco:representation": {
+        "@type": "disco:Representation",
+        "dsv:valueType": "xsd:integer",
+        "qudt:hasUnit": "unit:MilliGM-PER-DeciL",
+        "semmap:pintUnit": "mg/dL"
+      }
+    },
+    {
+      "@context": "https://w3id.org/semmap/context/v1",
+      "@type": ["disco:Variable", "dsv:Column"],
+      "skos:notation": "bu",
+      "skos:prefLabel": "Blood urea",
+      "disco:representation": {
+        "@type": "disco:Representation",
+        "dsv:valueType": "xsd:integer",
+        "qudt:hasUnit": "unit:MilliGM-PER-DeciL",
+        "semmap:pintUnit": "mg/dL"
+      }
+    },
+    {
+      "@context": "https://w3id.org/semmap/context/v1",
+      "@type": ["disco:Variable", "dsv:Column"],
+      "skos:notation": "sc",
+      "skos:prefLabel": "Serum creatinine",
+      "disco:representation": {
+        "@type": "disco:Representation",
+        "dsv:valueType": "xsd:decimal",
+        "semmap:pintUnit": "mg/dL"
+      }
+    },
+    {
+      "@context": "https://w3id.org/semmap/context/v1",
+      "@type": ["disco:Variable", "dsv:Column"],
+      "skos:notation": "hemo",
+      "skos:prefLabel": "Hemoglobin",
+      "disco:representation": {
+        "@type": "disco:Representation",
+        "dsv:valueType": "xsd:decimal",
+        "semmap:pintUnit": "g/dL"
+      }
+    }
+  ]
+}
+

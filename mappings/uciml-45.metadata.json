@@ -10,6 +10,33 @@
     {
       "@context": "https://w3id.org/semmap/context/v1",
       "@type": ["disco:Variable", "dsv:Column"],
+      "skos:notation": "age",
+      "skos:prefLabel": "Age",
+      "disco:representation": {
+        "@type": "disco:Representation",
+        "dsv:valueType": "xsd:integer",
+        "qudt:hasUnit": "unit:YR",
+        "semmap:pintUnit": "year"
+      },
+      "dct:source": "https://loinc.org/30525-0"
+    },
+    {
+      "@context": "https://w3id.org/semmap/context/v1",
+      "@type": ["disco:Variable", "dsv:Column"],
+      "skos:notation": "sex",
+      "skos:prefLabel": "Administrative sex",
+      "disco:representation": {
+        "@type": ["disco:Representation", "skos:ConceptScheme"],
+        "skos:hasTopConcept": [
+          {"@type": "skos:Concept", "skos:notation": "0", "skos:prefLabel": "female", "skos:exactMatch": "http://snomed.info/id/248152002"},
+          {"@type": "skos:Concept", "skos:notation": "1", "skos:prefLabel": "male", "skos:exactMatch": "http://snomed.info/id/248153007"}
+        ]
+      },
+      "dct:source": "https://docs.snomed.org/implementation-guides/snomed-ct-guide-for-covid-19/2-coding-covid-19-related-data/2.2-patient-demographics"
+    },
+    {
+      "@context": "https://w3id.org/semmap/context/v1",
+      "@type": ["disco:Variable", "dsv:Column"],
       "skos:notation": "cp",
       "skos:prefLabel": "Chest pain type",
       "disco:representation": {
@@ -68,15 +95,108 @@
     {
       "@context": "https://w3id.org/semmap/context/v1",
       "@type": ["disco:Variable", "dsv:Column"],
-      "skos:notation": "age",
-      "skos:prefLabel": "Age",
+      "skos:notation": "restecg",
+      "skos:prefLabel": "Resting ECG result",
+      "disco:representation": {
+        "@type": ["disco:Representation", "skos:ConceptScheme"],
+        "skos:hasTopConcept": [
+          {"@type": "skos:Concept", "skos:notation": "0", "skos:prefLabel": "normal", "skos:exactMatch": "http://snomed.info/id/164854000"},
+          {"@type": "skos:Concept", "skos:notation": "1", "skos:prefLabel": "ST-T abnormality", "skos:exactMatch": "http://snomed.info/id/428750005"},
+          {"@type": "skos:Concept", "skos:notation": "2", "skos:prefLabel": "LVH (Estes)", "skos:exactMatch": "http://snomed.info/id/25488008"}
+        ]
+      },
+      "dct:source": "https://cvquality.acc.org/docs/default-source/ncdr/data-collection/epdeviceimplant_v2-3_datadictionarycoders.pdf"
+    },
+    {
+      "@context": "https://w3id.org/semmap/context/v1",
+      "@type": ["disco:Variable", "dsv:Column"],
+      "skos:notation": "thalach",
+      "skos:prefLabel": "Maximum heart rate achieved",
       "disco:representation": {
         "@type": "disco:Representation",
         "dsv:valueType": "xsd:integer",
-        "qudt:hasUnit": "unit:YR",
-        "semmap:pintUnit": "year"
+        "semmap:pintUnit": "1/min"
+      },
+      "dct:source": "https://loinc.org/101692-2"
+    },
+    {
+      "@context": "https://w3id.org/semmap/context/v1",
+      "@type": ["disco:Variable", "dsv:Column"],
+      "skos:notation": "exang",
+      "skos:prefLabel": "Exercise-induced angina",
+      "disco:representation": {
+        "@type": ["disco:Representation", "skos:ConceptScheme"],
+        "skos:hasTopConcept": [
+          {"@type": "skos:Concept", "skos:notation": "0", "skos:prefLabel": "no"},
+          {"@type": "skos:Concept", "skos:notation": "1", "skos:prefLabel": "yes"}
+        ]
+      },
+      "dct:source": "https://archive.datadictionary.nhs.uk/DD%20Release%20June%202021/Covid19PRA/Coronary_Heart.html"
+    },
+    {
+      "@context": "https://w3id.org/semmap/context/v1",
+      "@type": ["disco:Variable", "dsv:Column"],
+      "skos:notation": "oldpeak",
+      "skos:prefLabel": "ST depression vs rest (max during study)",
+      "disco:representation": {
+        "@type": "disco:Representation",
+        "dsv:valueType": "xsd:decimal",
+        "semmap:pintUnit": "mV"
+      },
+      "dct:source": "https://loinc.org/91546-2"
+    },
+    {
+      "@context": "https://w3id.org/semmap/context/v1",
+      "@type": ["disco:Variable", "dsv:Column"],
+      "skos:notation": "slope",
+      "skos:prefLabel": "Slope of peak exercise ST segment",
+      "disco:representation": {
+        "@type": ["disco:Representation", "skos:ConceptScheme"],
+        "skos:hasTopConcept": [
+          {"@type": "skos:Concept", "skos:notation": "1", "skos:prefLabel": "upsloping"},
+          {"@type": "skos:Concept", "skos:notation": "2", "skos:prefLabel": "flat"},
+          {"@type": "skos:Concept", "skos:notation": "3", "skos:prefLabel": "downsloping"}
+        ]
+      },
+      "dct:source": "https://dicom.nema.org/medical/dicom/current/output/chtml/part16/sect_CID_3233.html"
+    },
+    {
+      "@context": "https://w3id.org/semmap/context/v1",
+      "@type": ["disco:Variable", "dsv:Column"],
+      "skos:notation": "ca",
+      "skos:prefLabel": "Number of major vessels (colored by fluoroscopy)",
+      "disco:representation": {
+        "@type": "disco:Representation",
+        "dsv:valueType": "xsd:integer"
       }
+    },
+    {
+      "@context": "https://w3id.org/semmap/context/v1",
+      "@type": ["disco:Variable", "dsv:Column"],
+      "skos:notation": "thal",
+      "skos:prefLabel": "Thallium perfusion test",
+      "disco:representation": {
+        "@type": ["disco:Representation", "skos:ConceptScheme"],
+        "skos:hasTopConcept": [
+          {"@type": "skos:Concept", "skos:notation": "3", "skos:prefLabel": "normal", "skos:exactMatch": "http://snomed.info/id/371801000"},
+          {"@type": "skos:Concept", "skos:notation": "6", "skos:prefLabel": "fixed defect", "skos:exactMatch": "http://snomed.info/id/371918009"},
+          {"@type": "skos:Concept", "skos:notation": "7", "skos:prefLabel": "reversible defect", "skos:exactMatch": "http://snomed.info/id/371920002"}
+        ]
+      }
+    },
+    {
+      "@context": "https://w3id.org/semmap/context/v1",
+      "@type": ["disco:Variable", "dsv:Column"],
+      "skos:notation": "num",
+      "skos:prefLabel": "Angiographic disease status",
+      "disco:representation": {
+        "@type": ["disco:Representation", "skos:ConceptScheme"],
+        "skos:hasTopConcept": [
+          {"@type": "skos:Concept", "skos:notation": "0", "skos:prefLabel": "<50% narrowing"},
+          {"@type": "skos:Concept", "skos:notation": "1", "skos:prefLabel": "≥50% narrowing"}
+        ]
+      },
+      "dct:source": "https://purl.bioontology.org/ontology/SNOMEDCT/233970002"
     }
   ]
 }
-

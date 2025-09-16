@@ -1,10 +1,10 @@
 {
   "@context": "https://schema.org",
   "@type": "Dataset",
-  "name": "Chronic Kidney Disease",
+  "name": "Chronic Kidney Disease (UCI id 336)",
   "identifier": 336,
   "url": "https://archive.ics.uci.edu/dataset/336",
-  "description": "This dataset can be used to predict the chronic kidney disease and it can be collected from the hospital nearly 2 months of period.",
+  "description": "Clinical records for early detection of CKD (subset of variables mapped).",
   "creator": [
     {
       "@type": "Person",
@@ -23,151 +23,180 @@
     {
       "@type": "PropertyValue",
       "name": "age",
-      "measurementTechnique": "continuous"
+      "measurementTechnique": "continuous",
+      "description": "Clinical records for early detection of CKD (subset of variables mapped)."
     },
     {
       "@type": "PropertyValue",
       "name": "bp",
       "measurementTechnique": "continuous",
-      "description": "blood pressure"
+      "description": "Diastolic blood pressure",
+      "alternateName": "Diastolic blood pressure",
+      "unitText": "mmHg",
+      "unitCode": "unit:MilliM_HG"
     },
     {
       "@type": "PropertyValue",
       "name": "sg",
       "measurementTechnique": "continuous",
-      "description": "specific gravity"
+      "description": "Urine specific gravity",
+      "alternateName": "Urine specific gravity"
     },
     {
       "@type": "PropertyValue",
       "name": "al",
-      "measurementTechnique": "continuous",
-      "description": "albumin"
+      "measurementTechnique": "categorical",
+      "description": "Urine albumin (dipstick)",
+      "alternateName": "Urine albumin (dipstick)"
     },
     {
       "@type": "PropertyValue",
       "name": "su",
-      "measurementTechnique": "continuous",
-      "description": "sugar"
+      "measurementTechnique": "categorical",
+      "description": "Urine glucose (dipstick)",
+      "alternateName": "Urine glucose (dipstick)"
     },
     {
       "@type": "PropertyValue",
       "name": "rbc",
-      "measurementTechnique": "discrete",
-      "description": "red blood cells"
+      "measurementTechnique": "categorical",
+      "description": "RBCs in urine (presence)",
+      "alternateName": "RBCs in urine (presence)"
     },
     {
       "@type": "PropertyValue",
       "name": "pc",
-      "measurementTechnique": "discrete",
-      "description": "pus cell"
+      "measurementTechnique": "categorical",
+      "description": "Urine leukocytes (presence)",
+      "alternateName": "Urine leukocytes (presence)"
     },
     {
       "@type": "PropertyValue",
       "name": "pcc",
-      "measurementTechnique": "discrete",
-      "description": "pus cell clumps"
+      "measurementTechnique": "categorical",
+      "description": "Pus cell clumps (urine)",
+      "alternateName": "Pus cell clumps (urine)"
     },
     {
       "@type": "PropertyValue",
       "name": "ba",
-      "measurementTechnique": "discrete",
-      "description": "bacteria"
+      "measurementTechnique": "categorical",
+      "description": "Bacteria in urine (presence)",
+      "alternateName": "Bacteria in urine (presence)"
     },
     {
       "@type": "PropertyValue",
       "name": "bgr",
       "measurementTechnique": "continuous",
-      "description": "blood glucose random"
+      "description": "Blood glucose (random)",
+      "alternateName": "Blood glucose (random)",
+      "unitText": "mg/dL",
+      "unitCode": "unit:MilliGM-PER-DeciL"
     },
     {
       "@type": "PropertyValue",
       "name": "bu",
       "measurementTechnique": "continuous",
-      "description": "blood urea"
+      "description": "Blood urea",
+      "alternateName": "Blood urea",
+      "unitText": "mg/dL",
+      "unitCode": "unit:MilliGM-PER-DeciL"
     },
     {
       "@type": "PropertyValue",
       "name": "sc",
       "measurementTechnique": "continuous",
-      "description": "serum creatinine"
+      "description": "Serum creatinine",
+      "alternateName": "Serum creatinine",
+      "unitText": "mg/dL"
     },
     {
       "@type": "PropertyValue",
       "name": "sod",
       "measurementTechnique": "continuous",
-      "description": "sodium"
+      "description": "Serum sodium",
+      "alternateName": "Serum sodium",
+      "unitText": "mmol/L"
     },
     {
       "@type": "PropertyValue",
       "name": "pot",
       "measurementTechnique": "continuous",
-      "description": "potassium"
+      "description": "Serum potassium",
+      "alternateName": "Serum potassium",
+      "unitText": "mmol/L"
     },
     {
       "@type": "PropertyValue",
       "name": "hemo",
       "measurementTechnique": "continuous",
-      "description": "hemoglobin"
+      "description": "Hemoglobin",
+      "alternateName": "Hemoglobin",
+      "unitText": "g/dL"
     },
     {
       "@type": "PropertyValue",
       "name": "pcv",
       "measurementTechnique": "continuous",
-      "description": "packed cell volume"
+      "description": "Packed cell volume (hematocrit)",
+      "alternateName": "Packed cell volume (hematocrit)",
+      "unitText": "%"
     },
     {
       "@type": "PropertyValue",
       "name": "wbcc",
       "measurementTechnique": "continuous",
-      "description": "white blood cell count"
+      "description": "Clinical records for early detection of CKD (subset of variables mapped)."
     },
     {
       "@type": "PropertyValue",
       "name": "rbcc",
       "measurementTechnique": "continuous",
-      "description": "red blood cell count"
+      "description": "RBC count (blood)",
+      "alternateName": "RBC count (blood)"
     },
     {
       "@type": "PropertyValue",
       "name": "htn",
       "measurementTechnique": "discrete",
-      "description": "hypertension"
+      "description": "Clinical records for early detection of CKD (subset of variables mapped)."
     },
     {
       "@type": "PropertyValue",
       "name": "dm",
       "measurementTechnique": "discrete",
-      "description": "diabetes mellitus"
+      "description": "Clinical records for early detection of CKD (subset of variables mapped)."
     },
     {
       "@type": "PropertyValue",
       "name": "cad",
       "measurementTechnique": "discrete",
-      "description": "coronary artery disease"
+      "description": "Clinical records for early detection of CKD (subset of variables mapped)."
     },
     {
       "@type": "PropertyValue",
       "name": "appet",
       "measurementTechnique": "discrete",
-      "description": "appetite"
+      "description": "Clinical records for early detection of CKD (subset of variables mapped)."
     },
     {
       "@type": "PropertyValue",
       "name": "pe",
       "measurementTechnique": "discrete",
-      "description": "pedal edema"
+      "description": "Clinical records for early detection of CKD (subset of variables mapped)."
     },
     {
       "@type": "PropertyValue",
       "name": "ane",
       "measurementTechnique": "discrete",
-      "description": "anemia"
+      "description": "Clinical records for early detection of CKD (subset of variables mapped)."
     },
     {
       "@type": "PropertyValue",
       "name": "class",
-      "measurementTechnique": "discrete",
-      "description": "ckd or not ckd"
+      "measurementTechnique": "categorical",
+      "description": "Outcome label (CKD)",
+      "alternateName": "Outcome label (CKD)"
     }
   ]
 }

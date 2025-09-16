@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import copy
 from pathlib import Path
 from typing import Optional, Any, List, Dict, Sequence, Tuple
 import json
@@ -7,6 +8,7 @@ import logging
 
 import numpy as np
 import pandas as pd
+import semmap  # noqa: F401  # Register pandas accessors
 from sklearn.model_selection import train_test_split
 
 from .utils import (
@@ -21,6 +23,7 @@ from .umap_utils import build_umap, plot_umap, transform_with_umap
 from .bn import learn_bn, bn_to_graphviz, save_graphml_structure
 from .metrics import heldout_loglik, per_variable_distances
 from .reporting import write_report_md
+from .mappings import resolve_mapping_json, load_mapping_json
 from .metadata import (
     meta_to_dict,
     build_dataset_jsonld,
@@ -66,13 +69,60 @@ def process_dataset(
         json.dump(meta_dict, f, indent=2)
     logging.info(f"Wrote raw metadata JSON: {metadata_file}")
 
-    # Build schema.org/Dataset JSON-LD
-    dataset_jsonld = build_dataset_jsonld(name, meta_dict, df)
+    # Attempt to locate curated SemMap metadata before further processing
+    mapping_provider, mapping_provider_id = resolve_provider_and_id(
+        provider=provider,
+        provider_id=provider_id,
+        meta_dict=meta_dict,
+        dataset_jsonld=None,
+    )
+    semmap_export: Optional[Dict[str, Any]] = None
+    semmap_dataset_meta: Optional[Dict[str, Any]] = None
+    mapping_path = resolve_mapping_json(mapping_provider, mapping_provider_id, name)
+    if mapping_path is not None:
+        logging.info(f"Applying curated SemMap metadata from {mapping_path}")
+        try:
+            curated_mapping = load_mapping_json(mapping_path)
+            df.semmap.apply_json_metadata(curated_mapping, convert_pint=True)
+            semmap_export = df.semmap.export_json_metadata()
+            if isinstance(semmap_export, dict):
+                semmap_dataset_meta = semmap_export.get("dataset")
+        except Exception:
+            logging.exception("Failed to apply SemMap metadata", exc_info=True)
+            semmap_export = None
+            semmap_dataset_meta = None
+    else:
+        logging.debug(
+            "No curated SemMap metadata for provider=%s id=%s dataset=%s",
+            mapping_provider,
+            mapping_provider_id,
+            name,
+        )
+
+    # Build schema.org/Dataset JSON-LD, enriched with SemMap metadata when available
+    dataset_jsonld = build_dataset_jsonld(
+        name,
+        meta_dict,
+        df,
+        semmap_dataset=semmap_dataset_meta,
+    )
     dataset_jsonld_file = outdir / 'dataset.json'
     with dataset_jsonld_file.open('w', encoding='utf-8') as fw:
         json.dump(dataset_jsonld, fw, indent=2)
     logging.info(f"Wrote JSON-LD metadata: {dataset_jsonld_file}")
 
+    if semmap_export:
+        semmap_json_file = outdir / "dataset.semmap.json"
+        with semmap_json_file.open('w', encoding='utf-8') as sf:
+            json.dump(semmap_export, sf, indent=2)
+        logging.info(f"Wrote SemMap metadata JSON: {semmap_json_file}")
+
+    provider_name_final, provider_id_final = resolve_provider_and_id(
+        provider=provider,
+        provider_id=provider_id,
+        meta_dict=meta_dict,
+        dataset_jsonld=dataset_jsonld,
+    )
 
     logging.info("Inferring column types (discrete vs continuous)")
     disc_cols, cont_cols = infer_types(df)
@@ -99,8 +149,8 @@ def process_dataset(
     inferred_map = {c: ("discrete" if c in disc_cols else "continuous") for c in df.columns}
 
     declared_map = select_declared_types(
-        provider=provider,
-        provider_id=provider_id,
+        provider=provider_name_final,
+        provider_id=provider_id_final,
         meta_obj=meta,
         df_columns=list(df.columns),
         meta_dict=meta_dict,
@@ -178,6 +228,8 @@ def process_dataset(
     plot_umap(umap_art.embedding, str(umap_png_real), title=f"{name}: real (sample)", color_labels=umap_art.color_labels)
 
     # Learn and evaluate each BN configuration
+    metasyn_semmap_parquet_file: Optional[str] = None
+
     for idx, cfg_item in enumerate(configs_to_run):
         bn_type = str(cfg_item.get("bn_type", "clg"))
         score = cfg_item.get("score")
@@ -213,6 +265,19 @@ def process_dataset(
                 synth_df[c] = synth_df[c].astype("category")
                 if pd.api.types.is_categorical_dtype(df_no_na[c]):
                     synth_df[c] = synth_df[c].cat.set_categories(df_no_na[c].cat.categories)
+        bn_semmap_parquet: Optional[str] = None
+        if semmap_export:
+            try:
+                synth_df.semmap.apply_json_metadata(copy.deepcopy(semmap_export), convert_pint=False)
+                bn_semmap_parquet_path = outdir / f"synthetic_bn_{label}.semmap.parquet"
+                synth_df.semmap.to_parquet(str(bn_semmap_parquet_path), index=False)
+                logging.info(
+                    "Wrote SemMap parquet for BN synthetic %s: %s",
+                    label,
+                    bn_semmap_parquet_path,
+                )
+            except Exception:
+                logging.exception("Failed to write SemMap parquet for BN synthetic %s", label)
         logging.info("Per-variable distances for BN computed")
         dist_table_bn = per_variable_distances(test_df, synth_df, bn_art.discrete_cols, bn_art.continuous_cols)
 
@@ -244,6 +309,7 @@ def process_dataset(
                     max_indegree=int(max_indegree) if max_indegree is not None else 5,
                     seed=seed,
                 ),
+                semmap_parquet=bn_semmap_parquet,
             )
         )
 
@@ -278,6 +344,19 @@ def process_dataset(
             if pd.api.types.is_categorical_dtype(df_no_na[c]):
                 synth_meta_df[c] = synth_meta_df[c].cat.set_categories(df_no_na[c].cat.categories)
     synth_meta_df = coerce_continuous_to_float(synth_meta_df, cont_cols)
+
+    if semmap_export:
+        try:
+            synth_meta_df.semmap.apply_json_metadata(copy.deepcopy(semmap_export), convert_pint=False)
+            metasyn_semmap_parquet_path = outdir / "synthetic_metasyn.semmap.parquet"
+            synth_meta_df.semmap.to_parquet(str(metasyn_semmap_parquet_path), index=False)
+            metasyn_semmap_parquet_file = str(metasyn_semmap_parquet_path)
+            logging.info(
+                "Wrote SemMap parquet for MetaSyn synthetic: %s",
+                metasyn_semmap_parquet_path,
+            )
+        except Exception:
+            logging.exception("Failed to serialize SemMap parquet for MetaSyn synthetic")
 
     # Distances for MetaSyn model (use overall discrete/continuous cols inferred earlier)
     dist_table_meta = per_variable_distances(test_df, synth_meta_df, disc_cols, cont_cols)
@@ -314,12 +393,7 @@ def process_dataset(
     fidelity_table = pd.DataFrame(fidelity_rows)
 
     # Determine provider and dataset page links
-    provider_name, prov_id = resolve_provider_and_id(
-        provider=provider,
-        provider_id=provider_id,
-        meta_dict=meta_dict,
-        dataset_jsonld=dataset_jsonld,
-    )
+    provider_name, prov_id = provider_name_final, provider_id_final
     # If UCI, get variable descriptions from cached metadata for report table
     var_desc_map = {}
     if provider_name == 'uciml' and isinstance(prov_id, int):
@@ -354,4 +428,6 @@ def process_dataset(
         declared_types=declared_map or None,
         inferred_types=inferred_map or None,
         variable_descriptions=var_desc_map or None,
+        semmap_jsonld=semmap_export,
+        metasyn_semmap_parquet=metasyn_semmap_parquet_file,
     )

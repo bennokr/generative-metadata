@@ -1,11 +1,68 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
+import html
 import logging
+import textwrap
+
 import markdown
 
+from jsonld_to_rdfa import SCHEMA_ORG, render_rdfa
+
 import pandas as pd
+
+
+_REPORT_STYLE = """<style>
+:root { color-scheme: light; }
+body { margin: 0; font-family: "Inter", "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif; background: #f4f7fb; color: #1f2937; line-height: 1.65; }
+main.report-container { max-width: 1040px; margin: 0 auto; padding: 3rem 3rem 4rem; background: #ffffff; box-shadow: 0 18px 45px rgba(15, 23, 42, 0.08); border-radius: 18px; }
+h1 { font-size: 2.5rem; margin-top: 0; color: #0f172a; letter-spacing: -0.02em; }
+h2 { margin-top: 2.75rem; padding-bottom: 0.35rem; border-bottom: 1px solid #e2e8f0; color: #1e293b; font-size: 1.6rem; }
+h3 { margin-top: 2.2rem; color: #334155; font-size: 1.25rem; }
+p { margin: 0.85rem 0; }
+ul, ol { margin: 0.75rem 0 0.75rem 1.5rem; padding: 0; }
+li { margin: 0.35rem 0; }
+table { border-collapse: collapse; width: 100%; margin: 1.75rem 0; font-size: 0.95rem; }
+th, td { border: 1px solid #e2e8f0; padding: 0.6rem 0.75rem; text-align: left; vertical-align: top; }
+thead th { background: #f8fafc; text-transform: uppercase; letter-spacing: 0.04em; font-size: 0.75rem; color: #475569; }
+tbody tr:nth-child(odd) { background: #fdfefe; }
+a { color: #2563eb; text-decoration: none; }
+a:hover { text-decoration: underline; }
+code { background: #f1f5f9; padding: 0.15rem 0.4rem; border-radius: 4px; font-size: 0.85em; }
+img { border-radius: 12px; box-shadow: 0 4px 28px rgba(15, 23, 42, 0.12); }
+blockquote { border-left: 4px solid #cbd5f5; margin: 1.5rem 0; padding: 0.75rem 1.25rem; background: #f8fafc; color: #1e293b; }
+table.per-var-dist { margin-top: 2.25rem; }
+table.per-var-dist thead th { text-align: center; }
+</style>"""
+
+
+_SEMMAP_STYLE = """<style>
+.semmap-metadata { display: grid; gap: 1.5rem; margin: 1.5rem 0; }
+.semmap-metadata .item { border: 1px solid #e2e8f0; border-radius: 16px; padding: 1.25rem 1.5rem; background: linear-gradient(180deg, rgba(248, 250, 252, 0.6), #ffffff); box-shadow: 0 10px 30px rgba(15, 23, 42, 0.05); }
+.semmap-metadata .item-title { margin: 0 0 .75rem; font-size: 1.1rem; color: #0f172a; }
+.semmap-metadata .prop { margin: .3rem 0; color: #334155; }
+.semmap-metadata .name { font-weight: 600; margin-right: .35rem; color: #0f172a; }
+.semmap-metadata .prop-table { border-collapse: collapse; width: 100%; margin: .35rem 0 1rem; font-size: .95rem; }
+.semmap-metadata .prop-table th, .semmap-metadata .prop-table td { border: 1px solid #e2e8f0; padding: .45rem .6rem; text-align: left; }
+.semmap-metadata .prop-table th { background: #f8fafc; color: #475569; text-transform: uppercase; letter-spacing: .04em; font-size: .7rem; }
+</style>"""
+
+
+def _resolve_semmap_context(data: Dict[str, Any]) -> Any:
+    if not isinstance(data, dict):
+        return SCHEMA_ORG
+    if data.get("@context"):
+        return data["@context"]
+    dataset = data.get("dataset")
+    if isinstance(dataset, dict) and dataset.get("@context"):
+        return dataset["@context"]
+    variables = data.get("disco:variable")
+    if isinstance(variables, list):
+        for entry in variables:
+            if isinstance(entry, dict) and entry.get("@context"):
+                return entry["@context"]
+    return SCHEMA_ORG
 
 
 def write_report_md(
@@ -31,8 +88,27 @@ def write_report_md(
     declared_types: Optional[dict] = None,
     inferred_types: Optional[dict] = None,
     variable_descriptions: Optional[dict] = None,
+    semmap_jsonld: Optional[dict] = None,
+    metasyn_semmap_parquet: Optional[str] = None,
 ) -> None:
     md_path = Path(outdir) / "report.md"
+    semmap_fragment: Optional[str] = None
+    semmap_html_name: Optional[str] = None
+    if isinstance(semmap_jsonld, dict) and semmap_jsonld:
+        try:
+            context = _resolve_semmap_context(semmap_jsonld)
+            html_title = f"{dataset_name} — SemMap metadata"
+            semmap_fragment = render_rdfa(semmap_jsonld, context, html_title)
+            semmap_html_path = md_path.parent / "dataset.semmap.html"
+            semmap_html_path.write_text(
+                semmap_fragment, encoding="utf-8"
+            )
+            semmap_html_name = semmap_html_path.name
+            logging.info(f"Wrote SemMap metadata HTML: {semmap_html_path}")
+        except Exception:
+            logging.exception("Failed to render SemMap metadata HTML", exc_info=True)
+            semmap_fragment = None
+            semmap_html_name = None
     num_rows, num_cols = df.shape
     with md_path.open("w", encoding="utf-8") as f:
         def df_to_markdown(d: pd.DataFrame, index: bool = False) -> str:
@@ -58,6 +134,14 @@ def write_report_md(
         if dataset_jsonld_file:
             jd_name = Path(dataset_jsonld_file).name
             f.write(f"- JSON-LD (schema.org/Dataset): [{jd_name}]({jd_name})\n")
+        if semmap_jsonld:
+            semmap_json_name = "dataset.semmap.json"
+            if (md_path.parent / semmap_json_name).exists():
+                f.write(f"- SemMap JSON-LD: [{semmap_json_name}]({semmap_json_name})\n")
+            else:
+                f.write(f"- SemMap JSON-LD: {semmap_json_name}\n")
+        if semmap_html_name:
+            f.write(f"- SemMap HTML: [{semmap_html_name}]({semmap_html_name})\n")
         f.write(f"- Rows: {num_rows}\n")
         f.write(f"- Columns: {num_cols}\n")
         f.write(f"- Discrete: {len(disc_cols)}  |  Continuous: {len(cont_cols)}\n")
@@ -104,6 +188,14 @@ def write_report_md(
                 f.write("- Links:\n")
                 for label, u in urls:
                     f.write(f"  - {label}: {u}\n")
+        if semmap_fragment:
+            f.write("\n## Metadata (rich)\n\n")
+            if semmap_html_name:
+                f.write(f"[Standalone SemMap metadata view]({semmap_html_name})\n\n")
+            f.write(_SEMMAP_STYLE + "\n")
+            f.write('<div class="semmap-metadata">\n')
+            f.write(semmap_fragment)
+            f.write("\n</div>\n\n")
         # Merge variables and baseline summary into one table
         baseline_out = baseline_df.round(4).reset_index().rename(columns={baseline_df.index.name or 'index': 'variable'})
         baseline_out = baseline_out.fillna("")
@@ -141,6 +233,12 @@ def write_report_md(
         if metasyn_gmf_file:
             mname = Path(metasyn_gmf_file).name
             f.write(f"MetaSyn GMF: [{mname}]({mname})\n\n")
+        if metasyn_semmap_parquet:
+            f.write("MetaSyn serialization\n\n")
+            if metasyn_semmap_parquet:
+                pname = Path(metasyn_semmap_parquet).name
+                f.write(f"- Synthetic sample (SemMap Parquet): [{pname}]({pname})\n")
+            f.write("\n")
 
         if roots_info:
             f.write("### Arc blacklist\n\n")
@@ -172,6 +270,10 @@ def write_report_md(
             if pickle_file:
                 pname = Path(pickle_file).name
                 f.write(f"- Full model (pickle): [{pname}]({pname})\n")
+            semmap_parquet = sect.get("semmap_parquet")
+            if semmap_parquet:
+                spath = Path(semmap_parquet).name
+                f.write(f"- Synthetic sample (SemMap Parquet): [{spath}]({spath})\n")
             f.write("\n")
         
         f.write("## Fidelity (BN vs MetaSyn)\n\n")
@@ -241,6 +343,27 @@ def write_report_md(
     logging.info(f"Wrote report: {md_path}")
 
     html_path = Path(outdir) / "index.html"
-    with html_path.open('w', encoding='utf-8') as fw:
-        fw.write(markdown.markdown(md_path.read_text(encoding='utf-8'), extensions=['extra']))
+    md_text = md_path.read_text(encoding="utf-8")
+    html_body = markdown.markdown(md_text, extensions=["extra"])
+    html_body = textwrap.indent(html_body, "    ")
+    report_title = f"Data Report — {dataset_name}"
+    html_path.write_text(
+        (
+            "<!doctype html>\n"
+            "<html lang=\"en\">\n"
+            "<head>\n"
+            "  <meta charset=\"utf-8\">\n"
+            "  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n"
+            f"  <title>{html.escape(report_title)}</title>\n"
+            f"  {_REPORT_STYLE}\n"
+            "</head>\n"
+            "<body>\n"
+            "  <main class=\"report-container\">\n"
+            f"{html_body}\n"
+            "  </main>\n"
+            "</body>\n"
+            "</html>\n"
+        ),
+        encoding="utf-8",
+    )
     logging.info(f"Converted to HTML: {html_path}")

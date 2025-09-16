@@ -4,20 +4,88 @@
 
 - Metadata file: [metadata.json](metadata.json)
 - JSON-LD (schema.org/Dataset): [dataset.json](dataset.json)
+- SemMap JSON-LD: [dataset.semmap.json](dataset.semmap.json)
+- SemMap HTML: [dataset.semmap.html](dataset.semmap.html)
 - Rows: 158
 - Columns: 25
 - Discrete: 11  |  Continuous: 14
 
 ## Dataset metadata
 
+- Name: Chronic Kidney Disease (UCI id 336)
 
 ### Description
 
-This dataset can be used to predict the chronic kidney disease and it can be collected from the hospital nearly 2 months of period.
+Clinical records for early detection of CKD (subset of variables mapped).
 
 - Creators: L. Rubini, P. Soundarapandian, P. Eswaran
 - Links:
   - URL: https://archive.ics.uci.edu/dataset/336
+
+## Metadata (rich)
+
+[Standalone SemMap metadata view](dataset.semmap.html)
+
+<style>
+.semmap-metadata { display: grid; gap: 1.5rem; margin: 1.5rem 0; }
+.semmap-metadata .item { border: 1px solid #e2e8f0; border-radius: 16px; padding: 1.25rem 1.5rem; background: linear-gradient(180deg, rgba(248, 250, 252, 0.6), #ffffff); box-shadow: 0 10px 30px rgba(15, 23, 42, 0.05); }
+.semmap-metadata .item-title { margin: 0 0 .75rem; font-size: 1.1rem; color: #0f172a; }
+.semmap-metadata .prop { margin: .3rem 0; color: #334155; }
+.semmap-metadata .name { font-weight: 600; margin-right: .35rem; color: #0f172a; }
+.semmap-metadata .prop-table { border-collapse: collapse; width: 100%; margin: .35rem 0 1rem; font-size: .95rem; }
+.semmap-metadata .prop-table th, .semmap-metadata .prop-table td { border: 1px solid #e2e8f0; padding: .45rem .6rem; text-align: left; }
+.semmap-metadata .prop-table th { background: #f8fafc; color: #475569; text-transform: uppercase; letter-spacing: .04em; font-size: .7rem; }
+</style>
+<div class="semmap-metadata">
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Chronic Kidney Disease — SemMap metadata</title>
+  <style>
+    body { font-family: system-ui, Arial, sans-serif; line-height: 1.5; margin: 2rem; }
+    .item { border: 1px solid #ddd; border-radius: 8px; padding: 1rem; margin-bottom: 1rem; }
+    .item-title { margin: 0 0 .5rem; font-size: 1.1rem; }
+    .prop { margin: .2rem 0; }
+    .name { font-weight: 600; margin-right: .25rem; }
+    .id-link { margin: .2rem 0; }
+    table.prop-table { border-collapse: collapse; width: 100%; margin: .25rem 0 1rem; }
+    table.prop-table th, table.prop-table td { border: 1px solid #ddd; padding: .35rem .5rem; text-align: left; vertical-align: top; }
+    table.prop-table th { background: #f3f3f3; }
+  </style>
+</head>
+<body>
+<h1>Chronic Kidney Disease — SemMap metadata</h1>
+<div class="item" vocab="https://w3id.org/semmap/context/v1/" typeof="Thing"><div property="dataset" typeof="disco:LogicalDataSet dsv:Dataset dcat:Dataset"><div class="prop"><span class="name">dct:title</span><span property="dct:title">Chronic Kidney Disease (UCI id 336)</span></div>
+<div class="prop"><span class="name">dct:description</span><span property="dct:description">Clinical records for early detection of CKD (subset of variables mapped).</span></div></div>
+<div class="prop"><span class="name">disco:variable</span></div><table class="prop-table" data-prop="disco:variable"><thead><tr><th>disco:representation</th><th>skos:notation</th><th>skos:prefLabel</th><th>dct:source</th><th>dct:description</th><th>dct:title</th></tr></thead><tr property="disco:variable" typeof="disco:LogicalDataSet dsv:Dataset dcat:Dataset"><td></td><td></td><td></td><td></td><td><span property="dct:description">Clinical records for early detection of CKD (subset of variables mapped).</span></td><td><span property="dct:title">Chronic Kidney Disease (UCI id 336)</span></td></tr><tr property="disco:variable" typeof="disco:Variable dsv:Column"><td><div property="disco:representation" typeof="disco:Representation"><h2 class="item-title">disco:Representation</h2>
+<div class="prop"><span class="name">dsv:valueType</span><span property="dsv:valueType">xsd:integer</span></div>
+<div class="prop"><span class="name">qudt:hasUnit</span><span property="qudt:hasUnit">unit:MilliM_HG</span></div>
+<div class="prop"><span class="name">semmap:pintUnit</span><span property="semmap:pintUnit">mmHg</span></div></div></td><td><span property="skos:notation">bp</span></td><td><span property="skos:prefLabel">Diastolic blood pressure</span></td><td><a rel="dct:source" href="https://loinc.org/8462-4">https://loinc.org/8462-4</a></td><td></td><td></td></tr><tr property="disco:variable" typeof="disco:Variable dsv:Column"><td><div property="disco:representation" typeof="disco:Representation"><h2 class="item-title">disco:Representation</h2>
+<div class="prop"><span class="name">dsv:valueType</span><span property="dsv:valueType">xsd:decimal</span></div></div></td><td><span property="skos:notation">sg</span></td><td><span property="skos:prefLabel">Urine specific gravity</span></td><td><a rel="dct:source" href="https://loinc.org/2965-2">https://loinc.org/2965-2</a></td><td></td><td></td></tr><tr property="disco:variable" typeof="disco:Variable dsv:Column"><td><div property="disco:representation" typeof="disco:Representation skos:ConceptScheme"></div></td><td><span property="skos:notation">al</span></td><td><span property="skos:prefLabel">Urine albumin (dipstick)</span></td><td><a rel="dct:source" href="https://loinc.org/50949-7">https://loinc.org/50949-7</a></td><td></td><td></td></tr><tr property="disco:variable" typeof="disco:Variable dsv:Column"><td><div property="disco:representation" typeof="disco:Representation skos:ConceptScheme"></div></td><td><span property="skos:notation">su</span></td><td><span property="skos:prefLabel">Urine glucose (dipstick)</span></td><td><a rel="dct:source" href="https://loinc.org/25428-4">https://loinc.org/25428-4</a></td><td></td><td></td></tr><tr property="disco:variable" typeof="disco:Variable dsv:Column"><td><div property="disco:representation" typeof="disco:Representation skos:ConceptScheme"></div></td><td><span property="skos:notation">rbc</span></td><td><span property="skos:prefLabel">RBCs in urine (presence)</span></td><td><a rel="dct:source" href="https://loinc.org/32776-7">https://loinc.org/32776-7</a></td><td></td><td></td></tr><tr property="disco:variable" typeof="disco:Variable dsv:Column"><td><div property="disco:representation" typeof="disco:Representation skos:ConceptScheme"></div></td><td><span property="skos:notation">pc</span></td><td><span property="skos:prefLabel">Urine leukocytes (presence)</span></td><td><a rel="dct:source" href="https://loinc.org/20455-2">https://loinc.org/20455-2</a></td><td></td><td></td></tr><tr property="disco:variable" typeof="disco:Variable dsv:Column"><td><div property="disco:representation" typeof="disco:Representation skos:ConceptScheme"></div></td><td><span property="skos:notation">pcc</span></td><td><span property="skos:prefLabel">Pus cell clumps (urine)</span></td><td><a rel="dct:source" href="https://loinc.org/67848-2">https://loinc.org/67848-2</a></td><td></td><td></td></tr><tr property="disco:variable" typeof="disco:Variable dsv:Column"><td><div property="disco:representation" typeof="disco:Representation skos:ConceptScheme"></div></td><td><span property="skos:notation">ba</span></td><td><span property="skos:prefLabel">Bacteria in urine (presence)</span></td><td><a rel="dct:source" href="https://loinc.org/25145-4">https://loinc.org/25145-4</a></td><td></td><td></td></tr><tr property="disco:variable" typeof="disco:Variable dsv:Column"><td><div property="disco:representation" typeof="disco:Representation"><h2 class="item-title">disco:Representation</h2>
+<div class="prop"><span class="name">dsv:valueType</span><span property="dsv:valueType">xsd:integer</span></div>
+<div class="prop"><span class="name">qudt:hasUnit</span><span property="qudt:hasUnit">unit:MilliGM-PER-DeciL</span></div>
+<div class="prop"><span class="name">semmap:pintUnit</span><span property="semmap:pintUnit">mg/dL</span></div></div></td><td><span property="skos:notation">bgr</span></td><td><span property="skos:prefLabel">Blood glucose (random)</span></td><td></td><td></td><td></td></tr><tr property="disco:variable" typeof="disco:Variable dsv:Column"><td><div property="disco:representation" typeof="disco:Representation"><h2 class="item-title">disco:Representation</h2>
+<div class="prop"><span class="name">dsv:valueType</span><span property="dsv:valueType">xsd:integer</span></div>
+<div class="prop"><span class="name">qudt:hasUnit</span><span property="qudt:hasUnit">unit:MilliGM-PER-DeciL</span></div>
+<div class="prop"><span class="name">semmap:pintUnit</span><span property="semmap:pintUnit">mg/dL</span></div></div></td><td><span property="skos:notation">bu</span></td><td><span property="skos:prefLabel">Blood urea</span></td><td></td><td></td><td></td></tr><tr property="disco:variable" typeof="disco:Variable dsv:Column"><td><div property="disco:representation" typeof="disco:Representation"><h2 class="item-title">disco:Representation</h2>
+<div class="prop"><span class="name">dsv:valueType</span><span property="dsv:valueType">xsd:decimal</span></div>
+<div class="prop"><span class="name">semmap:pintUnit</span><span property="semmap:pintUnit">mg/dL</span></div></div></td><td><span property="skos:notation">sc</span></td><td><span property="skos:prefLabel">Serum creatinine</span></td><td><a rel="dct:source" href="https://loinc.org/2160-0">https://loinc.org/2160-0</a></td><td></td><td></td></tr><tr property="disco:variable" typeof="disco:Variable dsv:Column"><td><div property="disco:representation" typeof="disco:Representation"><h2 class="item-title">disco:Representation</h2>
+<div class="prop"><span class="name">dsv:valueType</span><span property="dsv:valueType">xsd:integer</span></div>
+<div class="prop"><span class="name">semmap:pintUnit</span><span property="semmap:pintUnit">mmol/L</span></div></div></td><td><span property="skos:notation">sod</span></td><td><span property="skos:prefLabel">Serum sodium</span></td><td><a rel="dct:source" href="https://loinc.org/2951-2">https://loinc.org/2951-2</a></td><td></td><td></td></tr><tr property="disco:variable" typeof="disco:Variable dsv:Column"><td><div property="disco:representation" typeof="disco:Representation"><h2 class="item-title">disco:Representation</h2>
+<div class="prop"><span class="name">dsv:valueType</span><span property="dsv:valueType">xsd:integer</span></div>
+<div class="prop"><span class="name">semmap:pintUnit</span><span property="semmap:pintUnit">mmol/L</span></div></div></td><td><span property="skos:notation">pot</span></td><td><span property="skos:prefLabel">Serum potassium</span></td><td><a rel="dct:source" href="https://loinc.org/2823-3">https://loinc.org/2823-3</a></td><td></td><td></td></tr><tr property="disco:variable" typeof="disco:Variable dsv:Column"><td><div property="disco:representation" typeof="disco:Representation"><h2 class="item-title">disco:Representation</h2>
+<div class="prop"><span class="name">dsv:valueType</span><span property="dsv:valueType">xsd:decimal</span></div>
+<div class="prop"><span class="name">semmap:pintUnit</span><span property="semmap:pintUnit">g/dL</span></div></div></td><td><span property="skos:notation">hemo</span></td><td><span property="skos:prefLabel">Hemoglobin</span></td><td><a rel="dct:source" href="https://loinc.org/718-7">https://loinc.org/718-7</a></td><td></td><td></td></tr><tr property="disco:variable" typeof="disco:Variable dsv:Column"><td><div property="disco:representation" typeof="disco:Representation"><h2 class="item-title">disco:Representation</h2>
+<div class="prop"><span class="name">dsv:valueType</span><span property="dsv:valueType">xsd:integer</span></div>
+<div class="prop"><span class="name">semmap:pintUnit</span><span property="semmap:pintUnit">%</span></div></div></td><td><span property="skos:notation">pcv</span></td><td><span property="skos:prefLabel">Packed cell volume (hematocrit)</span></td><td><a rel="dct:source" href="https://loinc.org/20570-8">https://loinc.org/20570-8</a></td><td></td><td></td></tr><tr property="disco:variable" typeof="disco:LogicalDataSet dsv:Dataset dcat:Dataset"><td></td><td></td><td></td><td></td><td><span property="dct:description">Clinical records for early detection of CKD (subset of variables mapped).</span></td><td><span property="dct:title">Chronic Kidney Disease (UCI id 336)</span></td></tr><tr property="disco:variable" typeof="disco:Variable dsv:Column"><td><div property="disco:representation" typeof="disco:Representation"><h2 class="item-title">disco:Representation</h2>
+<div class="prop"><span class="name">dsv:valueType</span><span property="dsv:valueType">xsd:decimal</span></div></div></td><td><span property="skos:notation">rbcc</span></td><td><span property="skos:prefLabel">RBC count (blood)</span></td><td><a rel="dct:source" href="https://loinc.org/789-8">https://loinc.org/789-8</a></td><td></td><td></td></tr><tr property="disco:variable" typeof="disco:LogicalDataSet dsv:Dataset dcat:Dataset"><td></td><td></td><td></td><td></td><td><span property="dct:description">Clinical records for early detection of CKD (subset of variables mapped).</span></td><td><span property="dct:title">Chronic Kidney Disease (UCI id 336)</span></td></tr><tr property="disco:variable" typeof="disco:LogicalDataSet dsv:Dataset dcat:Dataset"><td></td><td></td><td></td><td></td><td><span property="dct:description">Clinical records for early detection of CKD (subset of variables mapped).</span></td><td><span property="dct:title">Chronic Kidney Disease (UCI id 336)</span></td></tr><tr property="disco:variable" typeof="disco:LogicalDataSet dsv:Dataset dcat:Dataset"><td></td><td></td><td></td><td></td><td><span property="dct:description">Clinical records for early detection of CKD (subset of variables mapped).</span></td><td><span property="dct:title">Chronic Kidney Disease (UCI id 336)</span></td></tr><tr property="disco:variable" typeof="disco:LogicalDataSet dsv:Dataset dcat:Dataset"><td></td><td></td><td></td><td></td><td><span property="dct:description">Clinical records for early detection of CKD (subset of variables mapped).</span></td><td><span property="dct:title">Chronic Kidney Disease (UCI id 336)</span></td></tr><tr property="disco:variable" typeof="disco:LogicalDataSet dsv:Dataset dcat:Dataset"><td></td><td></td><td></td><td></td><td><span property="dct:description">Clinical records for early detection of CKD (subset of variables mapped).</span></td><td><span property="dct:title">Chronic Kidney Disease (UCI id 336)</span></td></tr><tr property="disco:variable" typeof="disco:LogicalDataSet dsv:Dataset dcat:Dataset"><td></td><td></td><td></td><td></td><td><span property="dct:description">Clinical records for early detection of CKD (subset of variables mapped).</span></td><td><span property="dct:title">Chronic Kidney Disease (UCI id 336)</span></td></tr><tr property="disco:variable" typeof="disco:Variable dsv:Column"><td><div property="disco:representation" typeof="disco:Representation skos:ConceptScheme"></div></td><td><span property="skos:notation">class</span></td><td><span property="skos:prefLabel">Outcome label (CKD)</span></td><td><a rel="dct:source" href="http://snomed.info/id/709044004">http://snomed.info/id/709044004</a></td><td></td><td></td></tr></table></div>
+</body>
+</html>
+
+</div>
+
 ## Variables and summary
 
 | variable   | description             | inferred   | declared    |   count | unique   | top        | freq   | mean                | std                  | min    | 25%    | 50%                | 75%    | max     |
@@ -51,6 +119,10 @@ This dataset can be used to predict the chronic kidney disease and it can be col
 ## Learned structures and configurations
 
 MetaSyn GMF: [metasyn_gmf.json](metasyn_gmf.json)
+
+MetaSyn serialization
+
+- Synthetic sample (SemMap Parquet): [synthetic_metasyn.semmap.parquet](synthetic_metasyn.semmap.parquet)
 
 ### Arc blacklist
 
@@ -95,9 +167,9 @@ Serialization
 
 | model       | mean_loglik   | std_loglik   | sum_loglik   |   disc_jsd_mean |   disc_jsd_median |   cont_ks_mean |   cont_w1_mean |
 |:------------|:--------------|:-------------|:-------------|----------------:|------------------:|---------------:|---------------:|
-| BN:clg_mi2  | -104.6927     | 390.3084     | -3350.165    |          0.0474 |            0.0556 |         0.2277 |        43.5847 |
-| BN:semi_mi5 | -104.1037     | 390.4267     | -3331.317    |          0.048  |            0.0571 |         0.2266 |        43.5115 |
-| MetaSyn     |               |              |              |          0.0439 |            0.0366 |         0.2971 |        42.9851 |
+| BN:clg_mi2  | -104.6948     | 390.3088     | -3350.2348   |          0.0438 |            0.0322 |         0.2272 |        53.9006 |
+| BN:semi_mi5 | -104.1015     | 390.4263     | -3331.2472   |          0.0454 |            0.046  |         0.2211 |        43.8072 |
+| MetaSyn     |               |              |              |          0.0462 |            0.0393 |         0.3051 |        49.1622 |
 
 ### Per-variable distances (lower is closer)
 
@@ -132,10 +204,10 @@ Serialization
       <td></td>
       <td>0.1190</td>
       <td>0.1190</td>
-      <td>0.1290</td>
+      <td>0.1530</td>
       <td>2.4896</td>
       <td>2.4896</td>
-      <td>2.6733</td>
+      <td>2.7723</td>
     </tr>
     <tr>
       <td>al</td>
@@ -143,12 +215,12 @@ Serialization
       <td></td>
       <td></td>
       <td></td>
-      <td>0.2685</td>
-      <td>0.2685</td>
-      <td>0.2515</td>
-      <td>3.9719</td>
-      <td>3.9719</td>
-      <td>3.8294</td>
+      <td>0.3075</td>
+      <td>0.2675</td>
+      <td>0.2705</td>
+      <td>3.8179</td>
+      <td>4.0047</td>
+      <td>3.6767</td>
     </tr>
     <tr>
       <td>ane</td>
@@ -156,12 +228,12 @@ Serialization
       <td></td>
       <td></td>
       <td></td>
-      <td>0.2902</td>
-      <td>0.2842</td>
+      <td>0.2892</td>
+      <td>0.2852</td>
       <td>0.4062</td>
+      <td>0.0017</td>
       <td>0.0018</td>
-      <td>0.0018</td>
-      <td>0.0018</td>
+      <td>0.0019</td>
     </tr>
     <tr>
       <td>appet</td>
@@ -169,12 +241,12 @@ Serialization
       <td></td>
       <td></td>
       <td></td>
-      <td>0.4048</td>
-      <td>0.3828</td>
+      <td>0.3938</td>
+      <td>0.3688</td>
       <td>0.7188</td>
-      <td>0.3551</td>
-      <td>0.3544</td>
-      <td>0.6631</td>
+      <td>0.3813</td>
+      <td>0.3534</td>
+      <td>0.6416</td>
     </tr>
     <tr>
       <td>ba</td>
@@ -182,19 +254,19 @@ Serialization
       <td></td>
       <td></td>
       <td></td>
-      <td>0.5385</td>
-      <td>0.5465</td>
+      <td>0.5135</td>
+      <td>0.5165</td>
       <td>0.9375</td>
-      <td>0.3201</td>
-      <td>0.2672</td>
-      <td>0.2766</td>
+      <td>0.2876</td>
+      <td>0.3111</td>
+      <td>0.2820</td>
     </tr>
     <tr>
       <td>bgr</td>
       <td>continuous</td>
-      <td>0.0413</td>
-      <td>0.0413</td>
-      <td>0.0269</td>
+      <td>0.0322</td>
+      <td>0.0439</td>
+      <td>0.0477</td>
       <td></td>
       <td></td>
       <td></td>
@@ -205,9 +277,9 @@ Serialization
     <tr>
       <td>bp</td>
       <td>continuous</td>
-      <td>0.0725</td>
+      <td>0.0747</td>
       <td>0.0803</td>
-      <td>0.0780</td>
+      <td>0.0703</td>
       <td></td>
       <td></td>
       <td></td>
@@ -218,9 +290,9 @@ Serialization
     <tr>
       <td>bu</td>
       <td>continuous</td>
-      <td>0.0599</td>
-      <td>0.0571</td>
-      <td>0.0366</td>
+      <td>0.0655</td>
+      <td>0.0528</td>
+      <td>0.0381</td>
       <td></td>
       <td></td>
       <td></td>
@@ -231,9 +303,9 @@ Serialization
     <tr>
       <td>cad</td>
       <td>discrete</td>
+      <td>0.0910</td>
       <td>0.0927</td>
-      <td>0.0927</td>
-      <td>0.0997</td>
+      <td>0.1033</td>
       <td></td>
       <td></td>
       <td></td>
@@ -247,12 +319,12 @@ Serialization
       <td></td>
       <td></td>
       <td></td>
-      <td>0.1680</td>
-      <td>0.1720</td>
-      <td>0.2750</td>
-      <td>20.7643</td>
-      <td>19.8176</td>
-      <td>22.0449</td>
+      <td>0.1430</td>
+      <td>0.1470</td>
+      <td>0.2890</td>
+      <td>18.0992</td>
+      <td>19.9513</td>
+      <td>21.9635</td>
     </tr>
     <tr>
       <td>dm</td>
@@ -260,12 +332,12 @@ Serialization
       <td></td>
       <td></td>
       <td></td>
-      <td>0.2418</td>
-      <td>0.2418</td>
-      <td>0.1908</td>
-      <td>8.1714</td>
-      <td>8.1714</td>
-      <td>12.5436</td>
+      <td>0.2478</td>
+      <td>0.2408</td>
+      <td>0.1858</td>
+      <td>8.6729</td>
+      <td>8.2219</td>
+      <td>12.8053</td>
     </tr>
     <tr>
       <td>hemo</td>
@@ -273,12 +345,12 @@ Serialization
       <td></td>
       <td></td>
       <td></td>
-      <td>0.2545</td>
-      <td>0.2545</td>
-      <td>0.2690</td>
-      <td>0.4459</td>
-      <td>0.4459</td>
-      <td>0.8839</td>
+      <td>0.2155</td>
+      <td>0.2515</td>
+      <td>0.2790</td>
+      <td>0.4597</td>
+      <td>0.4577</td>
+      <td>0.8323</td>
     </tr>
     <tr>
       <td>htn</td>
@@ -286,12 +358,12 @@ Serialization
       <td></td>
       <td></td>
       <td></td>
-      <td>0.1828</td>
       <td>0.1812</td>
-      <td>0.2047</td>
-      <td>2.2833</td>
-      <td>2.4015</td>
-      <td>2.3510</td>
+      <td>0.1792</td>
+      <td>0.1928</td>
+      <td>2.2160</td>
+      <td>2.4184</td>
+      <td>2.1626</td>
     </tr>
     <tr>
       <td>pc</td>
@@ -299,12 +371,12 @@ Serialization
       <td></td>
       <td></td>
       <td></td>
-      <td>0.1562</td>
-      <td>0.1562</td>
-      <td>0.1305</td>
-      <td>1.5038</td>
-      <td>1.5038</td>
-      <td>1.4793</td>
+      <td>0.1812</td>
+      <td>0.1582</td>
+      <td>0.1565</td>
+      <td>1.5103</td>
+      <td>1.5024</td>
+      <td>1.4807</td>
     </tr>
     <tr>
       <td>pcc</td>
@@ -312,12 +384,12 @@ Serialization
       <td></td>
       <td></td>
       <td></td>
-      <td>0.1015</td>
-      <td>0.0880</td>
-      <td>0.1615</td>
-      <td>0.4363</td>
-      <td>0.4297</td>
-      <td>0.6653</td>
+      <td>0.0985</td>
+      <td>0.0945</td>
+      <td>0.1380</td>
+      <td>0.4116</td>
+      <td>0.4239</td>
+      <td>0.6638</td>
     </tr>
     <tr>
       <td>pcv</td>
@@ -325,12 +397,12 @@ Serialization
       <td></td>
       <td></td>
       <td></td>
-      <td>0.1922</td>
-      <td>0.2023</td>
-      <td>0.1902</td>
-      <td>2.0029</td>
-      <td>1.8681</td>
-      <td>2.2576</td>
+      <td>0.1852</td>
+      <td>0.1962</td>
+      <td>0.2102</td>
+      <td>1.8503</td>
+      <td>1.9152</td>
+      <td>2.2199</td>
     </tr>
     <tr>
       <td>pe</td>
@@ -338,12 +410,12 @@ Serialization
       <td></td>
       <td></td>
       <td></td>
-      <td>0.1612</td>
-      <td>0.1612</td>
-      <td>0.1742</td>
-      <td>567.2351</td>
-      <td>567.2351</td>
-      <td>551.8974</td>
+      <td>0.2002</td>
+      <td>0.1642</td>
+      <td>0.2013</td>
+      <td>714.2046</td>
+      <td>571.0541</td>
+      <td>638.5333</td>
     </tr>
     <tr>
       <td>pot</td>
@@ -351,19 +423,19 @@ Serialization
       <td></td>
       <td></td>
       <td></td>
-      <td>0.1088</td>
-      <td>0.1138</td>
-      <td>0.1198</td>
-      <td>0.2039</td>
-      <td>0.2024</td>
-      <td>0.2247</td>
+      <td>0.1048</td>
+      <td>0.1068</td>
+      <td>0.1328</td>
+      <td>0.2062</td>
+      <td>0.1956</td>
+      <td>0.2345</td>
     </tr>
     <tr>
       <td>rbc</td>
       <td>discrete</td>
-      <td>0.0074</td>
-      <td>0.0074</td>
-      <td>0.0059</td>
+      <td>0.0111</td>
+      <td>0.0135</td>
+      <td>0.0028</td>
       <td></td>
       <td></td>
       <td></td>
@@ -374,9 +446,9 @@ Serialization
     <tr>
       <td>rbcc</td>
       <td>continuous</td>
-      <td>0.0093</td>
-      <td>0.0093</td>
-      <td>0.0160</td>
+      <td>0.0138</td>
+      <td>0.0060</td>
+      <td>0.0166</td>
       <td></td>
       <td></td>
       <td></td>
@@ -387,9 +459,9 @@ Serialization
     <tr>
       <td>sc</td>
       <td>continuous</td>
-      <td>0.1037</td>
-      <td>0.1037</td>
-      <td>0.1008</td>
+      <td>0.0856</td>
+      <td>0.0918</td>
+      <td>0.0840</td>
       <td></td>
       <td></td>
       <td></td>
@@ -400,9 +472,9 @@ Serialization
     <tr>
       <td>sg</td>
       <td>continuous</td>
+      <td>0.0486</td>
+      <td>0.0460</td>
       <td>0.0607</td>
-      <td>0.0607</td>
-      <td>0.0447</td>
       <td></td>
       <td></td>
       <td></td>
@@ -413,9 +485,9 @@ Serialization
     <tr>
       <td>sod</td>
       <td>continuous</td>
-      <td>0.0163</td>
-      <td>0.0163</td>
-      <td>0.0126</td>
+      <td>0.0224</td>
+      <td>0.0188</td>
+      <td>0.0336</td>
       <td></td>
       <td></td>
       <td></td>
@@ -426,9 +498,9 @@ Serialization
     <tr>
       <td>su</td>
       <td>continuous</td>
-      <td>0.0556</td>
-      <td>0.0571</td>
-      <td>0.0511</td>
+      <td>0.0253</td>
+      <td>0.0466</td>
+      <td>0.0393</td>
       <td></td>
       <td></td>
       <td></td>
@@ -439,9 +511,9 @@ Serialization
     <tr>
       <td>wbcc</td>
       <td>continuous</td>
-      <td>0.0017</td>
-      <td>0.0017</td>
-      <td>0.0101</td>
+      <td>0.0116</td>
+      <td>0.0073</td>
+      <td>0.0116</td>
       <td></td>
       <td></td>
       <td></td>

@@ -1,7 +1,7 @@
 {
   "@context": "https://schema.org",
   "@type": "Dataset",
-  "name": "Heart Disease",
+  "name": "Heart Disease (UCI id 45)",
   "identifier": 45,
   "url": "https://archive.ics.uci.edu/dataset/45",
   "description": "4 databases: Cleveland, Hungary, Switzerland, and the VA Long Beach",
@@ -24,84 +24,245 @@
     }
   ],
   "citation": "International application of a new probability algorithm for the diagnosis of coronary artery disease.. R. Detrano, A. J\u00e1nosi, W. Steinbrunn, M. Pfisterer, J. Schmid, S. Sandhu, K. Guppy, S. Lee, V. Froelicher. American Journal of Cardiology. 1989",
+  "license": "https://creativecommons.org/publicdomain/zero/1.0/",
   "variableMeasured": [
     {
       "@type": "PropertyValue",
       "name": "age",
-      "measurementTechnique": "continuous"
+      "measurementTechnique": "continuous",
+      "alternateName": "Age",
+      "unitText": "year",
+      "unitCode": "unit:YR"
     },
     {
       "@type": "PropertyValue",
       "name": "sex",
-      "measurementTechnique": "discrete"
+      "measurementTechnique": "categorical",
+      "description": "Administrative sex",
+      "alternateName": "Administrative sex",
+      "valueReference": [
+        {
+          "@type": "DefinedTerm",
+          "name": "female",
+          "termCode": "0",
+          "url": "http://snomed.info/id/248152002"
+        },
+        {
+          "@type": "DefinedTerm",
+          "name": "male",
+          "termCode": "1",
+          "url": "http://snomed.info/id/248153007"
+        }
+      ]
     },
     {
       "@type": "PropertyValue",
       "name": "cp",
-      "measurementTechnique": "discrete"
+      "measurementTechnique": "categorical",
+      "description": "Chest pain type",
+      "alternateName": "Chest pain type",
+      "valueReference": [
+        {
+          "@type": "DefinedTerm",
+          "name": "Typical angina",
+          "termCode": "1",
+          "url": "http://snomed.info/id/429559004"
+        },
+        {
+          "@type": "DefinedTerm",
+          "name": "Atypical angina",
+          "termCode": "2",
+          "url": "http://snomed.info/id/371807002"
+        },
+        {
+          "@type": "DefinedTerm",
+          "name": "Non-cardiac chest pain",
+          "termCode": "3",
+          "url": "http://snomed.info/id/274668005"
+        },
+        {
+          "@type": "DefinedTerm",
+          "name": "Asymptomatic",
+          "termCode": "4",
+          "url": "http://snomed.info/id/161971004"
+        }
+      ]
     },
     {
       "@type": "PropertyValue",
       "name": "trestbps",
       "measurementTechnique": "continuous",
-      "description": "resting blood pressure (on admission to the hospital)"
+      "description": "Resting systolic blood pressure",
+      "alternateName": "Resting systolic blood pressure",
+      "unitText": "mmHg",
+      "unitCode": "unit:MilliM_HG"
     },
     {
       "@type": "PropertyValue",
       "name": "chol",
       "measurementTechnique": "continuous",
-      "description": "serum cholestoral"
+      "description": "Total cholesterol",
+      "alternateName": "Total cholesterol",
+      "unitText": "mg/dL",
+      "unitCode": "unit:MilliGM-PER-DeciL"
     },
     {
       "@type": "PropertyValue",
       "name": "fbs",
-      "measurementTechnique": "discrete",
-      "description": "fasting blood sugar > 120 mg/dl"
+      "measurementTechnique": "categorical",
+      "description": "Fasting blood sugar >120 mg/dL (indicator)",
+      "alternateName": "Fasting blood sugar >120 mg/dL (indicator)",
+      "valueReference": [
+        {
+          "@type": "DefinedTerm",
+          "name": "\u2264120 mg/dL",
+          "termCode": "0"
+        },
+        {
+          "@type": "DefinedTerm",
+          "name": ">120 mg/dL",
+          "termCode": "1"
+        }
+      ]
     },
     {
       "@type": "PropertyValue",
       "name": "restecg",
-      "measurementTechnique": "discrete"
+      "measurementTechnique": "categorical",
+      "description": "Resting ECG result",
+      "alternateName": "Resting ECG result",
+      "valueReference": [
+        {
+          "@type": "DefinedTerm",
+          "name": "normal",
+          "termCode": "0",
+          "url": "http://snomed.info/id/164854000"
+        },
+        {
+          "@type": "DefinedTerm",
+          "name": "ST-T abnormality",
+          "termCode": "1",
+          "url": "http://snomed.info/id/428750005"
+        },
+        {
+          "@type": "DefinedTerm",
+          "name": "LVH (Estes)",
+          "termCode": "2",
+          "url": "http://snomed.info/id/25488008"
+        }
+      ]
     },
     {
       "@type": "PropertyValue",
       "name": "thalach",
       "measurementTechnique": "continuous",
-      "description": "maximum heart rate achieved"
+      "description": "Maximum heart rate achieved",
+      "alternateName": "Maximum heart rate achieved",
+      "unitText": "1/min"
     },
     {
       "@type": "PropertyValue",
       "name": "exang",
-      "measurementTechnique": "discrete",
-      "description": "exercise induced angina"
+      "measurementTechnique": "categorical",
+      "description": "Exercise-induced angina",
+      "alternateName": "Exercise-induced angina",
+      "valueReference": [
+        {
+          "@type": "DefinedTerm",
+          "name": "no",
+          "termCode": "0"
+        },
+        {
+          "@type": "DefinedTerm",
+          "name": "yes",
+          "termCode": "1"
+        }
+      ]
     },
     {
       "@type": "PropertyValue",
       "name": "oldpeak",
       "measurementTechnique": "continuous",
-      "description": "ST depression induced by exercise relative to rest"
+      "description": "ST depression vs rest (max during study)",
+      "alternateName": "ST depression vs rest (max during study)",
+      "unitText": "mV"
     },
     {
       "@type": "PropertyValue",
       "name": "slope",
-      "measurementTechnique": "discrete"
+      "measurementTechnique": "categorical",
+      "description": "Slope of peak exercise ST segment",
+      "alternateName": "Slope of peak exercise ST segment",
+      "valueReference": [
+        {
+          "@type": "DefinedTerm",
+          "name": "upsloping",
+          "termCode": "1"
+        },
+        {
+          "@type": "DefinedTerm",
+          "name": "flat",
+          "termCode": "2"
+        },
+        {
+          "@type": "DefinedTerm",
+          "name": "downsloping",
+          "termCode": "3"
+        }
+      ]
     },
     {
       "@type": "PropertyValue",
       "name": "ca",
       "measurementTechnique": "continuous",
-      "description": "number of major vessels (0-3) colored by flourosopy"
+      "description": "Number of major vessels (colored by fluoroscopy)",
+      "alternateName": "Number of major vessels (colored by fluoroscopy)"
     },
     {
       "@type": "PropertyValue",
       "name": "thal",
-      "measurementTechnique": "continuous"
+      "measurementTechnique": "categorical",
+      "description": "Thallium perfusion test",
+      "alternateName": "Thallium perfusion test",
+      "valueReference": [
+        {
+          "@type": "DefinedTerm",
+          "name": "normal",
+          "termCode": "3",
+          "url": "http://snomed.info/id/371801000"
+        },
+        {
+          "@type": "DefinedTerm",
+          "name": "fixed defect",
+          "termCode": "6",
+          "url": "http://snomed.info/id/371918009"
+        },
+        {
+          "@type": "DefinedTerm",
+          "name": "reversible defect",
+          "termCode": "7",
+          "url": "http://snomed.info/id/371920002"
+        }
+      ]
     },
     {
       "@type": "PropertyValue",
       "name": "num",
-      "measurementTechnique": "discrete",
-      "description": "diagnosis of heart disease"
+      "measurementTechnique": "categorical",
+      "description": "Angiographic disease status",
+      "alternateName": "Angiographic disease status",
+      "valueReference": [
+        {
+          "@type": "DefinedTerm",
+          "name": "<50% narrowing",
+          "termCode": "0"
+        },
+        {
+          "@type": "DefinedTerm",
+          "name": "\u226550% narrowing",
+          "termCode": "1"
+        }
+      ]
     }
   ]
 }

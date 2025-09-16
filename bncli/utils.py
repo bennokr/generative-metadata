@@ -3,10 +3,17 @@ from __future__ import annotations
 import os
 import math
 from dataclasses import dataclass
-from typing import Dict, List, Optional, Tuple
+from pathlib import Path
+from typing import Dict, List, Optional, Tuple, Sequence, Union
 
 import numpy as np
 import pandas as pd
+from zipfile import ZIP_DEFLATED, ZipFile
+
+try:  # Optional dependency for unit-aware dtypes
+    from pint_pandas import PintType  # type: ignore
+except Exception:  # pragma: no cover - pint is optional
+    PintType = None  # type: ignore[assignment]
 
 
 def ensure_dir(path: str) -> None:
@@ -15,6 +22,13 @@ def ensure_dir(path: str) -> None:
 
 def seed_all(seed: int) -> np.random.Generator:
     return np.random.default_rng(seed)
+
+
+def _preserve_series_attrs(source: pd.Series, target: pd.Series) -> pd.Series:
+    attrs = getattr(source, "attrs", None)
+    if isinstance(attrs, dict) and attrs:
+        target.attrs.update({k: v for k, v in attrs.items()})
+    return target
 
 
 def is_numeric_series(s: pd.Series) -> bool:
@@ -49,8 +63,11 @@ def infer_types(df: pd.DataFrame, cardinality_threshold: int = 20) -> Tuple[List
 def coerce_discrete_to_category(df: pd.DataFrame, discrete_cols: List[str]) -> pd.DataFrame:
     df = df.copy()
     for c in discrete_cols:
-        if not pd.api.types.is_categorical_dtype(df[c]):
-            df[c] = df[c].astype("category")
+        s = df[c]
+        if pd.api.types.is_categorical_dtype(s):
+            continue
+        converted = s.astype("category")
+        df[c] = _preserve_series_attrs(s, converted)
     return df
 
 
@@ -58,8 +75,20 @@ def coerce_continuous_to_float(df: pd.DataFrame, continuous_cols: List[str]) -> 
     df = df.copy()
     for c in continuous_cols:
         s = df[c]
+        converted: Optional[pd.Series] = None
         if pd.api.types.is_integer_dtype(s):
-            df[c] = pd.to_numeric(s, errors="coerce").astype(float)
+            converted = pd.to_numeric(s, errors="coerce").astype(float)
+        else:
+            if PintType is not None and isinstance(getattr(s, "dtype", None), PintType):
+                try:
+                    converted = pd.Series(s.astype("float64"), index=s.index, name=s.name)
+                except Exception:
+                    try:
+                        converted = pd.Series(np.asarray(s), index=s.index, name=s.name).astype(float)
+                    except Exception:
+                        converted = None
+        if converted is not None:
+            df[c] = _preserve_series_attrs(s, converted)
     return df
 
 
@@ -70,12 +99,13 @@ def rename_categorical_categories_to_str(df: pd.DataFrame, discrete_cols: List[s
         if pd.api.types.is_categorical_dtype(s):
             try:
                 new_cats = [str(cat) for cat in s.cat.categories]
-                df[c] = s.cat.rename_categories(new_cats)
+                converted = s.cat.rename_categories(new_cats)
             except Exception:
                 mask = s.isna()
                 tmp = s.astype(str)
                 tmp[mask] = np.nan
-                df[c] = tmp.astype("category")
+                converted = tmp.astype("category")
+            df[c] = _preserve_series_attrs(s, converted)
     return df
 
 

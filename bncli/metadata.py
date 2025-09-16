@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Sequence, Tuple
 import json
 import logging
 
@@ -10,6 +10,136 @@ import pandas as pd
 
 from .utils import infer_types
 
+
+_SEMMAP_TITLE_KEYS = [
+    "dct:title",
+    "http://purl.org/dc/terms/title",
+    "title",
+    "name",
+]
+_SEMMAP_DESCRIPTION_KEYS = [
+    "dct:description",
+    "http://purl.org/dc/terms/description",
+    "description",
+    "summary",
+]
+_SEMMAP_LICENSE_KEYS = [
+    "dct:license",
+    "http://purl.org/dc/terms/license",
+    "license",
+]
+_SEMMAP_REP_KEYS = [
+    "http://rdf-vocabulary.ddialliance.org/discovery#representation",
+    "disco:representation",
+    "representation",
+]
+_SEMMAP_PREFLABEL_KEYS = [
+    "skos:prefLabel",
+    "prefLabel",
+    "label",
+]
+_SEMMAP_NOTATION_KEYS = [
+    "skos:notation",
+    "notation",
+    "name",
+    "termCode",
+    "code",
+]
+_SEMMAP_HAS_TOP_KEYS = [
+    "skos:hasTopConcept",
+    "hasTopConcept",
+]
+_SEMMAP_EXACT_MATCH_KEYS = [
+    "skos:exactMatch",
+    "exactMatch",
+]
+_SEMMAP_UNIT_TEXT_KEYS = [
+    "semmap:pintUnit",
+    "pintUnit",
+]
+_SEMMAP_UNIT_CODE_KEYS = [
+    "qudt:hasUnit",
+    "hasUnit",
+]
+
+
+def _first_semmap_value(data: Optional[Dict[str, Any]], keys: Sequence[str]) -> Any:
+    if not isinstance(data, dict):
+        return None
+    for key in keys:
+        if key in data:
+            return data[key]
+    return None
+
+
+def _first_semmap_str(data: Optional[Dict[str, Any]], keys: Sequence[str]) -> Optional[str]:
+    val = _first_semmap_value(data, keys)
+    if isinstance(val, str) and val.strip():
+        return val.strip()
+    if isinstance(val, (list, tuple)):
+        for entry in val:
+            if isinstance(entry, str) and entry.strip():
+                return entry.strip()
+    return None
+
+
+def _normalize_semmap_types(rep: Any) -> List[str]:
+    if isinstance(rep, list):
+        return [str(x) for x in rep]
+    if rep is None:
+        return []
+    return [str(rep)]
+
+
+def _enrich_variable_with_semmap(item: Dict[str, Any], col_meta: Dict[str, Any]) -> None:
+    pref_label = _first_semmap_str(col_meta, _SEMMAP_PREFLABEL_KEYS)
+    long_desc = _first_semmap_str(col_meta, _SEMMAP_DESCRIPTION_KEYS)
+    if long_desc:
+        item["description"] = long_desc
+    elif pref_label and pref_label.strip() and pref_label.strip().lower() != str(item.get("name", "")).lower():
+        item["description"] = pref_label
+    if pref_label:
+        item.setdefault("alternateName", pref_label)
+
+    rep = _first_semmap_value(col_meta, _SEMMAP_REP_KEYS)
+    if isinstance(rep, dict):
+        pint_unit = _first_semmap_str(rep, _SEMMAP_UNIT_TEXT_KEYS)
+        qudt_unit = _first_semmap_str(rep, _SEMMAP_UNIT_CODE_KEYS)
+        if pint_unit:
+            item["unitText"] = pint_unit
+        if qudt_unit:
+            item["unitCode"] = qudt_unit
+
+        rep_types = _normalize_semmap_types(rep.get("@type"))
+        if any("ConceptScheme" in t for t in rep_types):
+            item["measurementTechnique"] = "categorical"
+            concepts = _first_semmap_value(rep, _SEMMAP_HAS_TOP_KEYS)
+            values: List[Dict[str, Any]] = []
+            if isinstance(concepts, list):
+                for concept in concepts[:5]:
+                    if not isinstance(concept, dict):
+                        continue
+                    entry: Dict[str, Any] = {"@type": "DefinedTerm"}
+                    label = _first_semmap_str(concept, _SEMMAP_PREFLABEL_KEYS)
+                    notation = _first_semmap_str(concept, _SEMMAP_NOTATION_KEYS)
+                    if label:
+                        entry["name"] = label
+                    if notation:
+                        entry["termCode"] = notation
+                    exact = _first_semmap_value(concept, _SEMMAP_EXACT_MATCH_KEYS)
+                    if isinstance(exact, str) and exact.strip():
+                        entry["url"] = exact.strip()
+                    elif isinstance(exact, list):
+                        for candidate in exact:
+                            if isinstance(candidate, str) and candidate.strip():
+                                entry["url"] = candidate.strip()
+                                break
+                    if len(entry) > 1:
+                        values.append(entry)
+            if values:
+                item["valueReference"] = values
+        else:
+            item["measurementTechnique"] = "continuous"
 
 def _string_attributes(obj: Any) -> Dict[str, str]:
     return {
@@ -93,11 +223,19 @@ def _extract_doi(texts: Any) -> List[str]:
     return list(dict.fromkeys(dois))
 
 
-def build_dataset_jsonld(name: str, meta_dict: Dict[str, Any], df: pd.DataFrame) -> Dict[str, Any]:
+def build_dataset_jsonld(
+    name: str,
+    meta_dict: Dict[str, Any],
+    df: pd.DataFrame,
+    *,
+    semmap_dataset: Optional[Dict[str, Any]] = None,
+) -> Dict[str, Any]:
     """Construct a schema.org/Dataset JSON-LD dictionary from metadata and data.
 
     Attempts to derive provider URL and identifier (OpenML/UCI) and includes a
-    per-variable measurementTechnique based on inferred types.
+    per-variable measurementTechnique based on inferred types. When SemMap
+    metadata is supplied, dataset- and variable-level entries are enriched with
+    its labels, descriptions, units, and value definitions.
     """
     provider_url = meta_dict.get("url") or meta_dict.get("original_data_url")
     openml_id = meta_dict.get("dataset_id") or meta_dict.get("did")
@@ -117,6 +255,9 @@ def build_dataset_jsonld(name: str, meta_dict: Dict[str, Any], df: pd.DataFrame)
         provider_url = f"https://archive.ics.uci.edu/dataset/{uci_id}"
 
     description = meta_dict.get("description") or meta_dict.get("abstract") or meta_dict.get("summary")
+    semmap_description = _first_semmap_str(semmap_dataset, _SEMMAP_DESCRIPTION_KEYS)
+    if semmap_description:
+        description = semmap_description
     citation = meta_dict.get("citation") or meta_dict.get("bibliography")
     # Build citation from uciml metadata if available and missing
     if not citation and isinstance(meta_dict.get("intro_paper"), dict):
@@ -157,6 +298,9 @@ def build_dataset_jsonld(name: str, meta_dict: Dict[str, Any], df: pd.DataFrame)
                 same_as.append("https://doi.org/" + str(s).replace("https://doi.org/", "").strip())
     same_as.extend(_extract_doi([citation, provider_url]))
 
+    dataset_title = _first_semmap_str(semmap_dataset, _SEMMAP_TITLE_KEYS) or name
+    license_val = _first_semmap_str(semmap_dataset, _SEMMAP_LICENSE_KEYS) or meta_dict.get("license")
+
     # variableMeasured with inferred categorical/continuous (and uciml descriptions when available)
     variable_measured: List[Dict[str, Any]] = []
     try:
@@ -183,6 +327,10 @@ def build_dataset_jsonld(name: str, meta_dict: Dict[str, Any], df: pd.DataFrame)
             desc = var_desc_map_lc.get(str(c).lower())
             if desc:
                 item["description"] = desc
+            attrs = getattr(df[c], "attrs", None)
+            col_meta = attrs.get("semmap_jsonld") if isinstance(attrs, dict) else None
+            if isinstance(col_meta, dict):
+                _enrich_variable_with_semmap(item, col_meta)
             variable_measured.append(item)
     except Exception:
         pass
@@ -190,7 +338,7 @@ def build_dataset_jsonld(name: str, meta_dict: Dict[str, Any], df: pd.DataFrame)
     dataset_jsonld: Dict[str, Any] = {
         "@context": "https://schema.org",
         "@type": "Dataset",
-        "name": name,
+        "name": dataset_title,
         "identifier": openml_id or uci_id,
         "url": provider_url,
         "description": description,
@@ -198,6 +346,7 @@ def build_dataset_jsonld(name: str, meta_dict: Dict[str, Any], df: pd.DataFrame)
         "citation": citation,
         "datePublished": date_published,
         "sameAs": same_as or None,
+        "license": license_val,
         "variableMeasured": variable_measured or None,
     }
     # Drop empty/None entries

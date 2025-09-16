@@ -159,6 +159,33 @@ def process_dataset(
 
     logging.info("Dropping rows with any NA for modeling")
     df_no_na = df.dropna(axis=0, how="any").reset_index(drop=True)
+    if len(df_no_na) == 0:
+        logging.info("All rows removed by dropna(); imputing missing values as fallback")
+        df_imp = df.copy()
+        for c in cont_cols:
+            if c in df_imp.columns:
+                try:
+                    med = float(pd.to_numeric(df_imp[c], errors="coerce").median())
+                except Exception:
+                    med = 0.0
+                df_imp[c] = pd.to_numeric(df_imp[c], errors="coerce").fillna(med).astype(float)
+        for c in disc_cols:
+            if c in df_imp.columns:
+                try:
+                    mode = df_imp[c].mode(dropna=True)
+                    fill = mode.iloc[0] if len(mode) else (df_imp[c].cat.categories[0] if pd.api.types.is_categorical_dtype(df_imp[c]) and len(df_imp[c].cat.categories) else "")
+                except Exception:
+                    fill = ""
+                if pd.api.types.is_categorical_dtype(df_imp[c]):
+                    if (isinstance(fill, str) and fill in list(df_imp[c].cat.categories)) or (
+                        not isinstance(fill, str) and fill in list(df_imp[c].cat.categories)
+                    ):
+                        df_imp[c] = df_imp[c].fillna(fill)
+                    else:
+                        df_imp[c] = df_imp[c].cat.add_categories([fill]).fillna(fill)
+                else:
+                    df_imp[c] = df_imp[c].fillna(fill)
+        df_no_na = df_imp.reset_index(drop=True)
     train_df, test_df = train_test_split(
         df_no_na, test_size=cfg.test_size, random_state=cfg.random_state, shuffle=True
     )

@@ -437,8 +437,20 @@ class SemMapFrameAccessor:
         vars_list: List[Dict[str, Any]] = []
         for col in self._df.columns:
             meta = self._df[col].semmap.jsonld()
-            if meta is not None:
-                vars_list.append(meta)
+            if not isinstance(meta, dict):
+                continue
+            notation = _ld_get(meta, [str(SKOS.notation), "skos:notation", "notation", "name"])
+            types = meta.get("@type")
+            if isinstance(types, str):
+                types = [types]
+            types = [str(t) for t in (types or [])]
+            is_dataset_like = any(
+                ("LogicalDataSet" in t) or t.endswith(":Dataset") or t.endswith("/Dataset")
+                for t in types
+            )
+            if is_dataset_like or not isinstance(notation, str):
+                continue
+            vars_list.append(meta)
         out["disco:variable"] = vars_list
         return out
 

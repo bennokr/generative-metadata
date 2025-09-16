@@ -1,0 +1,511 @@
+{
+  "dataset": {
+    "@context": "https://w3id.org/semmap/context/v1",
+    "@type": [
+      "disco:LogicalDataSet",
+      "dsv:Dataset",
+      "dcat:Dataset"
+    ],
+    "dct:title": "Gallstone-1 (UCI ML Repository, ID 1150)"
+  },
+  "disco:variable": [
+    {
+      "@context": "https://w3id.org/semmap/context/v1",
+      "@type": [
+        "disco:Variable",
+        "dsv:Column"
+      ],
+      "skos:notation": "GallstoneStatus",
+      "skos:prefLabel": "0=Yes (gallstones present), 1=No",
+      "disco:representation": {
+        "@type": [
+          "disco:Representation",
+          "skos:ConceptScheme"
+        ],
+        "skos:hasTopConcept": [
+          {
+            "@type": "skos:Concept",
+            "skos:notation": "0",
+            "skos:prefLabel": "Gallstones present",
+            "skos:exactMatch": "sct:235919008"
+          },
+          {
+            "@type": "skos:Concept",
+            "skos:notation": "1",
+            "skos:prefLabel": "Gallstones absent"
+          }
+        ],
+        "dct:title": "Gallstone status (0/1)"
+      }
+    },
+    {
+      "@context": "https://w3id.org/semmap/context/v1",
+      "@type": [
+        "disco:Variable",
+        "dsv:Column"
+      ],
+      "skos:notation": "Age",
+      "skos:prefLabel": "Age",
+      "disco:representation": {
+        "@type": "disco:Representation",
+        "dsv:valueType": "xsd:integer",
+        "qudt:hasUnit": "unit:YR"
+      }
+    },
+    {
+      "@context": "https://w3id.org/semmap/context/v1",
+      "@type": [
+        "disco:Variable",
+        "dsv:Column"
+      ],
+      "skos:notation": "Gender",
+      "skos:prefLabel": "Gender",
+      "disco:representation": {
+        "@type": [
+          "disco:Representation",
+          "skos:ConceptScheme"
+        ],
+        "skos:hasTopConcept": [
+          {
+            "@type": "skos:Concept",
+            "skos:notation": "0",
+            "skos:prefLabel": "Male",
+            "skos:exactMatch": "sct:248153007"
+          },
+          {
+            "@type": "skos:Concept",
+            "skos:notation": "1",
+            "skos:prefLabel": "Female",
+            "skos:exactMatch": "sct:248152002"
+          }
+        ],
+        "dct:title": "Gender codes"
+      }
+    },
+    {
+      "@context": "https://w3id.org/semmap/context/v1",
+      "@type": [
+        "disco:Variable",
+        "dsv:Column"
+      ],
+      "skos:notation": "BMI",
+      "skos:prefLabel": "BMI",
+      "disco:representation": {
+        "@type": "disco:Representation",
+        "dsv:valueType": "xsd:decimal",
+        "qudt:hasUnit": "unit:KiloGM-PER-M2"
+      },
+      "dct:source": "https://loinc.org/39156-5"
+    },
+    {
+      "@context": "https://w3id.org/semmap/context/v1",
+      "@type": [
+        "disco:Variable",
+        "dsv:Column"
+      ],
+      "skos:notation": "Height",
+      "skos:prefLabel": "Height",
+      "disco:representation": {
+        "@type": "disco:Representation",
+        "dsv:valueType": "xsd:decimal",
+        "qudt:hasUnit": "unit:CentiM"
+      },
+      "dct:source": "https://loinc.org/8302-2"
+    },
+    {
+      "@context": "https://w3id.org/semmap/context/v1",
+      "@type": [
+        "disco:Variable",
+        "dsv:Column"
+      ],
+      "skos:notation": "Weight",
+      "skos:prefLabel": "Weight",
+      "disco:representation": {
+        "@type": "disco:Representation",
+        "dsv:valueType": "xsd:decimal",
+        "qudt:hasUnit": "unit:KiloGM"
+      },
+      "dct:source": "https://loinc.org/29463-7"
+    },
+    {
+      "@context": "https://w3id.org/semmap/context/v1",
+      "@type": [
+        "disco:Variable",
+        "dsv:Column"
+      ],
+      "skos:notation": "CAD",
+      "skos:prefLabel": "0=No, 1=Yes",
+      "disco:representation": {
+        "@type": "disco:Representation",
+        "dsv:valueType": "xsd:integer"
+      }
+    },
+    {
+      "@context": "https://w3id.org/semmap/context/v1",
+      "@type": [
+        "disco:Variable",
+        "dsv:Column"
+      ],
+      "skos:notation": "Hypothyroidism",
+      "skos:prefLabel": "0=No, 1=Yes",
+      "disco:representation": {
+        "@type": "disco:Representation",
+        "dsv:valueType": "xsd:integer"
+      }
+    },
+    {
+      "@context": "https://w3id.org/semmap/context/v1",
+      "@type": [
+        "disco:Variable",
+        "dsv:Column"
+      ],
+      "skos:notation": "Hyperlipidemia",
+      "skos:prefLabel": "0=No, 1=Yes",
+      "disco:representation": {
+        "@type": "disco:Representation",
+        "dsv:valueType": "xsd:integer"
+      }
+    },
+    {
+      "@context": "https://w3id.org/semmap/context/v1",
+      "@type": [
+        "disco:Variable",
+        "dsv:Column"
+      ],
+      "skos:notation": "DiabetesMellitus",
+      "skos:prefLabel": "0=No, 1=Yes",
+      "disco:representation": {
+        "@type": "disco:Representation",
+        "dsv:valueType": "xsd:integer"
+      }
+    },
+    {
+      "@context": "https://w3id.org/semmap/context/v1",
+      "@type": [
+        "disco:Variable",
+        "dsv:Column"
+      ],
+      "skos:notation": "HFA_Grade",
+      "skos:prefLabel": "Hepatic Fat Accumulation grade (0\u20134)",
+      "disco:representation": {
+        "@type": [
+          "disco:Representation",
+          "skos:ConceptScheme"
+        ],
+        "skos:hasTopConcept": [
+          {
+            "@type": "skos:Concept",
+            "skos:notation": "0",
+            "skos:prefLabel": "Normal"
+          },
+          {
+            "@type": "skos:Concept",
+            "skos:notation": "1",
+            "skos:prefLabel": "Mild"
+          },
+          {
+            "@type": "skos:Concept",
+            "skos:notation": "2",
+            "skos:prefLabel": "Moderate"
+          },
+          {
+            "@type": "skos:Concept",
+            "skos:notation": "3",
+            "skos:prefLabel": "Severe"
+          },
+          {
+            "@type": "skos:Concept",
+            "skos:notation": "4",
+            "skos:prefLabel": "Very severe"
+          }
+        ],
+        "dct:title": "Hepatic fat accumulation grades"
+      }
+    },
+    {
+      "@context": "https://w3id.org/semmap/context/v1",
+      "@type": [
+        "disco:Variable",
+        "dsv:Column"
+      ],
+      "skos:notation": "TotalBodyWater",
+      "skos:prefLabel": "TotalBodyWater",
+      "disco:representation": {
+        "@type": "disco:Representation",
+        "dsv:valueType": "xsd:decimal",
+        "qudt:hasUnit": "unit:KiloGM"
+      },
+      "dct:source": "https://loinc.org/101683-1"
+    },
+    {
+      "@context": "https://w3id.org/semmap/context/v1",
+      "@type": [
+        "disco:Variable",
+        "dsv:Column"
+      ],
+      "skos:notation": "ExtracellularFluidVolume",
+      "skos:prefLabel": "ExtracellularFluidVolume",
+      "disco:representation": {
+        "@type": "disco:Representation",
+        "dsv:valueType": "xsd:decimal",
+        "qudt:hasUnit": "unit:Liter"
+      },
+      "dct:source": "https://loinc.org/73706-4"
+    },
+    {
+      "@context": "https://w3id.org/semmap/context/v1",
+      "@type": [
+        "disco:Variable",
+        "dsv:Column"
+      ],
+      "skos:notation": "IntracellularFluidVolume",
+      "skos:prefLabel": "IntracellularFluidVolume",
+      "disco:representation": {
+        "@type": "disco:Representation",
+        "dsv:valueType": "xsd:decimal",
+        "qudt:hasUnit": "unit:Liter"
+      },
+      "dct:source": "https://loinc.org/73705-6"
+    },
+    {
+      "@context": "https://w3id.org/semmap/context/v1",
+      "@type": [
+        "disco:Variable",
+        "dsv:Column"
+      ],
+      "skos:notation": "MuscleMass",
+      "skos:prefLabel": "MuscleMass",
+      "disco:representation": {
+        "@type": "disco:Representation",
+        "dsv:valueType": "xsd:decimal",
+        "qudt:hasUnit": "unit:KiloGM"
+      },
+      "dct:source": "https://loinc.org/73964-9"
+    },
+    {
+      "@context": "https://w3id.org/semmap/context/v1",
+      "@type": [
+        "disco:Variable",
+        "dsv:Column"
+      ],
+      "skos:notation": "FatMass",
+      "skos:prefLabel": "FatMass",
+      "disco:representation": {
+        "@type": "disco:Representation",
+        "dsv:valueType": "xsd:decimal",
+        "qudt:hasUnit": "unit:KiloGM"
+      },
+      "dct:source": "https://loinc.org/73708-0"
+    },
+    {
+      "@context": "https://w3id.org/semmap/context/v1",
+      "@type": [
+        "disco:Variable",
+        "dsv:Column"
+      ],
+      "skos:notation": "VisceralFatArea",
+      "skos:prefLabel": "VisceralFatArea",
+      "disco:representation": {
+        "@type": "disco:Representation",
+        "dsv:valueType": "xsd:decimal",
+        "qudt:hasUnit": "unit:CM2"
+      },
+      "dct:source": "https://loinc.org/73707-2"
+    },
+    {
+      "@context": "https://w3id.org/semmap/context/v1",
+      "@type": [
+        "disco:Variable",
+        "dsv:Column"
+      ],
+      "skos:notation": "Glucose",
+      "skos:prefLabel": "Glucose",
+      "disco:representation": {
+        "@type": "disco:Representation",
+        "dsv:valueType": "xsd:decimal",
+        "qudt:hasUnit": "unit:MilliGM-PER-DeciL"
+      },
+      "dct:source": "https://loinc.org/2345-7"
+    },
+    {
+      "@context": "https://w3id.org/semmap/context/v1",
+      "@type": [
+        "disco:Variable",
+        "dsv:Column"
+      ],
+      "skos:notation": "CholesterolTotal",
+      "skos:prefLabel": "CholesterolTotal",
+      "disco:representation": {
+        "@type": "disco:Representation",
+        "dsv:valueType": "xsd:decimal",
+        "qudt:hasUnit": "unit:MilliGM-PER-DeciL"
+      },
+      "dct:source": "https://loinc.org/2093-3"
+    },
+    {
+      "@context": "https://w3id.org/semmap/context/v1",
+      "@type": [
+        "disco:Variable",
+        "dsv:Column"
+      ],
+      "skos:notation": "HDL",
+      "skos:prefLabel": "HDL",
+      "disco:representation": {
+        "@type": "disco:Representation",
+        "dsv:valueType": "xsd:decimal",
+        "qudt:hasUnit": "unit:MilliGM-PER-DeciL"
+      },
+      "dct:source": "https://loinc.org/2085-9"
+    },
+    {
+      "@context": "https://w3id.org/semmap/context/v1",
+      "@type": [
+        "disco:Variable",
+        "dsv:Column"
+      ],
+      "skos:notation": "LDL",
+      "skos:prefLabel": "LDL",
+      "disco:representation": {
+        "@type": "disco:Representation",
+        "dsv:valueType": "xsd:decimal",
+        "qudt:hasUnit": "unit:MilliGM-PER-DeciL"
+      },
+      "dct:source": "https://loinc.org/13457-7"
+    },
+    {
+      "@context": "https://w3id.org/semmap/context/v1",
+      "@type": [
+        "disco:Variable",
+        "dsv:Column"
+      ],
+      "skos:notation": "Triglycerides",
+      "skos:prefLabel": "Triglycerides",
+      "disco:representation": {
+        "@type": "disco:Representation",
+        "dsv:valueType": "xsd:decimal",
+        "qudt:hasUnit": "unit:MilliGM-PER-DeciL"
+      },
+      "dct:source": "https://loinc.org/2571-8"
+    },
+    {
+      "@context": "https://w3id.org/semmap/context/v1",
+      "@type": [
+        "disco:Variable",
+        "dsv:Column"
+      ],
+      "skos:notation": "AST",
+      "skos:prefLabel": "AST",
+      "disco:representation": {
+        "@type": "disco:Representation",
+        "dsv:valueType": "xsd:decimal",
+        "qudt:hasUnit": "unit:IU-PER-L"
+      },
+      "dct:source": "https://loinc.org/1920-8"
+    },
+    {
+      "@context": "https://w3id.org/semmap/context/v1",
+      "@type": [
+        "disco:Variable",
+        "dsv:Column"
+      ],
+      "skos:notation": "ALT",
+      "skos:prefLabel": "ALT",
+      "disco:representation": {
+        "@type": "disco:Representation",
+        "dsv:valueType": "xsd:decimal",
+        "qudt:hasUnit": "unit:IU-PER-L"
+      },
+      "dct:source": "https://loinc.org/1742-6"
+    },
+    {
+      "@context": "https://w3id.org/semmap/context/v1",
+      "@type": [
+        "disco:Variable",
+        "dsv:Column"
+      ],
+      "skos:notation": "ALP",
+      "skos:prefLabel": "ALP",
+      "disco:representation": {
+        "@type": "disco:Representation",
+        "dsv:valueType": "xsd:decimal",
+        "qudt:hasUnit": "unit:IU-PER-L"
+      },
+      "dct:source": "https://loinc.org/6768-6"
+    },
+    {
+      "@context": "https://w3id.org/semmap/context/v1",
+      "@type": [
+        "disco:Variable",
+        "dsv:Column"
+      ],
+      "skos:notation": "Creatinine",
+      "skos:prefLabel": "Creatinine",
+      "disco:representation": {
+        "@type": "disco:Representation",
+        "dsv:valueType": "xsd:decimal",
+        "qudt:hasUnit": "unit:MilliGM-PER-DeciL"
+      },
+      "dct:source": "https://loinc.org/2160-0"
+    },
+    {
+      "@context": "https://w3id.org/semmap/context/v1",
+      "@type": [
+        "disco:Variable",
+        "dsv:Column"
+      ],
+      "skos:notation": "eGFR",
+      "skos:prefLabel": "eGFR",
+      "disco:representation": {
+        "@type": "disco:Representation",
+        "dsv:valueType": "xsd:decimal",
+        "qudt:hasUnit": "unit:MilliL-PER-MIN"
+      },
+      "dct:source": "https://loinc.org/98979-8"
+    },
+    {
+      "@context": "https://w3id.org/semmap/context/v1",
+      "@type": [
+        "disco:Variable",
+        "dsv:Column"
+      ],
+      "skos:notation": "CRP",
+      "skos:prefLabel": "CRP",
+      "disco:representation": {
+        "@type": "disco:Representation",
+        "dsv:valueType": "xsd:decimal",
+        "qudt:hasUnit": "unit:MilliGM-PER-L"
+      },
+      "dct:source": "https://loinc.org/1988-5"
+    },
+    {
+      "@context": "https://w3id.org/semmap/context/v1",
+      "@type": [
+        "disco:Variable",
+        "dsv:Column"
+      ],
+      "skos:notation": "Hemoglobin",
+      "skos:prefLabel": "Hemoglobin",
+      "disco:representation": {
+        "@type": "disco:Representation",
+        "dsv:valueType": "xsd:decimal",
+        "qudt:hasUnit": "unit:GM-PER-DeciL"
+      },
+      "dct:source": "https://loinc.org/718-7"
+    },
+    {
+      "@context": "https://w3id.org/semmap/context/v1",
+      "@type": [
+        "disco:Variable",
+        "dsv:Column"
+      ],
+      "skos:notation": "VitaminD_25OH_Total",
+      "skos:prefLabel": "VitaminD_25OH_Total",
+      "disco:representation": {
+        "@type": "disco:Representation",
+        "dsv:valueType": "xsd:decimal",
+        "qudt:hasUnit": "unit:NanoGM-PER-MilliL"
+      },
+      "dct:source": "https://loinc.org/62292-8"
+    }
+  ]
+}

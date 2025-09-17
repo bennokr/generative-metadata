@@ -1,19 +1,24 @@
 # semmap.py
 from __future__ import annotations
 import json
-from typing import Dict, List, Optional, Union, Any
+from dataclasses import asdict, is_dataclass
+from typing import Any, Dict, List, Optional, Union
 import pandas as pd
 import pyarrow as pa
 import pyarrow.parquet as pq
 
+from semmap_schema import CodeBook, CodeConcept, Column, ColumnProperty, TableSchema
+
 # Optional pint support
-try:
-    import pint
-    from pint_pandas import PintType, PintArray
+try:  # pragma: no cover
+    from pint_pandas import PintArray, PintType
+    from ucumvert import PintUcumRegistry
+
+    _ureg = PintUcumRegistry()
     _HAVE_PINT = True
-    _ureg = pint.UnitRegistry()
 except Exception:  # pragma: no cover
     _HAVE_PINT = False
+    PintArray = PintType = None
     _ureg = None
 
 class Namespace(str):
@@ -54,6 +59,21 @@ QUDT_TO_PINT = {
 }
 PINT_TO_QUDT = {v: k for k, v in QUDT_TO_PINT.items()}
 
+QUDT_TO_UCUM = {
+    UNIT["MilliM_HG"]: "mm[Hg]",
+    UNIT["MilliGM-PER-DeciL"]: "mg/dL",
+    UNIT["YR"]: "a",
+}
+UCUM_TO_QUDT = {v: k for k, v in QUDT_TO_UCUM.items()}
+PINT_TO_UCUM = {
+    "mmHg": "mm[Hg]",
+    "mg/dL": "mg/dL",
+    "year": "a",
+}
+
+DSV_NOMINAL = "dsv:NominalDataType"
+DSV_QUANTITATIVE = "dsv:QuantitativeDataType"
+
 # Our tiny namespace for implementation hints (kept in JSON-LD but harmless to others)
 
 
@@ -69,68 +89,360 @@ def _ld_get(d: Dict[str, Any], keys: List[str], default=None):
             return d[k]
     return default
 
-def _jsonld_variable_base(
-    notation: str,
-    pref_label: str,
-    source_iri: Optional[str] = None,
-) -> Dict[str, Any]:
-    # Variable as a blank node (no @id)
-    obj = {
-        "@context": JSONLD_CONTEXT_URL,
-        "@type": [ str(DISCO.Variable), str(DSV.Column)],
-        str(SKOS.notation): notation,
-        str(SKOS.prefLabel): pref_label,
-    }
-    if source_iri:
-        obj[str(DCT.source)] = source_iri
+def _optional_str(value: Any) -> Optional[str]:
+    if value is None:
+        return None
+    return str(value)
+
+
+def _normalize_titles(value: Any) -> Optional[Union[str, List[str]]]:
+    if value is None:
+        return None
+    if isinstance(value, list):
+        return [str(v) for v in value]
+    return str(value)
+
+
+def _listify(value: Any) -> Optional[List[str]]:
+    if value is None:
+        return None
+    if isinstance(value, list):
+        return [str(v) for v in value]
+    return [str(value)]
+
+
+def _strip_empty(obj: Any) -> Any:
+    if isinstance(obj, dict):
+        cleaned: Dict[str, Any] = {}
+        for key, value in obj.items():
+            cleaned_value = _strip_empty(value)
+            if cleaned_value is None:
+                continue
+            if isinstance(cleaned_value, dict) and not cleaned_value:
+                continue
+            if isinstance(cleaned_value, list) and not cleaned_value:
+                continue
+            cleaned[key] = cleaned_value
+        return cleaned
+    if isinstance(obj, list):
+        cleaned_list = []
+        for item in obj:
+            cleaned_item = _strip_empty(item)
+            if cleaned_item is None:
+                continue
+            if isinstance(cleaned_item, dict) and not cleaned_item:
+                continue
+            if isinstance(cleaned_item, list) and not cleaned_item:
+                continue
+            cleaned_list.append(cleaned_item)
+        return cleaned_list
     return obj
 
 
-def _jsonld_numeric_representation(
-    xsd_datatype_iri: str,
-    qudt_unit_iri: Optional[str],
-    pint_unit: Optional[str]
-) -> Dict[str, Any]:
-    rep = {
-        "@type": str(DISCO.Representation),
-        str(DSV.valueType): xsd_datatype_iri
-    }
-    if qudt_unit_iri:
-        rep[str(QUDT.hasUnit)] = qudt_unit_iri
-    if pint_unit:
-        rep[str(SEMMAP.pintUnit)] = pint_unit  # implementation hint; optional
-    return rep
+def _dataclass_has_data(obj: Any) -> bool:
+    return is_dataclass(obj) and bool(_strip_empty(asdict(obj)))
 
 
-def _jsonld_codes_concept_scheme(
-    code_label_map: Dict[Union[int, str], str],
-    exact_match: Optional[Dict[Union[int, str], Union[str, List[str]]]] = None,
-    scheme_source_iri: Optional[str] = None
-) -> Dict[str, Any]:
-    """Build a skos:ConceptScheme with top concepts as blank nodes.
-       exact_match: code -> IRI or [IRI, ...]
-    """
-    scheme = {
-        "@type": [
-            str(DISCO.Representation),
-            str(SKOS.ConceptScheme),
-        ],
-    }
-    if scheme_source_iri:
-        scheme[str(DCT.source)] = scheme_source_iri
+def _dataclass_to_clean_dict(obj) -> Dict[str, Any]:
+    return _strip_empty(asdict(obj))
 
-    tops = []
-    for code, label in code_label_map.items():
-        cobj = {
-            "@type": str(SKOS.Concept),
-            str(SKOS.notation): str(code),
-            str(SKOS.prefLabel): str(label),
-        }
-        if exact_match and code in exact_match:
-            cobj[str(SKOS.exactMatch)] = exact_match[code]
-        tops.append(cobj)
-    scheme[str(SKOS.hasTopConcept)] = tops
-    return scheme
+
+def _parse_code_concept_dict(data: Dict[str, Any]) -> CodeConcept:
+    if not isinstance(data, dict):
+        raise TypeError("CodeConcept metadata must be a dict")
+
+    kwargs: Dict[str, Any] = {}
+    for field in ("notation", "prefLabel"):
+        value = data.get(field)
+        if value is not None:
+            kwargs[field] = str(value)
+
+    for field in ("exactMatch", "closeMatch", "broadMatch", "narrowMatch", "relatedMatch"):
+        value = data.get(field)
+        if value is None:
+            continue
+        kwargs[field] = _listify(value)
+
+    return CodeConcept(**kwargs)
+
+
+def _parse_codebook_dict(data: Dict[str, Any]) -> Optional[CodeBook]:
+    if not isinstance(data, dict):
+        raise TypeError("CodeBook metadata must be a dict")
+
+    kwargs: Dict[str, Any] = {}
+    top_concepts = []
+    for concept in data.get("hasTopConcept", []) or []:
+        try:
+            parsed = _parse_code_concept_dict(concept)
+        except TypeError:
+            continue
+        if _dataclass_has_data(parsed):
+            top_concepts.append(parsed)
+    if top_concepts:
+        kwargs["hasTopConcept"] = top_concepts
+
+    source = data.get("source")
+    if source is not None:
+        kwargs["source"] = str(source)
+
+    codebook = CodeBook(**kwargs) if kwargs else CodeBook()
+    return codebook if _dataclass_has_data(codebook) else None
+
+
+def _parse_column_property_dict(data: Dict[str, Any]) -> Optional[ColumnProperty]:
+    if not isinstance(data, dict):
+        raise TypeError("ColumnProperty metadata must be a dict")
+
+    kwargs: Dict[str, Any] = {}
+    for field in (
+        "statisticalDataType",
+        "valueType",
+        "hasQuantityKind",
+        "hasUnit",
+        "ucumCode",
+        "source",
+    ):
+        value = data.get(field)
+        if value is not None:
+            kwargs[field] = str(value)
+
+    for field in ("exactMatch", "closeMatch", "broadMatch", "narrowMatch", "relatedMatch"):
+        value = data.get(field)
+        if value is not None:
+            kwargs[field] = _listify(value)
+
+    if data.get("hasCodeBook") is not None:
+        codebook = _parse_codebook_dict(data["hasCodeBook"])
+        if codebook is not None:
+            kwargs["hasCodeBook"] = codebook
+
+    if not kwargs:
+        return None
+
+    column_property = ColumnProperty(**kwargs)
+    return column_property if _dataclass_has_data(column_property) else None
+
+
+def _parse_column_dict(data: Dict[str, Any]) -> Column:
+    if not isinstance(data, dict):
+        raise TypeError("Column metadata must be a dict")
+
+    name = data.get("name")
+    if not isinstance(name, str):
+        raise ValueError("Column metadata requires a string name")
+
+    titles = _normalize_titles(data.get("titles"))
+    column_property = None
+    if data.get("columnProperty") is not None:
+        column_property = _parse_column_property_dict(data["columnProperty"])
+
+    kwargs: Dict[str, Any] = {"name": name}
+    if titles is not None:
+        kwargs["titles"] = titles
+    if column_property is not None:
+        kwargs["columnProperty"] = column_property
+
+    return Column(**kwargs)
+
+
+def _parse_table_schema_dict(data: Dict[str, Any]) -> Optional[TableSchema]:
+    if not isinstance(data, dict):
+        return None
+
+    columns_data = data.get("columns")
+    if not isinstance(columns_data, list):
+        return None
+
+    columns: List[Column] = []
+    for entry in columns_data:
+        try:
+            column = _parse_column_dict(entry)
+        except (TypeError, ValueError):
+            continue
+        columns.append(column)
+
+    if not columns:
+        return None
+
+    return TableSchema(columns=columns)
+
+
+def _column_to_dict(column: Column) -> Dict[str, Any]:
+    return _dataclass_to_clean_dict(column)
+
+
+def _column_from_metadata_dict(data: Dict[str, Any]) -> Optional[Column]:
+    if not isinstance(data, dict):
+        return None
+
+    if "name" in data and ("columnProperty" in data or "titles" in data):
+        try:
+            return _parse_column_dict(data)
+        except (TypeError, ValueError):
+            return None
+
+    notation = _optional_str(
+        _ld_get(data, [str(SKOS.notation), "skos:notation", "notation", "name"])
+    )
+    if not notation:
+        return None
+
+    titles = _normalize_titles(
+        _ld_get(data, [str(SKOS.prefLabel), "skos:prefLabel", "prefLabel", "titles"])
+    )
+    column_source = _optional_str(
+        _ld_get(data, [str(DCT.source), "dct:source", "source"])
+    )
+
+    rep = _ld_get(
+        data,
+        [str(DISCO.representation), "disco:representation", "representation"],
+        default={},
+    )
+
+    column_property = None
+    if isinstance(rep, dict):
+        cp_kwargs: Dict[str, Any] = {}
+
+        value_type = _optional_str(
+            _ld_get(rep, [str(DSV.valueType), "dsv:valueType", "valueType"])
+        )
+        if value_type:
+            cp_kwargs["valueType"] = value_type
+
+        stat_type = _optional_str(
+            _ld_get(rep, [str(DSV.statisticalDataType), "dsv:statisticalDataType", "statisticalDataType"])
+        )
+        if stat_type:
+            cp_kwargs["statisticalDataType"] = stat_type
+
+        quantity_kind = _optional_str(
+            _ld_get(rep, [str(QUDT.hasQuantityKind), "qudt:hasQuantityKind", "hasQuantityKind"])
+        )
+        if quantity_kind:
+            cp_kwargs["hasQuantityKind"] = quantity_kind
+
+        has_unit = _optional_str(
+            _ld_get(rep, [str(QUDT.hasUnit), "qudt:hasUnit", "hasUnit"])
+        )
+        if has_unit:
+            cp_kwargs["hasUnit"] = has_unit
+
+        ucum_code = _optional_str(
+            _ld_get(rep, [str(QUDT.ucumCode), "qudt:ucumCode", "ucumCode"])
+        )
+        if not ucum_code and has_unit:
+            ucum_code = QUDT_TO_UCUM.get(has_unit)
+
+        if not ucum_code:
+            pint_unit = _optional_str(
+                _ld_get(rep, [str(SEMMAP.pintUnit), "semmap:pintUnit", "pintUnit"])
+            )
+            if pint_unit:
+                ucum_code = PINT_TO_UCUM.get(pint_unit)
+
+        if ucum_code:
+            cp_kwargs["ucumCode"] = ucum_code
+
+        if column_source:
+            cp_kwargs["source"] = column_source
+
+        has_top = _ld_get(rep, [str(SKOS.hasTopConcept), "skos:hasTopConcept", "hasTopConcept"])
+        top_concepts = []
+        if isinstance(has_top, list):
+            for concept in has_top:
+                if not isinstance(concept, dict):
+                    continue
+                concept_kwargs: Dict[str, Any] = {}
+                notation_value = _optional_str(
+                    _ld_get(concept, [str(SKOS.notation), "skos:notation", "notation"])
+                )
+                if notation_value:
+                    concept_kwargs["notation"] = notation_value
+
+                pref_label_value = _optional_str(
+                    _ld_get(concept, [str(SKOS.prefLabel), "skos:prefLabel", "prefLabel", "titles"])
+                )
+                if pref_label_value:
+                    concept_kwargs["prefLabel"] = pref_label_value
+
+                for field in ("exactMatch", "closeMatch", "broadMatch", "narrowMatch", "relatedMatch"):
+                    field_value = _ld_get(
+                        concept,
+                        [str(getattr(SKOS, field)), f"skos:{field}", field],
+                    )
+                    if field_value is not None:
+                        concept_kwargs[field] = _listify(field_value)
+
+                if concept_kwargs:
+                    top_concepts.append(CodeConcept(**concept_kwargs))
+
+        scheme_source = _optional_str(
+            _ld_get(rep, [str(DCT.source), "dct:source", "source"])
+        )
+
+        if top_concepts or scheme_source:
+            codebook_kwargs: Dict[str, Any] = {}
+            if top_concepts:
+                codebook_kwargs["hasTopConcept"] = top_concepts
+            if scheme_source:
+                codebook_kwargs["source"] = scheme_source
+            cp_kwargs["hasCodeBook"] = CodeBook(**codebook_kwargs)
+
+        if cp_kwargs:
+            column_property = ColumnProperty(**cp_kwargs)
+
+    if column_property is None and column_source:
+        column_property = ColumnProperty(source=column_source)
+
+    kwargs: Dict[str, Any] = {"name": notation}
+    if titles is not None:
+        kwargs["titles"] = titles
+    if column_property is not None:
+        kwargs["columnProperty"] = column_property
+
+    return Column(**kwargs)
+
+
+def _column_property_to_pint_unit(column_property: Optional[ColumnProperty]):
+    if not (_HAVE_PINT and column_property):
+        return None
+
+    ucum_code = getattr(column_property, "ucumCode", None)
+    if ucum_code:
+        try:
+            return _ureg.from_ucum(ucum_code).u
+        except Exception:  # pragma: no cover
+            pass
+
+    has_unit = getattr(column_property, "hasUnit", None)
+    if has_unit:
+        pint_unit = QUDT_TO_PINT.get(has_unit)
+        if pint_unit:
+            try:
+                return _ureg.parse_units(pint_unit)
+            except Exception:  # pragma: no cover
+                return None
+    return None
+
+
+def _convert_series_to_pint(
+    series: pd.Series, column_property: Optional[ColumnProperty]
+) -> Optional[pd.Series]:
+    if not (_HAVE_PINT and PintArray is not None):
+        return None
+
+    unit = _column_property_to_pint_unit(column_property)
+    if unit is None:
+        return None
+
+    try:
+        magnitudes = series.astype("float64").to_numpy() * unit
+    except Exception:  # pragma: no cover
+        return None
+
+    return pd.Series(PintArray(magnitudes), index=series.index, name=series.name)
 
 
 def _jsonld_dataset(
@@ -141,12 +453,12 @@ def _jsonld_dataset(
     obj = {
         "@context": JSONLD_CONTEXT_URL,
         "@type": [ str(DISCO.LogicalDataSet), str(DSV.Dataset), str(DCAT.Dataset) ],
-        str(DCT.title): title,
+        str(DCT["title"]): title,
     }
     if description:
-        obj[str(DCT.description)] = description
+        obj[str(DCT["description"])] = description
     if license_iri:
-        obj[str(DCT.license)] = license_iri
+        obj[str(DCT["license"])] = license_iri
     return obj
 
 
@@ -169,31 +481,53 @@ class SemMapSeriesAccessor:
         label: str,
         *,
         unit: Optional[str] = None,              # pint string ("mmHg", "mg/dL", "year")
-        qudt_unit_iri: Optional[str] = None,     # QUDT IRI; auto-filled from pint if omitted and known
-        xsd_datatype_iri: str = XSD.decimal,
+        ucum_code: Optional[str] = None,         # UCUM code ("mm[Hg]", "mg/dL", "a")
+        qudt_unit_iri: Optional[str] = None,     # QUDT IRI; auto-filled when possible
+        value_type_iri: str = str(XSD.decimal),
+        statistical_data_type: Optional[str] = DSV_QUANTITATIVE,
+        quantity_kind_iri: Optional[str] = None,
         source_iri: Optional[str] = None,
         convert_to_pint: bool = True,
     ) -> "SemMapSeriesAccessor":
         """Attach numeric variable metadata and (optionally) convert dtype to pint."""
-        # Prepare pint + QUDT
-        pint_unit = unit
-        if unit and not qudt_unit_iri:
-            qudt_unit_iri = PINT_TO_QUDT.get(unit)
 
-        # Build JSON-LD (blank nodes)
-        var = _jsonld_variable_base(notation=name, pref_label=label, source_iri=source_iri)
-        var[DISCO.representation] = \
-            _jsonld_numeric_representation(xsd_datatype_iri, qudt_unit_iri, pint_unit)
+        column_name = str(name)
+        titles = str(label)
 
-        var["@context"] = JSONLD_CONTEXT_URL  # ensure top-level context
-        self._s.attrs["semmap_jsonld"] = var
+        inferred_ucum = ucum_code or (PINT_TO_UCUM.get(unit) if unit else None)
+        inferred_qudt = qudt_unit_iri or (
+            UCUM_TO_QUDT.get(inferred_ucum) if inferred_ucum else PINT_TO_QUDT.get(unit)
+        )
 
-        # Convert to pint dtype if requested and available
-        if convert_to_pint and unit and _HAVE_PINT:
-            # Create PintArray if not already
-            q = self._s.astype("float64").to_numpy()  # magnitudes
-            q = q * _ureg.parse_units(unit)
-            self._s = pd.Series(PintArray(q), index=self._s.index, name=self._s.name)
+        cp_kwargs: Dict[str, Any] = {}
+        if statistical_data_type:
+            cp_kwargs["statisticalDataType"] = str(statistical_data_type)
+        if value_type_iri:
+            cp_kwargs["valueType"] = str(value_type_iri)
+        if quantity_kind_iri:
+            cp_kwargs["hasQuantityKind"] = str(quantity_kind_iri)
+        if inferred_qudt:
+            cp_kwargs["hasUnit"] = str(inferred_qudt)
+        if inferred_ucum:
+            cp_kwargs["ucumCode"] = str(inferred_ucum)
+        if source_iri:
+            cp_kwargs["source"] = str(source_iri)
+
+        column_property = ColumnProperty(**cp_kwargs) if cp_kwargs else None
+        column = Column(name=column_name, titles=titles, columnProperty=column_property)
+        column_metadata = _column_to_dict(column)
+
+        if convert_to_pint:
+            converted = _convert_series_to_pint(self._s, column_property)
+            if converted is not None:
+                self._s = converted
+            elif unit and _HAVE_PINT and PintArray is not None:
+                try:  # legacy fallback when UCUM mapping is unavailable
+                    magnitudes = self._s.astype("float64").to_numpy() * _ureg.parse_units(unit)
+                    self._s = pd.Series(PintArray(magnitudes), index=self._s.index, name=self._s.name)
+                except Exception:  # pragma: no cover
+                    pass
+        self._s.attrs["semmap_jsonld"] = column_metadata
         return self
 
     def set_categorical(
@@ -205,14 +539,45 @@ class SemMapSeriesAccessor:
         exact_match: Optional[Dict[Union[int, str], Union[str, List[str]]]] = None,
         scheme_source_iri: Optional[str] = None,
         source_iri: Optional[str] = None,
+        statistical_data_type: Optional[str] = DSV_NOMINAL,
     ) -> "SemMapSeriesAccessor":
         """Attach categorical variable metadata (integer-coded or strings)."""
-        var = _jsonld_variable_base(notation=name, pref_label=label, source_iri=source_iri)
-        var[DISCO.representation] = _jsonld_codes_concept_scheme(
-            codes, exact_match=exact_match, scheme_source_iri=scheme_source_iri
-        )
-        var["@context"] = JSONLD_CONTEXT_URL
-        self._s.attrs["semmap_jsonld"] = var
+
+        column_name = str(name)
+        titles = str(label)
+
+        top_concepts: List[CodeConcept] = []
+        for code, display in codes.items():
+            concept_kwargs: Dict[str, Any] = {"notation": str(code)}
+            if display is not None:
+                concept_kwargs["prefLabel"] = str(display)
+            if exact_match and code in exact_match:
+                concept_kwargs["exactMatch"] = _listify(exact_match[code])
+            clean_kwargs = {k: v for k, v in concept_kwargs.items() if v is not None}
+            if clean_kwargs:
+                top_concepts.append(CodeConcept(**clean_kwargs))
+
+        codebook = None
+        if top_concepts or scheme_source_iri:
+            cb_kwargs: Dict[str, Any] = {}
+            if top_concepts:
+                cb_kwargs["hasTopConcept"] = top_concepts
+            if scheme_source_iri:
+                cb_kwargs["source"] = str(scheme_source_iri)
+            candidate = CodeBook(**cb_kwargs)
+            codebook = candidate if _dataclass_has_data(candidate) else None
+
+        cp_kwargs: Dict[str, Any] = {}
+        if statistical_data_type:
+            cp_kwargs["statisticalDataType"] = str(statistical_data_type)
+        if source_iri:
+            cp_kwargs["source"] = str(source_iri)
+        if codebook is not None:
+            cp_kwargs["hasCodeBook"] = codebook
+
+        column_property = ColumnProperty(**cp_kwargs) if cp_kwargs else None
+        column = Column(name=column_name, titles=titles, columnProperty=column_property)
+        column_metadata = _column_to_dict(column)
 
         # Keep storage as integer or category if provided
         try:
@@ -223,6 +588,8 @@ class SemMapSeriesAccessor:
                 self._s = pd.Series(cat, index=self._s.index, name=self._s.name)
         except Exception:
             pass
+
+        self._s.attrs["semmap_jsonld"] = column_metadata
         return self
 
     # ---- Introspection
@@ -238,7 +605,7 @@ class SemMapSeriesAccessor:
         rep = meta.get(str(DISCO.representation), {})
         pint_unit = rep.get(str(SEMMAP.pintUnit))
 
-        if _HAVE_PINT and isinstance(s.dtype, PintType):
+        if _HAVE_PINT and PintType is not None and isinstance(s.dtype, PintType):
             # Store magnitudes; metadata carries units for reconstruction
             s = pd.Series(s.to_numpy().magnitude, index=s.index, name=s.name)
         # For categories, parquet handles pd.Categorical fine.
@@ -323,22 +690,32 @@ class SemMapFrameAccessor:
             if field.metadata and _COLUMN_JSONLD_KEY in field.metadata:
                 col_jsonld = json.loads(field.metadata[_COLUMN_JSONLD_KEY].decode("utf-8"))
                 # attach back to Series
-                s = df[name]
-                s.attrs["semmap_jsonld"] = col_jsonld
+                column = _column_from_metadata_dict(col_jsonld) if isinstance(col_jsonld, dict) else None
+                if column is not None:
+                    df[name].attrs["semmap_jsonld"] = _column_to_dict(column)
+                else:
+                    df[name].attrs["semmap_jsonld"] = col_jsonld
 
-                # reconstruct pint dtype if present and desired
-                rep = _ld_get(col_jsonld, [
-                    str(DISCO.representation),
-                    "disco:representation",
-                    "representation",
-                ], default={})
-                pint_unit = _ld_get(rep, [str(SEMMAP.pintUnit), "semmap:pintUnit", "pintUnit"]) if isinstance(rep, dict) else None
-                qudt_unit = _ld_get(rep, [str(QUDT.hasUnit), "qudt:hasUnit", "hasUnit"]) if isinstance(rep, dict) else None
-                if convert_pint and _HAVE_PINT and (pint_unit or qudt_unit):
-                    unit = pint_unit or QUDT_TO_PINT.get(qudt_unit)
-                    if unit:
-                        q = df[name].astype("float64").to_numpy() * _ureg.parse_units(unit)
-                        df[name] = pd.Series(PintArray(q), index=df.index, name=name)
+                if convert_pint:
+                    column_property = column.columnProperty if column is not None else None
+                    converted = _convert_series_to_pint(df[name], column_property)
+                    if converted is not None:
+                        df[name] = converted
+                    elif column_property is None and isinstance(col_jsonld, dict):
+                        rep = _ld_get(col_jsonld, [
+                            str(DISCO.representation),
+                            "disco:representation",
+                            "representation",
+                        ], default={})
+                        pint_unit = _ld_get(rep, [str(SEMMAP.pintUnit), "semmap:pintUnit", "pintUnit"]) if isinstance(rep, dict) else None
+                        qudt_unit = _ld_get(rep, [str(QUDT.hasUnit), "qudt:hasUnit", "hasUnit"]) if isinstance(rep, dict) else None
+                        unit = pint_unit or QUDT_TO_PINT.get(qudt_unit)
+                        if unit and _HAVE_PINT and PintArray is not None:
+                            try:
+                                magnitudes = df[name].astype("float64").to_numpy() * _ureg.parse_units(unit)
+                                df[name] = pd.Series(PintArray(magnitudes), index=df.index, name=name)
+                            except Exception:  # pragma: no cover
+                                pass
 
         return df
 
@@ -349,109 +726,96 @@ class SemMapFrameAccessor:
         *,
         convert_pint: bool = True,
     ) -> "SemMapFrameAccessor":
-        """Attach dataset and column JSON-LD metadata from a single JSON file/object.
+        """Attach dataset metadata and column schema from a JSON object."""
 
-        Expected structure:
-          {
-            "dataset": { ... JSON-LD for dataset ... },
-            "columns": { "colname": { ... JSON-LD for variable/column ... }, ... }
-          }
-        Unknown columns are ignored. If pint units are present in column metadata
-        and pint is available, columns are converted to pint dtype when
-        convert_pint=True.
-        """
-        # Load JSON if path provided
-        meta_obj: Dict[str, Any]
         if isinstance(metadata, str):
             with open(metadata, "r", encoding="utf-8") as f:
-                meta_obj = json.load(f)
+                meta_obj: Dict[str, Any] = json.load(f)
         else:
             meta_obj = metadata
 
-        # Dataset-level metadata
-        d_meta = meta_obj.get("dataset")
-        if d_meta is not None:
-            self._df.attrs["semmap_jsonld"] = d_meta
+        dataset_meta = meta_obj.get("dataset")
+        if dataset_meta is not None:
+            self._df.attrs["semmap_jsonld"] = dataset_meta
 
-        # Column-level metadata: expect disco:variable as a list (DDI Discovery),
-        # but accept legacy structures for compatibility
-        var_list = _ld_get(meta_obj, [str(DISCO.variable), "disco:variable", "variable"])  # top-level
-        if var_list is None and isinstance(meta_obj.get("dataset"), dict):
-            var_list = _ld_get(meta_obj["dataset"], [str(DISCO.variable), "disco:variable", "variable"])  # nested
+        processed: set[str] = set()
+        table_schema = _parse_table_schema_dict(meta_obj.get("tableSchema")) if isinstance(meta_obj.get("tableSchema"), dict) else None
+        if table_schema is not None:
+            for column in table_schema.columns:
+                if column.name not in self._df.columns:
+                    continue
+                self._df[column.name].attrs["semmap_jsonld"] = _column_to_dict(column)
+                processed.add(column.name)
+                if convert_pint:
+                    converted = _convert_series_to_pint(self._df[column.name], column.columnProperty)
+                    if converted is not None:
+                        self._df[column.name] = converted
+
+        legacy_vars = _ld_get(meta_obj, [str(DISCO.variable), "disco:variable", "variable"])
+        if legacy_vars is None and isinstance(meta_obj.get("dataset"), dict):
+            legacy_vars = _ld_get(meta_obj["dataset"], [str(DISCO.variable), "disco:variable", "variable"])
 
         variables: List[tuple[str, Dict[str, Any]]] = []
-        if isinstance(var_list, list):
-            for v in var_list:
-                if not isinstance(v, dict):
-                    continue
-                name = _ld_get(v, [str(SKOS.notation), "skos:notation", "notation", "name"])  # how to map to column
-                if not isinstance(name, str):
-                    continue
-                variables.append((name, v))
-        elif isinstance(var_list, dict):
-            for name, v in var_list.items():
-                if isinstance(v, dict) and isinstance(name, str):
-                    variables.append((name, v))
+        if isinstance(legacy_vars, list):
+            for entry in legacy_vars:
+                if isinstance(entry, dict):
+                    name = _ld_get(entry, [str(SKOS.notation), "skos:notation", "notation", "name"])
+                    if isinstance(name, str):
+                        variables.append((name, entry))
+        elif isinstance(legacy_vars, dict):
+            for key, value in legacy_vars.items():
+                if isinstance(key, str) and isinstance(value, dict):
+                    variables.append((key, value))
 
-        for name, cmeta in variables:
-            if name not in self._df.columns:
+        for name, raw_meta in variables:
+            if name in processed or name not in self._df.columns:
                 continue
-            s = self._df[name]
-            s.attrs["semmap_jsonld"] = cmeta
+            column = _column_from_metadata_dict(raw_meta)
+            if column is not None:
+                self._df[name].attrs["semmap_jsonld"] = _column_to_dict(column)
+                processed.add(name)
+                if convert_pint:
+                    converted = _convert_series_to_pint(self._df[name], column.columnProperty)
+                    if converted is not None:
+                        self._df[name] = converted
+                continue
 
-            # reconstruct pint dtype if desired and available
-            rep = _ld_get(cmeta, [
-                str(DISCO.representation),
-                "disco:representation",
-                "representation",
-            ], default={})
-            pint_unit = _ld_get(rep, [str(SEMMAP.pintUnit), "semmap:pintUnit", "pintUnit"]) if isinstance(rep, dict) else None
-            qudt_unit = _ld_get(rep, [str(QUDT.hasUnit), "qudt:hasUnit", "hasUnit"]) if isinstance(rep, dict) else None
-            if convert_pint and _HAVE_PINT and (pint_unit or qudt_unit):
+            # Fallback: store raw metadata and attempt legacy pint conversion
+            self._df[name].attrs["semmap_jsonld"] = raw_meta
+            if convert_pint and _HAVE_PINT and isinstance(raw_meta, dict):
+                rep = _ld_get(raw_meta, [str(DISCO.representation), "disco:representation", "representation"], default={})
+                pint_unit = _ld_get(rep, [str(SEMMAP.pintUnit), "semmap:pintUnit", "pintUnit"]) if isinstance(rep, dict) else None
+                qudt_unit = _ld_get(rep, [str(QUDT.hasUnit), "qudt:hasUnit", "hasUnit"]) if isinstance(rep, dict) else None
                 unit = pint_unit or QUDT_TO_PINT.get(qudt_unit)
                 if unit:
                     try:
-                        q = self._df[name].astype("float64").to_numpy() * _ureg.parse_units(unit)
-                        self._df[name] = pd.Series(PintArray(q), index=self._df.index, name=name)
-                    except Exception:
-                        # leave as-is if conversion fails
+                        magnitudes = self._df[name].astype("float64").to_numpy() * _ureg.parse_units(unit)
+                        self._df[name] = pd.Series(PintArray(magnitudes), index=self._df.index, name=name)
+                    except Exception:  # pragma: no cover
                         pass
 
         return self
 
     def export_json_metadata(self) -> Dict[str, Any]:
-        """Export dataset and per-column JSON-LD metadata into a single JSON object.
+        """Export dataset metadata with a CSVW-style table schema."""
 
-        Structure follows DDI Discovery style for variables:
-          {
-            "dataset": { ... dataset JSON-LD ... },
-            "disco:variable": [ { ... column JSON-LD ... }, ... ]
-          }
-        Only columns that have semmap_jsonld attached are included.
-        """
         out: Dict[str, Any] = {}
-        d = self.jsonld()
-        if d is not None:
-            out["dataset"] = d
+        dataset_meta = self.jsonld()
+        if dataset_meta is not None:
+            out["dataset"] = dataset_meta
 
-        vars_list: List[Dict[str, Any]] = []
-        for col in self._df.columns:
-            meta = self._df[col].semmap.jsonld()
+        columns: List[Column] = []
+        for name in self._df.columns:
+            meta = self._df[name].semmap.jsonld()
             if not isinstance(meta, dict):
                 continue
-            notation = _ld_get(meta, [str(SKOS.notation), "skos:notation", "notation", "name"])
-            types = meta.get("@type")
-            if isinstance(types, str):
-                types = [types]
-            types = [str(t) for t in (types or [])]
-            is_dataset_like = any(
-                ("LogicalDataSet" in t) or t.endswith(":Dataset") or t.endswith("/Dataset")
-                for t in types
-            )
-            if is_dataset_like or not isinstance(notation, str):
+            column = _column_from_metadata_dict(meta)
+            if column is None:
                 continue
-            vars_list.append(meta)
-        out["disco:variable"] = vars_list
+            columns.append(column)
+
+        out["tableSchema"] = _dataclass_to_clean_dict(TableSchema(columns=columns)) if columns else {"columns": []}
+        out.setdefault("@context", JSONLD_CONTEXT_URL)
         return out
 
 
@@ -503,8 +867,9 @@ if __name__ == "__main__":
         name="trestbps",
         label="Resting systolic blood pressure",
         unit="mmHg",
+        ucum_code="mm[Hg]",
         qudt_unit_iri="http://qudt.org/vocab/unit/MilliM_HG",
-        xsd_datatype_iri="http://www.w3.org/2001/XMLSchema#integer",
+        value_type_iri="xsd:integer",
         source_iri="https://loinc.org/8480-6",
         convert_to_pint=True,
     )._s
@@ -514,8 +879,9 @@ if __name__ == "__main__":
         name="chol",
         label="Total cholesterol",
         unit="mg/dL",
+        ucum_code="mg/dL",
         qudt_unit_iri="http://qudt.org/vocab/unit/MilliGM-PER-DeciL",
-        xsd_datatype_iri="http://www.w3.org/2001/XMLSchema#integer",
+        value_type_iri="xsd:integer",
         source_iri="https://loinc.org/2093-3",
         convert_to_pint=True,
     )._s
@@ -523,7 +889,7 @@ if __name__ == "__main__":
     # Dataset-level metadata
     df.semmap.set_dataset(
         title="Heart dataset (example)",
-        description="Example with variable/column JSON-LD and pint units.",
+        description="Example with variable/column JSON-LD and UCUM units.",
         license_iri="https://creativecommons.org/publicdomain/zero/1.0/"
     )
 

@@ -17,20 +17,24 @@ class SkosMappings:
 @dataclass
 class CodeConcept(SkosMappings):
     notation: Optional[str] = None
+    prefLabel: Optional[str] = None
 
 
 @dataclass
 class CodeBook:
     hasTopConcept: Optional[List[CodeConcept]] = None
+    source: Optional[str] = None
 
 
 # --- Column property (DSV + QUDT/UCUM) ---------------------------------------
 @dataclass
 class ColumnProperty(SkosMappings):
     statisticalDataType: Optional[str] = None          # e.g., "dsv:NominalDataType"
+    valueType: Optional[str] = None                    # e.g., "xsd:integer"
     hasQuantityKind: Optional[str] = None              # e.g., "quantitykind:Time"
     hasUnit: Optional[str] = None                      # e.g., "unit:YR"
     ucumCode: Optional[str] = None                     # e.g., "a"
+    source: Optional[str] = None                       # e.g., "https://loinc.org/..."
     hasCodeBook: Optional[CodeBook] = None
 
 

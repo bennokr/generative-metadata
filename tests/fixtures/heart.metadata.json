@@ -1,4 +1,5 @@
 {
+  "@context": "https://w3id.org/semmap/context/v1",
   "dataset": {
     "@context": "https://w3id.org/semmap/context/v1",
     "@type": [
@@ -7,113 +8,95 @@
       "dcat:Dataset"
     ],
     "dct:title": "Heart dataset (example)",
-    "dct:description": "Example with variable/column JSON-LD and pint units.",
+    "dct:description": "Example with variable/column JSON-LD and UCUM units.",
     "dct:license": "https://creativecommons.org/publicdomain/zero/1.0/"
   },
-  "disco:variable": [
-    {
-      "@context": "https://w3id.org/semmap/context/v1",
-      "@type": [
-        "disco:Variable",
-        "dsv:Column"
-      ],
-      "skos:notation": "cp",
-      "skos:prefLabel": "Chest pain type",
-      "disco:representation": {
-        "@type": [
-          "disco:Representation",
-          "skos:ConceptScheme"
-        ],
-        "skos:hasTopConcept": [
-          {
-            "@type": "skos:Concept",
-            "skos:notation": "1",
-            "skos:prefLabel": "Typical angina",
-            "skos:exactMatch": "http://snomed.info/id/429559004"
-          },
-          {
-            "@type": "skos:Concept",
-            "skos:notation": "2",
-            "skos:prefLabel": "Atypical angina",
-            "skos:exactMatch": "http://snomed.info/id/371807002"
-          },
-          {
-            "@type": "skos:Concept",
-            "skos:notation": "3",
-            "skos:prefLabel": "Non-cardiac chest pain",
-            "skos:exactMatch": "http://snomed.info/id/274668005"
-          },
-          {
-            "@type": "skos:Concept",
-            "skos:notation": "4",
-            "skos:prefLabel": "Asymptomatic",
-            "skos:exactMatch": "http://snomed.info/id/161971004"
+  "tableSchema": {
+    "columns": [
+      {
+        "name": "cp",
+        "titles": "Chest pain type",
+        "columnProperty": {
+          "statisticalDataType": "dsv:NominalDataType",
+          "source": "https://dicom.nema.org/medical/dicom/current/output/chtml/part16/sect_CID_3202.html",
+          "hasCodeBook": {
+            "source": "https://dicom.nema.org/medical/dicom/current/output/chtml/part16/sect_CID_3202.html",
+            "hasTopConcept": [
+              {
+                "notation": "1",
+                "prefLabel": "Typical angina",
+                "exactMatch": [
+                  "http://snomed.info/id/429559004"
+                ]
+              },
+              {
+                "notation": "2",
+                "prefLabel": "Atypical angina",
+                "exactMatch": [
+                  "http://snomed.info/id/371807002"
+                ]
+              },
+              {
+                "notation": "3",
+                "prefLabel": "Non-cardiac chest pain",
+                "exactMatch": [
+                  "http://snomed.info/id/274668005"
+                ]
+              },
+              {
+                "notation": "4",
+                "prefLabel": "Asymptomatic",
+                "exactMatch": [
+                  "http://snomed.info/id/161971004"
+                ]
+              }
+            ]
           }
-        ],
-        "dct:source": "https://dicom.nema.org/medical/dicom/current/output/chtml/part16/sect_CID_3202.html"
+        }
       },
-      "dct:source": "https://dicom.nema.org/medical/dicom/current/output/chtml/part16/sect_CID_3202.html"
-    },
-    {
-      "@context": "https://w3id.org/semmap/context/v1",
-      "@type": [
-        "disco:Variable",
-        "dsv:Column"
-      ],
-      "skos:notation": "fbs",
-      "skos:prefLabel": "Fasting blood sugar >120 mg/dL (indicator)",
-      "disco:representation": {
-        "@type": [
-          "disco:Representation",
-          "skos:ConceptScheme"
-        ],
-        "skos:hasTopConcept": [
-          {
-            "@type": "skos:Concept",
-            "skos:notation": "0",
-            "skos:prefLabel": "≤120 mg/dL"
-          },
-          {
-            "@type": "skos:Concept",
-            "skos:notation": "1",
-            "skos:prefLabel": ">120 mg/dL"
+      {
+        "name": "fbs",
+        "titles": "Fasting blood sugar >120 mg/dL (indicator)",
+        "columnProperty": {
+          "statisticalDataType": "dsv:NominalDataType",
+          "source": "https://loinc.org/2345-7",
+          "hasCodeBook": {
+            "source": "https://loinc.org/2345-7",
+            "hasTopConcept": [
+              {
+                "notation": "0",
+                "prefLabel": "\u2264120 mg/dL"
+              },
+              {
+                "notation": "1",
+                "prefLabel": ">120 mg/dL"
+              }
+            ]
           }
-        ],
-        "dct:source": "https://loinc.org/2345-7"
+        }
       },
-      "dct:source": "https://loinc.org/2345-7"
-    },
-    {
-      "@context": "https://w3id.org/semmap/context/v1",
-      "@type": [
-        "disco:Variable",
-        "dsv:Column"
-      ],
-      "skos:notation": "trestbps",
-      "skos:prefLabel": "Resting systolic blood pressure",
-      "disco:representation": {
-        "@type": "disco:Representation",
-        "dsv:valueType": "xsd:integer",
-        "qudt:hasUnit": "unit:MilliM_HG",
-        "semmap:pintUnit": "mmHg"
+      {
+        "name": "trestbps",
+        "titles": "Resting systolic blood pressure",
+        "columnProperty": {
+          "statisticalDataType": "dsv:QuantitativeDataType",
+          "valueType": "xsd:integer",
+          "hasUnit": "unit:MilliM_HG",
+          "ucumCode": "mm[Hg]",
+          "source": "https://loinc.org/8480-6"
+        }
       },
-      "dct:source": "https://loinc.org/8480-6"
-    },
-    {
-      "@context": "https://w3id.org/semmap/context/v1",
-      "@type": [
-        "disco:Variable",
-        "dsv:Column"
-      ],
-      "skos:notation": "chol",
-      "skos:prefLabel": "Total cholesterol",
-      "disco:representation": {
-        "@type": "disco:Representation",
-        "dsv:valueType": "xsd:integer",
-        "qudt:hasUnit": "unit:MilliGM-PER-DeciL",
-        "semmap:pintUnit": "mg/dL"
-      },
-      "dct:source": "https://loinc.org/2093-3"
-    }
-  ]
+      {
+        "name": "chol",
+        "titles": "Total cholesterol",
+        "columnProperty": {
+          "statisticalDataType": "dsv:QuantitativeDataType",
+          "valueType": "xsd:integer",
+          "hasUnit": "unit:MilliGM-PER-DeciL",
+          "ucumCode": "mg/dL",
+          "source": "https://loinc.org/2093-3"
+        }
+      }
+    ]
+  }
 }

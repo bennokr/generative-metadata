@@ -12,4 +12,5 @@ scikit-learn
 scipy
 tabulate
 ucimlrepo
+ucumvert
 umap-learn

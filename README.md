@@ -10,6 +10,7 @@
 - Arc blacklist: prevent incoming arcs into root variables (root <- others), while allowing outgoing arcs from root variables.
 - YAML configuration: define multiple BN learning configurations in a file.
 - Provider-aware metadata: include links to the dataset’s OpenML/UCI page, JSON-LD metadata, and a merged “Variables and summary” table.
+- Synthcity integration: train tabular generators from the CLI and surface their metrics/plots alongside BN results.
 
 ## Installation
 - The pipeline depends on packages listed in requirements.txt. The example commands below assume a conda environment named synthdata that already contains the dependencies (including pybnesian) as used in testing.
@@ -28,6 +29,9 @@ Run from the repository root.
     - `conda run -n synthdata python bn_reports_cli.py report openml -d adult`
   - UCI ML (dataset id 45: Heart Disease):
     - `conda run -n synthdata python bn_reports_cli.py report uciml -d 45`
+- Generate synthetic data with synthcity
+  - Example:
+    - `conda run -n synthdata python bn_reports_cli.py synth 1590 --provider openml --generator ctgan --gen-params-json '{}' --rows 500 --outdir outputs`
 
 ### Options (report)
 - `--outdir`: Output directory root (default: `docs`). A subdirectory per dataset is created.
@@ -92,3 +96,16 @@ If you need continuous modeling for binned columns
 ## Troubleshooting
 - If log-likelihood columns appear empty in the report, the pipeline automatically ignores non-finite values when calculating the held-out log-likelihood; ensure the training/test splits contain no missing values for the variables used.
 - If using `--configs-yaml`, ensure PyYAML is available in your environment.
+
+## Supported synthcity generators
+- ctgan
+- ads-gan / adsgan
+- pategan
+- dp-gan / dpgan
+- tvae
+- rtvae
+- nflow / tabularflow
+- bn / bayesiannetwork
+- privbayes
+- arf / arfpy
+- great

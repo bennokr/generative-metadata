@@ -75,3 +75,29 @@ def per_variable_distances(
             w1 = wasserstein_distance(a, b)
             rows.append(dict(variable=c, type="continuous", KS=ks, W1=w1))
     return pd.DataFrame(rows)
+
+def summarize_distance_metrics(distances: pd.DataFrame) -> Dict[str, float]:
+    """Compute aggregate statistics for per-variable distance metrics."""
+    if distances.empty:
+        return {
+            'disc_jsd_mean': float('nan'),
+            'disc_jsd_median': float('nan'),
+            'cont_ks_mean': float('nan'),
+            'cont_w1_mean': float('nan'),
+        }
+    disc = distances[distances['type'] == 'discrete'] if 'type' in distances.columns else pd.DataFrame()
+    cont = distances[distances['type'] == 'continuous'] if 'type' in distances.columns else pd.DataFrame()
+    def _agg(frame: pd.DataFrame, column: str, reducer) -> float:
+        if frame.empty or column not in frame.columns:
+            return float('nan')
+        series = pd.to_numeric(frame[column], errors='coerce').dropna()
+        if series.empty:
+            return float('nan')
+        return float(reducer(series))
+    return {
+        'disc_jsd_mean': _agg(disc, 'JSD', np.nanmean),
+        'disc_jsd_median': _agg(disc, 'JSD', np.nanmedian),
+        'cont_ks_mean': _agg(cont, 'KS', np.nanmean),
+        'cont_w1_mean': _agg(cont, 'W1', np.nanmean),
+    }
+

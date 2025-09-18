@@ -13,6 +13,7 @@ from .datasets import (
     load_dataset,
     specs_from_input,
 )
+from .synth import run_from_yaml, run_synth_experiment
 from .utils import ensure_dir
 
 
@@ -38,6 +39,81 @@ def search(provider: str, *, name_substr: Optional[str] = None, area: str = "Hea
     else:
         raise SystemExit("provider must be 'openml' or 'uciml'")
     print(df.to_csv(sep='\t', index=None))
+
+
+
+
+def synth(
+    dataset: str,
+    *,
+    provider: str = 'openml',
+    generator: str = 'ctgan',
+    gen_params_json: str = '',
+    rows: Optional[int] = None,
+    seed: int = 0,
+    outdir: str = 'outputs',
+    test_size: float = 0.25,
+    configs_yaml: str = '',
+    verbose: bool = False,
+) -> None:
+    """Train a synthcity generator and persist synthetic data + diagnostics."""
+    if verbose:
+        logging.root.setLevel(logging.INFO)
+
+    ensure_dir(outdir)
+    specs = specs_from_input(provider=provider, datasets=[dataset])
+    if not specs:
+        raise SystemExit(f'No dataset found for provider={provider!r} input={dataset!r}')
+    spec = specs[0]
+    meta, df, _color = load_dataset(spec)
+    dataset_display_name = getattr(meta, 'name', None)
+    if not dataset_display_name and isinstance(meta, dict):
+        dataset_display_name = meta.get('name')
+    if not dataset_display_name:
+        dataset_display_name = spec.name or str(spec.id or dataset)
+    dataset_display_name = str(dataset_display_name)
+
+    provider_id = None
+    if spec.provider == 'uciml':
+        provider_id = spec.id
+    elif spec.provider == 'openml':
+        for attr in ('dataset_id', 'did', 'id'):
+            if hasattr(meta, attr):
+                try:
+                    provider_id = int(getattr(meta, attr))
+                    break
+                except Exception:
+                    continue
+
+    cfg_path = configs_yaml.strip()
+    if cfg_path:
+        try:
+            run_from_yaml(
+                df=df,
+                provider=spec.provider,
+                dataset_name=dataset_display_name,
+                provider_id=provider_id,
+                outdir=outdir,
+                yaml_path=cfg_path,
+                seed=seed,
+                test_size=test_size,
+            )
+        except RuntimeError as exc:
+            raise SystemExit(str(exc)) from exc
+        return
+
+    run_synth_experiment(
+        df=df,
+        provider=spec.provider,
+        dataset_name=dataset_display_name,
+        provider_id=provider_id,
+        outdir=outdir,
+        generator=generator,
+        gen_params_json=gen_params_json,
+        rows=rows,
+        seed=seed,
+        test_size=test_size,
+    )
 
 
 def report(
@@ -127,7 +203,7 @@ def report(
 
 
 def main(argv: Optional[List[str]] = None) -> None:
-    defopt.run([search, report], argv=argv)
+    defopt.run([search, report, synth], argv=argv)
 
 
 if __name__ == "__main__":

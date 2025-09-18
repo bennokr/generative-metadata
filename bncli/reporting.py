@@ -3,7 +3,9 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 import html
+import json
 import logging
+import os
 import textwrap
 
 import markdown
@@ -11,6 +13,8 @@ import markdown
 from jsonld_to_rdfa import SCHEMA_ORG, render_rdfa
 
 import pandas as pd
+
+from .synth import SynthReportRun
 
 
 _REPORT_STYLE = """<style>
@@ -90,6 +94,7 @@ def write_report_md(
     variable_descriptions: Optional[dict] = None,
     semmap_jsonld: Optional[dict] = None,
     metasyn_semmap_parquet: Optional[str] = None,
+    synth_runs: Optional[List[SynthReportRun]] = None,
 ) -> None:
     md_path = Path(outdir) / "report.md"
     semmap_fragment: Optional[str] = None
@@ -226,10 +231,101 @@ def write_report_md(
         merged = merged.fillna("")
         
         
-        f.write("## Variables and summary\n\n")
-        f.write(df_to_markdown(merged, index=False) + "\n\n")
 
-        f.write("## Learned structures and configurations\n\n")
+        f.write("## Variables and summary
+
+")
+        f.write(df_to_markdown(merged, index=False) + "
+
+")
+
+        if synth_runs:
+            f.write("## Synthetic data (synthcity)
+
+")
+            summary_rows = []
+            for run in synth_runs:
+                manifest = run.manifest or {}
+                summary = run.metrics.get("summary", {}) if isinstance(run.metrics, dict) else {}
+                summary_rows.append(
+                    {
+                        "generator": run.generator,
+                        "rows": manifest.get("rows"),
+                        "seed": manifest.get("seed"),
+                        "disc_jsd_mean": summary.get("disc_jsd_mean"),
+                        "disc_jsd_median": summary.get("disc_jsd_median"),
+                        "cont_ks_mean": summary.get("cont_ks_mean"),
+                        "cont_w1_mean": summary.get("cont_w1_mean"),
+                    }
+                )
+            if summary_rows:
+                synth_summary_df = pd.DataFrame(summary_rows)
+                f.write(df_to_markdown(synth_summary_df, index=False) + "
+
+")
+            for run in synth_runs:
+                manifest = run.manifest or {}
+                summary = run.metrics.get("summary", {}) if isinstance(run.metrics, dict) else {}
+                f.write(f"### Generator: {run.generator}
+
+")
+                requested = manifest.get("requested_generator", manifest.get("generator", run.generator))
+                if requested and requested != run.generator:
+                    f.write(f"- Requested alias: {requested}
+")
+                f.write(f"- Seed: {manifest.get('seed')}
+")
+                if manifest.get("rows") is not None:
+                    f.write(f"- Rows: {manifest.get('rows')}
+")
+                params = manifest.get("params") or {}
+                if params:
+                    f.write("- Params: `" + json.dumps(params, sort_keys=True) + "`
+")
+                if summary:
+                    stats = []
+                    for key in ("disc_jsd_mean", "disc_jsd_median", "cont_ks_mean", "cont_w1_mean"):
+                        val = summary.get(key)
+                        if val is None:
+                            continue
+                        try:
+                            val_f = float(val)
+                        except (TypeError, ValueError):
+                            continue
+                        if not (val_f != val_f):
+                            stats.append(f"{key}={val_f:.4f}")
+                    if stats:
+                        f.write("- Metrics: " + ", ".join(stats) + "
+")
+                def _write_link(label: str, target: Optional[Path]) -> None:
+                    if target is None:
+                        return
+                    if not target.exists():
+                        return
+                    rel = os.path.relpath(target, start=md_path.parent)
+                    f.write(f"- {label}: [{rel}]({rel})
+")
+                _write_link("Synthetic CSV", run.synthetic_csv)
+                _write_link("Per-variable metrics", run.per_variable_csv)
+                _write_link("Metrics JSON", run.run_dir / "metrics.json")
+                if run.umap_png and run.umap_png.exists():
+                    rel_png = os.path.relpath(run.umap_png, start=md_path.parent)
+                    f.write(f"- UMAP: [{Path(rel_png).name}]({rel_png})
+")
+                    f.write(f"
+![{run.generator} UMAP]({rel_png})
+
+")
+                else:
+                    f.write("
+")
+
+        f.write("## Learned structures and configurations
+
+")
+        f.write("## Learned structures and configurations
+
+")
         if metasyn_gmf_file:
             mname = Path(metasyn_gmf_file).name
             f.write(f"MetaSyn GMF: [{mname}]({mname})\n\n")

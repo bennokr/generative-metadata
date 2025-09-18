@@ -24,6 +24,7 @@ from .bn import learn_bn, bn_to_graphviz, save_graphml_structure
 from .metrics import heldout_loglik, per_variable_distances
 from .reporting import write_report_md
 from .mappings import resolve_mapping_json, load_mapping_json
+from .synth import discover_synth_runs
 from .metadata import (
     meta_to_dict,
     build_dataset_jsonld,
@@ -429,6 +430,13 @@ def process_dataset(
         except Exception:
             var_desc_map = {}
 
+    synth_runs = []
+    try:
+        synth_runs = discover_synth_runs(base_outdir, provider=provider_name, dataset_name=name)
+    except Exception:
+        logging.exception('Failed to load synthcity runs for %s', name)
+        synth_runs = []
+
     write_report_md(
         outdir=outdir,
         dataset_name=name,
@@ -457,4 +465,5 @@ def process_dataset(
         variable_descriptions=var_desc_map or None,
         semmap_jsonld=semmap_export,
         metasyn_semmap_parquet=metasyn_semmap_parquet_file,
+        synth_runs=synth_runs,
     )

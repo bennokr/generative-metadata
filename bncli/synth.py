@@ -1,11 +1,13 @@
 from __future__ import annotations
 
 import json
+import numbers
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
+
 import pandas as pd
 from sklearn.model_selection import train_test_split
 
@@ -47,6 +49,61 @@ class SynthReportRun:
     run_dir: Path
 
 
+def _ensure_torch_rmsnorm() -> None:
+    """Backfill torch.nn.RMSNorm for older torch releases."""
+
+    try:  # pragma: no cover - torch optional at runtime
+        import torch
+        from torch import nn
+
+        if hasattr(nn, "RMSNorm"):
+            return
+
+        class _RMSNorm(nn.Module):
+            def __init__(
+                self,
+                normalized_shape: int | Tuple[int, ...],
+                eps: float = 1e-6,
+                elementwise_affine: bool = True,
+            ) -> None:
+                super().__init__()
+                if isinstance(normalized_shape, numbers.Integral):
+                    normalized_shape = (int(normalized_shape),)
+                elif isinstance(normalized_shape, torch.Size):  # pragma: no cover - defensive
+                    normalized_shape = tuple(normalized_shape)
+                else:
+                    normalized_shape = tuple(normalized_shape)
+
+                if not normalized_shape:
+                    raise ValueError("normalized_shape must be non-empty")
+
+                self.normalized_shape = normalized_shape
+                self.eps = eps
+                self.elementwise_affine = elementwise_affine
+                if elementwise_affine:
+                    self.weight = nn.Parameter(torch.ones(*self.normalized_shape))
+                else:
+                    self.register_parameter("weight", None)
+
+            def forward(self, input: torch.Tensor) -> torch.Tensor:  # type: ignore[override]
+                dims = tuple(range(-len(self.normalized_shape), 0))
+                rms = torch.rsqrt(input.pow(2).mean(dim=dims, keepdim=True) + self.eps)
+                output = input * rms
+                if self.elementwise_affine:
+                    output = output * self.weight
+                return output
+
+            def extra_repr(self) -> str:  # pragma: no cover - debug helper
+                return (
+                    f"normalized_shape={self.normalized_shape}, eps={self.eps}, "
+                    f"elementwise_affine={self.elementwise_affine}"
+                )
+
+        nn.RMSNorm = _RMSNorm  # type: ignore[attr-defined]
+    except Exception:
+        pass
+
+
 def _seed_random_generators(seed: int) -> None:
     np.random.seed(seed)
     try:  # pragma: no cover - torch optional at runtime
@@ -60,9 +117,17 @@ def _seed_random_generators(seed: int) -> None:
 
 
 def _get_plugin(name: str, params: Dict[str, Any]):
+    _ensure_torch_rmsnorm()
     from synthcity.plugins import Plugins
 
     return Plugins().get(name, **(params or {}))
+
+
+def _normalize_plugin_params(plugin_name: str, params: Dict[str, Any]) -> Dict[str, Any]:
+    normalized = {k: v for k, v in (params or {}).items() if v is not None}
+    if plugin_name == "ctgan" and "epochs" in normalized and "n_iter" not in normalized:
+        normalized["n_iter"] = normalized.pop("epochs")
+    return normalized
 
 
 def _ensure_dataframe(obj: Any) -> pd.DataFrame:
@@ -119,7 +184,8 @@ def fit_and_generate(
     test_df = test_df.reset_index(drop=True)
 
     plugin_name = canonical_generator_name(generator)
-    plugin = _get_plugin(plugin_name, gen_params or {})
+    plugin_params = _normalize_plugin_params(plugin_name, gen_params or {})
+    plugin = _get_plugin(plugin_name, plugin_params)
 
     _seed_random_generators(seed)
     plugin.fit(train_df)
@@ -136,7 +202,7 @@ def fit_and_generate(
 
     return SynthRunArtifacts(
         plugin_name=plugin_name,
-        plugin_params=gen_params or {},
+        plugin_params=plugin_params,
         model_obj=plugin,
         real_train=train_df,
         real_test=test_df,

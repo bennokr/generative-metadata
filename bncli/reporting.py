@@ -17,40 +17,7 @@ import pandas as pd
 from .synth import SynthReportRun
 
 
-_REPORT_STYLE = """<style>
-:root { color-scheme: light; }
-body { margin: 0; font-family: "Inter", "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif; background: #f4f7fb; color: #1f2937; line-height: 1.65; }
-main.report-container { max-width: 1040px; margin: 0 auto; padding: 3rem 3rem 4rem; background: #ffffff; box-shadow: 0 18px 45px rgba(15, 23, 42, 0.08); border-radius: 18px; }
-h1 { font-size: 2.5rem; margin-top: 0; color: #0f172a; letter-spacing: -0.02em; }
-h2 { margin-top: 2.75rem; padding-bottom: 0.35rem; border-bottom: 1px solid #e2e8f0; color: #1e293b; font-size: 1.6rem; }
-h3 { margin-top: 2.2rem; color: #334155; font-size: 1.25rem; }
-p { margin: 0.85rem 0; }
-ul, ol { margin: 0.75rem 0 0.75rem 1.5rem; padding: 0; }
-li { margin: 0.35rem 0; }
-table { border-collapse: collapse; width: 100%; margin: 1.75rem 0; font-size: 0.95rem; }
-th, td { border: 1px solid #e2e8f0; padding: 0.6rem 0.75rem; text-align: left; vertical-align: top; }
-thead th { background: #f8fafc; text-transform: uppercase; letter-spacing: 0.04em; font-size: 0.75rem; color: #475569; }
-tbody tr:nth-child(odd) { background: #fdfefe; }
-a { color: #2563eb; text-decoration: none; }
-a:hover { text-decoration: underline; }
-code { background: #f1f5f9; padding: 0.15rem 0.4rem; border-radius: 4px; font-size: 0.85em; }
-img { border-radius: 12px; box-shadow: 0 4px 28px rgba(15, 23, 42, 0.12); }
-blockquote { border-left: 4px solid #cbd5f5; margin: 1.5rem 0; padding: 0.75rem 1.25rem; background: #f8fafc; color: #1e293b; }
-table.per-var-dist { margin-top: 2.25rem; }
-table.per-var-dist thead th { text-align: center; }
-</style>"""
-
-
-_SEMMAP_STYLE = """<style>
-.semmap-metadata { display: grid; gap: 1.5rem; margin: 1.5rem 0; }
-.semmap-metadata .item { border: 1px solid #e2e8f0; border-radius: 16px; padding: 1.25rem 1.5rem; background: linear-gradient(180deg, rgba(248, 250, 252, 0.6), #ffffff); box-shadow: 0 10px 30px rgba(15, 23, 42, 0.05); }
-.semmap-metadata .item-title { margin: 0 0 .75rem; font-size: 1.1rem; color: #0f172a; }
-.semmap-metadata .prop { margin: .3rem 0; color: #334155; }
-.semmap-metadata .name { font-weight: 600; margin-right: .35rem; color: #0f172a; }
-.semmap-metadata .prop-table { border-collapse: collapse; width: 100%; margin: .35rem 0 1rem; font-size: .95rem; }
-.semmap-metadata .prop-table th, .semmap-metadata .prop-table td { border: 1px solid #e2e8f0; padding: .45rem .6rem; text-align: left; }
-.semmap-metadata .prop-table th { background: #f8fafc; color: #475569; text-transform: uppercase; letter-spacing: .04em; font-size: .7rem; }
-</style>"""
+_TEMPLATES_DIR = Path(__file__).resolve().parent.parent / "templates"
 
 
 def _resolve_semmap_context(data: Dict[str, Any]) -> Any:
@@ -197,7 +164,11 @@ def write_report_md(
             f.write("\n## Metadata (rich)\n\n")
             if semmap_html_name:
                 f.write(f"[Standalone SemMap metadata view]({semmap_html_name})\n\n")
-            f.write(_SEMMAP_STYLE + "\n")
+            try:
+                semmap_css = (_TEMPLATES_DIR / "semmap_style.css").read_text(encoding="utf-8")
+            except Exception:
+                semmap_css = ""
+            f.write("<style>\n" + semmap_css + "\n</style>\n")
             f.write('<div class="semmap-metadata">\n')
             f.write(semmap_fragment)
             f.write("\n</div>\n\n")
@@ -398,9 +369,16 @@ def write_report_md(
                 html_table = comp_df.round(4).to_html(index=False, na_rep="", classes=["table", "per-var-dist"], border=0)
                 f.write(html_table + "\n\n")
         
-        # Dynamically build columns for UMAP images
+        # Dynamically build columns for UMAP images, including synthcity runs
         f.write("## UMAP overview (same projection)\n\n")
-        headers = ["Real (sample)", "MetaSyn (synthetic)"] + [f"BN: {sect.get('label') or sect.get('bn_type','')}" for sect in bn_sections]
+        synth_headers: List[str] = []
+        synth_imgs: List[str] = []
+        if isinstance(synth_runs, list) and synth_runs:
+            for run in synth_runs:
+                if run.umap_png and run.umap_png.exists():
+                    synth_headers.append(f"Synth: {run.generator}")
+                    synth_imgs.append(str(run.umap_png))
+        headers = ["Real (sample)", "MetaSyn (synthetic)"] + [f"BN: {sect.get('label') or sect.get('bn_type','')}" for sect in bn_sections] + synth_headers
         tbl = "| " + " | ".join(headers) + " |\n"
         tbl += "| " + " | ".join(["---"] * len(headers)) + " |\n"
         imgs = [
@@ -408,6 +386,7 @@ def write_report_md(
             f"<img src='{Path(umap_png_meta).name}' width='280'/>",
         ]
         imgs.extend([f"<img src='{Path(p).name}' width='280'/>" for p in umap_png_bns])
+        imgs.extend([f"<img src='{Path(p).name}' width='280'/>" for p in synth_imgs])
         tbl += "| " + " | ".join(imgs) + " |\n\n"
         f.write(tbl)
     logging.info(f"Wrote report: {md_path}")
@@ -417,23 +396,14 @@ def write_report_md(
     html_body = markdown.markdown(md_text, extensions=["extra"])
     html_body = textwrap.indent(html_body, "    ")
     report_title = f"Data Report — {dataset_name}"
-    html_path.write_text(
-        (
-            "<!doctype html>\n"
-            "<html lang=\"en\">\n"
-            "<head>\n"
-            "  <meta charset=\"utf-8\">\n"
-            "  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n"
-            f"  <title>{html.escape(report_title)}</title>\n"
-            f"  {_REPORT_STYLE}\n"
-            "</head>\n"
-            "<body>\n"
-            "  <main class=\"report-container\">\n"
-            f"{html_body}\n"
-            "  </main>\n"
-            "</body>\n"
-            "</html>\n"
-        ),
-        encoding="utf-8",
-    )
+    try:
+        css_text = (_TEMPLATES_DIR / "report_style.css").read_text(encoding="utf-8")
+    except Exception:
+        css_text = ""
+    try:
+        tpl = (_TEMPLATES_DIR / "report_template.html").read_text(encoding="utf-8")
+    except Exception:
+        tpl = "<!doctype html><html><head><title>{{TITLE}}</title><style>{{CSS}}</style></head><body><main class=\"report-container\">{{BODY}}</main></body></html>"
+    html_out = tpl.replace("{{TITLE}}", html.escape(report_title)).replace("{{CSS}}", css_text).replace("{{BODY}}", html_body)
+    html_path.write_text(html_out, encoding="utf-8")
     logging.info(f"Converted to HTML: {html_path}")

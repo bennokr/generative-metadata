@@ -1,0 +1,17 @@
+configs:
+  - name: clg_mi2
+    backend: pybnesian
+    model:
+      type: clg
+      score: bic
+      operators: [arcs]
+      max_indegree: 2
+      seed: 42
+  - name: semi_mi5
+    backend: pybnesian
+    model:
+      type: semiparametric
+      score: bic
+      operators: [arcs]
+      max_indegree: 5
+      seed: 42

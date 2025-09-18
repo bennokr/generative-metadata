@@ -14,6 +14,7 @@ from .datasets import (
     specs_from_input,
 )
 from .synth import run_from_yaml, run_synth_experiment
+from .models import load_model_configs, model_run_root
 from .utils import ensure_dir
 
 
@@ -47,6 +48,7 @@ def synth(
     dataset: str,
     *,
     provider: str = 'openml',
+    backend: str = 'synthcity',
     generator: str = 'ctgan',
     gen_params_json: str = '',
     rows: Optional[int] = None,
@@ -56,7 +58,22 @@ def synth(
     configs_yaml: str = '',
     verbose: bool = False,
 ) -> None:
-    """Train a synthcity generator and persist synthetic data + diagnostics."""
+    """Fit-generate-evaluate a single model and write artifacts under the dataset report.
+
+    Parameters:
+        dataset: Dataset identifier; for 'openml' use a name; for 'uciml' use a numeric ID string.
+        provider: 'openml' or 'uciml'.
+        backend: 'synthcity' (default) or 'pybnesian'.
+        generator: For synthcity, the plugin alias (e.g., 'ctgan', 'tvae'). For pybnesian, the BN type ('clg' or 'semiparametric').
+        gen_params_json: JSON string with parameters. For synthcity, passed to plugin. For pybnesian, may include score, operators, max_indegree.
+        rows: Number of synthetic rows to generate (defaults to train size if omitted).
+        seed: Random seed.
+        outdir: Root output directory (per-dataset subfolder is created).
+        test_size: Fraction for test split.
+        configs_yaml: Optional YAML file:
+            - If backend='synthcity', supports a list under 'generators' (legacy) for multiple synthcity runs.
+        verbose: Enable logging.
+    """
     if verbose:
         logging.root.setLevel(logging.INFO)
 
@@ -87,13 +104,17 @@ def synth(
 
     cfg_path = configs_yaml.strip()
     if cfg_path:
+        if backend.lower() != 'synthcity':
+            raise SystemExit("configs_yaml is only supported for backend='synthcity' in this command. Use report with a unified configs YAML for mixed backends.")
         try:
+            dataset_dir = Path(outdir) / dataset_display_name
+            ensure_dir(str(dataset_dir))
             run_from_yaml(
                 df=df,
                 provider=spec.provider,
                 dataset_name=dataset_display_name,
                 provider_id=provider_id,
-                outdir=outdir,
+                outdir=str(dataset_dir),
                 yaml_path=cfg_path,
                 seed=seed,
                 test_size=test_size,
@@ -102,18 +123,40 @@ def synth(
             raise SystemExit(str(exc)) from exc
         return
 
-    run_synth_experiment(
-        df=df,
-        provider=spec.provider,
-        dataset_name=dataset_display_name,
-        provider_id=provider_id,
-        outdir=outdir,
-        generator=generator,
-        gen_params_json=gen_params_json,
-        rows=rows,
-        seed=seed,
-        test_size=test_size,
-    )
+    dataset_dir = Path(outdir) / dataset_display_name
+    ensure_dir(str(dataset_dir))
+    if backend.lower() == 'synthcity':
+        run_synth_experiment(
+            df=df,
+            provider=spec.provider,
+            dataset_name=dataset_display_name,
+            provider_id=provider_id,
+            outdir=str(dataset_dir),
+            generator=generator,
+            gen_params_json=gen_params_json,
+            rows=rows,
+            seed=seed,
+            test_size=test_size,
+            run_root=model_run_root(dataset_dir),
+            dir_name=None,
+        )
+    elif backend.lower() == 'pybnesian':
+        from .synth import run_pybnesian_experiment
+        run_pybnesian_experiment(
+            df=df,
+            provider=spec.provider,
+            dataset_name=dataset_display_name,
+            provider_id=provider_id,
+            outdir=str(dataset_dir),
+            bn_type=generator,
+            bn_params_json=gen_params_json,
+            rows=rows,
+            seed=seed,
+            test_size=test_size,
+            dir_name=None,
+        )
+    else:
+        raise SystemExit("backend must be 'synthcity' or 'pybnesian'")
 
 
 def report(
@@ -146,29 +189,12 @@ def report(
 
     ds = datasets if datasets else None
     specs: List[DatasetSpec] = specs_from_input(provider=provider, datasets=ds, area=area)
-    # Try to load YAML configurations if provided
-    bn_configs = None
-    cfg_path = configs_yaml.strip()
-    if cfg_path:
-        try:
-            import yaml  # type: ignore
-        except Exception as e:
-            raise SystemExit("To use configs_yaml you need PyYAML installed. Please install pyyaml.")
-        import os
-        if not os.path.exists(cfg_path):
-            raise SystemExit(f"configs_yaml file not found: {cfg_path}")
-        with open(cfg_path, 'r', encoding='utf-8') as fr:
-            data = yaml.safe_load(fr)
-            if isinstance(data, dict) and 'configs' in data:
-                data = data['configs']
-            if not isinstance(data, list):
-                raise SystemExit("configs_yaml must contain a list of configuration dictionaries")
-            # ensure each item is dict
-            bn_configs = []
-            for i, item in enumerate(data):
-                if not isinstance(item, dict):
-                    raise SystemExit(f"Config item at index {i} is not a dict")
-                bn_configs.append(item)
+    # Load unified model configs (pybnesian + synthcity). If not provided, load default_config.yaml
+    cfg_path = configs_yaml.strip() or None
+    try:
+        model_specs = load_model_configs(cfg_path)
+    except Exception as exc:
+        raise SystemExit(str(exc))
     for spec in specs:
         logging.info(f'Loading {spec}')
         try:
@@ -194,7 +220,7 @@ def report(
                 outdir,
                 provider=spec.provider,
                 provider_id=prov_id,
-                bn_configs=bn_configs,
+                model_configs=model_specs,
                 roots=abl,
             )
         except Exception as e:

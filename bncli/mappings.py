@@ -98,32 +98,30 @@ def load_mapping_json(path: Path) -> Dict[str, Any]:
 
     return {"dataset": dataset, "disco:variable": normalized_vars}
 
-SYNTHCITY_ALIASES = {
-    "ctgan": "ctgan",
-    "ads-gan": "adsgan",
-    "adsgan": "adsgan",
-    "pategan": "pategan",
-    "dp-gan": "dpgan",
-    "dpgan": "dpgan",
-    "tvae": "tvae",
-    "rtvae": "rtvae",
-    "nflow": "nflow",
-    "tabularflow": "tabularflow",
-    "bn": "bayesiannetwork",
-    "bayesiannetwork": "bayesiannetwork",
-    "privbayes": "privbayes",
-    "arf": "arf",
-    "arfpy": "arf",
-    "great": "great",
-}
-
 
 def canonical_generator_name(name: str) -> str:
     """Return the canonical synthcity plugin name for a user alias."""
     key = str(name).strip().lower()
     if not key:
         raise ValueError("Generator name must be non-empty")
-    if key not in SYNTHCITY_ALIASES:
+    aliases = {
+        "ctgan": "ctgan",
+        "ads-gan": "adsgan",
+        "adsgan": "adsgan",
+        "pategan": "pategan",
+        "dp-gan": "dpgan",
+        "dpgan": "dpgan",
+        "tvae": "tvae",
+        "rtvae": "rtvae",
+        "nflow": "nflow",
+        "tabularflow": "tabularflow",
+        "bn": "bayesiannetwork",
+        "bayesiannetwork": "bayesiannetwork",
+        "privbayes": "privbayes",
+        "arf": "arf",
+        "arfpy": "arf",
+        "great": "great",
+    }
+    if key not in aliases:
         raise ValueError(f"Unknown generator alias: {name}")
-    return SYNTHCITY_ALIASES[key]
-
+    return aliases[key]

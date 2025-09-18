@@ -2,13 +2,25 @@ from __future__ import annotations
 
 import warnings
 from dataclasses import dataclass
-from typing import Iterable, List, Optional, Tuple
+from typing import Iterable, List, Optional, Tuple, Any
 
 import pandas as pd
 import requests
 import pathlib
 import json
 import logging
+
+# Local cache directories for dataset payloads (separate from uciml metadata cache)
+_DATA_CACHE_ROOT = pathlib.Path('.') / 'downloads-cache'
+_OPENML_CACHE_DIR = _DATA_CACHE_ROOT / 'openml'
+_OPENML_BY_NAME_DIR = _OPENML_CACHE_DIR / 'by_name'
+_UCIML_CACHE_DIR = _DATA_CACHE_ROOT / 'uciml'
+
+for _d in (_OPENML_CACHE_DIR, _OPENML_BY_NAME_DIR, _UCIML_CACHE_DIR):
+    try:
+        _d.mkdir(parents=True, exist_ok=True)
+    except Exception:
+        pass
 
 @dataclass
 class DatasetSpec:
@@ -68,7 +80,47 @@ def list_openml(name_substr: Optional[str] = None, cat_min: int = 1, num_min: in
     return sets.rename(columns=rename)
 
 
-def load_openml_by_name(name: str) -> Tuple[pd.DataFrame, Optional[pd.Series]]:
+def load_openml_by_name(name: str) -> Tuple[Any, pd.DataFrame, Optional[pd.Series]]:
+    """Load an OpenML dataset by name, with local caching of the data payload.
+
+    Caching layout:
+      - downloads-cache/openml/by_name/{name}.json: minimal metadata with DID and color column
+      - downloads-cache/openml/{did}.csv.gz: cached tabular data
+
+    On cache hit, returns a minimal metadata dict instead of the OpenML object.
+    """
+    # 1) Try cache-by-name first (offline-friendly)
+    by_name_meta = _OPENML_BY_NAME_DIR / f"{name}.json"
+    if by_name_meta.exists():
+        try:
+            info = json.loads(by_name_meta.read_text())
+            did = int(info.get('did') or info.get('dataset_id') or info.get('id'))
+            data_path = _OPENML_CACHE_DIR / f"{did}.csv.gz"
+            if data_path.exists():
+                df_all = pd.read_csv(data_path)
+                for col in list(df_all.columns):
+                    if str(col).lower() in {"id", "index"}:
+                        df_all = df_all.drop(columns=[col])
+                color_series = None
+                color_col = info.get('color_column')
+                if isinstance(color_col, str) and color_col in df_all.columns:
+                    color_series = df_all[color_col]
+                else:
+                    for c in ["class", "target"]:
+                        if c in df_all.columns:
+                            color_series = df_all[c]
+                            break
+                meta = {
+                    'name': str(info.get('name') or name),
+                    'dataset_id': did,
+                    'did': did,
+                    'url': f'https://www.openml.org/d/{did}',
+                }
+                return meta, df_all, color_series
+        except Exception:
+            pass
+
+    # 2) Fallback to OpenML API and cache results
     import openml
 
     with warnings.catch_warnings():
@@ -87,11 +139,27 @@ def load_openml_by_name(name: str) -> Tuple[pd.DataFrame, Optional[pd.Series]]:
         if str(col).lower() in {"id", "index"}:
             df_all = df_all.drop(columns=[col])
     color_series = None
+    color_col: Optional[str] = None
     for c in ["class", "target"]:
         if c in df_all.columns:
             color_series = df_all[c]
+            color_col = c
             break
-    return ds,  df_all, color_series
+
+    # Persist cache
+    try:
+        data_path = _OPENML_CACHE_DIR / f"{did}.csv.gz"
+        df_all.to_csv(data_path, index=False, compression='infer')
+        by_name_meta.write_text(json.dumps({
+            'name': name,
+            'did': did,
+            'dataset_id': did,
+            'color_column': color_col,
+        }))
+    except Exception:
+        pass
+
+    return ds, df_all, color_series
 
 
 # ---------------------------
@@ -102,7 +170,7 @@ def load_openml_by_name(name: str) -> Tuple[pd.DataFrame, Optional[pd.Series]]:
 def list_uciml(
     area: str = "Health and Medicine", name_substr: Optional[str] = None, 
     cat_min: int = 1, num_min: int = 1
-) -> List[Tuple[int, str, int, int, int]]:
+) -> pd.DataFrame:
     """Return (id, name, n_instances, n_categorical, n_numeric) for mixed datasets in area.
 
     It pulls the dataset list for the given area from the UCI API, then, for each
@@ -154,7 +222,60 @@ def get_default_uciml(area: str = "Health and Medicine") -> List[DatasetSpec]:
     return [DatasetSpec("uciml", name=r.name, id=r.id) for r in df.itertuples()]
 
 
-def load_uciml_by_id(dataset_id: int) -> Tuple[pd.DataFrame, Optional[pd.Series]]:
+def load_uciml_by_id(dataset_id: int) -> Tuple[Any, pd.DataFrame, Optional[pd.Series]]:
+    """Load a UCI ML dataset by ID, with local caching of the data payload.
+
+    Caching layout:
+      - downloads-cache/uciml/{id}.csv.gz: cached tabular data
+      - downloads-cache/uciml/{id}.meta.json: minimal metadata (name, color column)
+    """
+    data_path = _UCIML_CACHE_DIR / f"{dataset_id}.csv.gz"
+    meta_path = _UCIML_CACHE_DIR / f"{dataset_id}.meta.json"
+
+    if data_path.exists():
+        try:
+            df_all = pd.read_csv(data_path)
+            # Drop trivial id/index columns if present
+            for col in list(df_all.columns):
+                if str(col).lower() in {"id", "index"}:
+                    df_all = df_all.drop(columns=[col])
+            meta_dict = {}
+            try:
+                meta_dict = json.loads(meta_path.read_text()) if meta_path.exists() else {}
+            except Exception:
+                meta_dict = {}
+            # Color series from cached metadata or heuristic
+            color_series: Optional[pd.Series] = None
+            color_col = meta_dict.get('color_column') if isinstance(meta_dict, dict) else None
+            if isinstance(color_col, str) and color_col in df_all.columns:
+                color_series = df_all[color_col]
+            else:
+                # Try common fallback names
+                for c in ["target", "class"]:
+                    if c in df_all.columns:
+                        color_series = df_all[c]
+                        break
+            # Metadata: prefer uciml cached API if available for name
+            meta_name = None
+            try:
+                cache_api = pathlib.Path('.') / 'uciml-cache' / f'{dataset_id}.json'
+                if cache_api.exists():
+                    api_data = json.loads(cache_api.read_text())
+                    meta_name = api_data.get('name')
+            except Exception:
+                pass
+            meta_obj = {
+                'id': int(dataset_id),
+                'uci_id': int(dataset_id),
+                'name': meta_name or meta_dict.get('name') or f'UCI_{dataset_id}',
+                'url': f'https://archive.ics.uci.edu/dataset/{int(dataset_id)}',
+            }
+            return meta_obj, df_all, color_series
+        except Exception:
+            # Fall back to online path
+            pass
+
+    # Online fetch via ucimlrepo and then cache
     from ucimlrepo import fetch_ucirepo
 
     d = fetch_ucirepo(id=dataset_id)
@@ -163,6 +284,7 @@ def load_uciml_by_id(dataset_id: int) -> Tuple[pd.DataFrame, Optional[pd.Series]
     if y is None:
         df_all = X.copy()
         color_series = None
+        first_target: Optional[str] = None
     else:
         df_all = pd.concat([X, y], axis=1)
         first_target = y.columns[0] if hasattr(y, "columns") and len(y.columns) else y.name
@@ -170,6 +292,25 @@ def load_uciml_by_id(dataset_id: int) -> Tuple[pd.DataFrame, Optional[pd.Series]
     for col in list(df_all.columns):
         if str(col).lower() in {"id", "index"}:
             df_all = df_all.drop(columns=[col])
+
+    # Persist cache
+    try:
+        df_all.to_csv(data_path, index=False, compression='infer')
+        name_val = None
+        try:
+            name_val = getattr(d.metadata, 'name', None)
+        except Exception:
+            name_val = None
+        meta_info = {
+            'id': int(dataset_id),
+            'uci_id': int(dataset_id),
+            'name': name_val,
+            'color_column': first_target,
+        }
+        meta_path.write_text(json.dumps(meta_info))
+    except Exception:
+        pass
+
     return d.metadata, df_all, color_series
 
 
@@ -201,7 +342,7 @@ def specs_from_input(
             return get_default_uciml(area=area)
 
 
-def load_dataset(spec: DatasetSpec) -> Tuple[pd.DataFrame, Optional[pd.Series]]:
+def load_dataset(spec: DatasetSpec) -> Tuple[Any, pd.DataFrame, Optional[pd.Series]]:
     if spec.provider == "openml":
         return load_openml_by_name(spec.name)
     elif spec.provider == "uciml":

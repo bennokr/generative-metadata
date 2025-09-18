@@ -232,17 +232,11 @@ def write_report_md(
         
         
 
-        f.write("## Variables and summary
-
-")
-        f.write(df_to_markdown(merged, index=False) + "
-
-")
+        f.write("## Variables and summary\n\n")
+        f.write(df_to_markdown(merged, index=False) + "\n\n")
 
         if synth_runs:
-            f.write("## Synthetic data (synthcity)
-
-")
+            f.write("## Synthetic data (synthcity)\n\n")
             summary_rows = []
             for run in synth_runs:
                 manifest = run.manifest or {}
@@ -260,28 +254,20 @@ def write_report_md(
                 )
             if summary_rows:
                 synth_summary_df = pd.DataFrame(summary_rows)
-                f.write(df_to_markdown(synth_summary_df, index=False) + "
-
-")
+                f.write(df_to_markdown(synth_summary_df, index=False) + "\n\n")
             for run in synth_runs:
                 manifest = run.manifest or {}
                 summary = run.metrics.get("summary", {}) if isinstance(run.metrics, dict) else {}
-                f.write(f"### Generator: {run.generator}
-
-")
+                f.write(f"### Generator: {run.generator}\n\n")
                 requested = manifest.get("requested_generator", manifest.get("generator", run.generator))
                 if requested and requested != run.generator:
-                    f.write(f"- Requested alias: {requested}
-")
-                f.write(f"- Seed: {manifest.get('seed')}
-")
+                    f.write(f"- Requested alias: {requested}\n")
+                f.write(f"- Seed: {manifest.get('seed')}\n")
                 if manifest.get("rows") is not None:
-                    f.write(f"- Rows: {manifest.get('rows')}
-")
+                    f.write(f"- Rows: {manifest.get('rows')}\n")
                 params = manifest.get("params") or {}
                 if params:
-                    f.write("- Params: `" + json.dumps(params, sort_keys=True) + "`
-")
+                    f.write("- Params: `" + json.dumps(params, sort_keys=True) + "`\n")
                 if summary:
                     stats = []
                     for key in ("disc_jsd_mean", "disc_jsd_median", "cont_ks_mean", "cont_w1_mean"):
@@ -295,37 +281,25 @@ def write_report_md(
                         if not (val_f != val_f):
                             stats.append(f"{key}={val_f:.4f}")
                     if stats:
-                        f.write("- Metrics: " + ", ".join(stats) + "
-")
+                        f.write("- Metrics: " + ", ".join(stats) + "\n")
                 def _write_link(label: str, target: Optional[Path]) -> None:
                     if target is None:
                         return
                     if not target.exists():
                         return
                     rel = os.path.relpath(target, start=md_path.parent)
-                    f.write(f"- {label}: [{rel}]({rel})
-")
+                    f.write(f"- {label}: [{rel}]({rel})\n")
                 _write_link("Synthetic CSV", run.synthetic_csv)
                 _write_link("Per-variable metrics", run.per_variable_csv)
                 _write_link("Metrics JSON", run.run_dir / "metrics.json")
                 if run.umap_png and run.umap_png.exists():
                     rel_png = os.path.relpath(run.umap_png, start=md_path.parent)
-                    f.write(f"- UMAP: [{Path(rel_png).name}]({rel_png})
-")
-                    f.write(f"
-![{run.generator} UMAP]({rel_png})
-
-")
+                    f.write(f"- UMAP: [{Path(rel_png).name}]({rel_png})\n")
+                    f.write(f"\n![{run.generator} UMAP]({rel_png})\n\n")
                 else:
-                    f.write("
-")
+                    f.write("\n")
 
-        f.write("## Learned structures and configurations
-
-")
-        f.write("## Learned structures and configurations
-
-")
+        f.write("## Learned structures and configurations\n\n")
         if metasyn_gmf_file:
             mname = Path(metasyn_gmf_file).name
             f.write(f"MetaSyn GMF: [{mname}]({mname})\n\n")

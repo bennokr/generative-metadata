@@ -1,16 +1,14 @@
 {
   "@context": "https://schema.org",
   "@type": "Dataset",
-  "name": "Chronic Kidney Disease (UCI id 336)",
+  "name": "Chronic Kidney Disease",
   "identifier": 336,
   "url": "https://archive.ics.uci.edu/dataset/336",
-  "description": "Clinical records for early detection of CKD (subset of variables mapped).",
   "variableMeasured": [
     {
       "@type": "PropertyValue",
       "name": "age",
-      "measurementTechnique": "continuous",
-      "description": "Clinical records for early detection of CKD (subset of variables mapped)."
+      "measurementTechnique": "continuous"
     },
     {
       "@type": "PropertyValue",
@@ -106,7 +104,7 @@
       "@type": "PropertyValue",
       "name": "wbcc",
       "measurementTechnique": "continuous",
-      "description": "Clinical records for early detection of CKD (subset of variables mapped)."
+      "description": "white blood cell count"
     },
     {
       "@type": "PropertyValue",
@@ -118,37 +116,37 @@
       "@type": "PropertyValue",
       "name": "htn",
       "measurementTechnique": "discrete",
-      "description": "Clinical records for early detection of CKD (subset of variables mapped)."
+      "description": "hypertension"
     },
     {
       "@type": "PropertyValue",
       "name": "dm",
       "measurementTechnique": "discrete",
-      "description": "Clinical records for early detection of CKD (subset of variables mapped)."
+      "description": "diabetes mellitus"
     },
     {
       "@type": "PropertyValue",
       "name": "cad",
       "measurementTechnique": "discrete",
-      "description": "Clinical records for early detection of CKD (subset of variables mapped)."
+      "description": "coronary artery disease"
     },
     {
       "@type": "PropertyValue",
       "name": "appet",
       "measurementTechnique": "discrete",
-      "description": "Clinical records for early detection of CKD (subset of variables mapped)."
+      "description": "appetite"
     },
     {
       "@type": "PropertyValue",
       "name": "pe",
       "measurementTechnique": "discrete",
-      "description": "Clinical records for early detection of CKD (subset of variables mapped)."
+      "description": "pedal edema"
     },
     {
       "@type": "PropertyValue",
       "name": "ane",
       "measurementTechnique": "discrete",
-      "description": "Clinical records for early detection of CKD (subset of variables mapped)."
+      "description": "anemia"
     },
     {
       "@type": "PropertyValue",

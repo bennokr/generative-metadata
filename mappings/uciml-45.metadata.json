@@ -1,202 +1,190 @@
 {
+  "@context": "https://w3id.org/semmap/context/v1",
   "dataset": {
-    "@context": "https://w3id.org/semmap/context/v1",
     "@type": ["disco:LogicalDataSet", "dsv:Dataset", "dcat:Dataset"],
     "dct:title": "Heart Disease (UCI id 45)",
     "dct:description": "4 databases: Cleveland, Hungary, Switzerland, and the VA Long Beach",
     "dct:license": "https://creativecommons.org/publicdomain/zero/1.0/"
   },
-  "disco:variable": [
-    {
-      "@context": "https://w3id.org/semmap/context/v1",
-      "@type": ["disco:Variable", "dsv:Column"],
-      "skos:notation": "age",
-      "skos:prefLabel": "Age",
-      "disco:representation": {
-        "@type": "disco:Representation",
-        "dsv:valueType": "xsd:integer",
-        "qudt:hasUnit": "unit:YR",
-        "semmap:pintUnit": "year"
+  "tableSchema": {
+    "columns": [
+      {
+        "name": "age",
+        "titles": "Age",
+        "columnProperty": {
+          "statisticalDataType": "dsv:QuantitativeDataType",
+          "valueType": "xsd:integer",
+          "hasUnit": "unit:YR",
+          "ucumCode": "a",
+          "source": "https://loinc.org/30525-0"
+        }
       },
-      "dct:source": "https://loinc.org/30525-0"
-    },
-    {
-      "@context": "https://w3id.org/semmap/context/v1",
-      "@type": ["disco:Variable", "dsv:Column"],
-      "skos:notation": "sex",
-      "skos:prefLabel": "Administrative sex",
-      "disco:representation": {
-        "@type": ["disco:Representation", "skos:ConceptScheme"],
-        "skos:hasTopConcept": [
-          {"@type": "skos:Concept", "skos:notation": "0", "skos:prefLabel": "female", "skos:exactMatch": "http://snomed.info/id/248152002"},
-          {"@type": "skos:Concept", "skos:notation": "1", "skos:prefLabel": "male", "skos:exactMatch": "http://snomed.info/id/248153007"}
-        ]
+      {
+        "name": "sex",
+        "titles": "Administrative sex",
+        "columnProperty": {
+          "statisticalDataType": "dsv:NominalDataType",
+          "source": "https://docs.snomed.org/implementation-guides/snomed-ct-guide-for-covid-19/2-coding-covid-19-related-data/2.2-patient-demographics",
+          "hasCodeBook": {
+            "hasTopConcept": [
+              { "notation": "0", "prefLabel": "female", "exactMatch": ["http://snomed.info/id/248152002"] },
+              { "notation": "1", "prefLabel": "male",   "exactMatch": ["http://snomed.info/id/248153007"] }
+            ]
+          }
+        }
       },
-      "dct:source": "https://docs.snomed.org/implementation-guides/snomed-ct-guide-for-covid-19/2-coding-covid-19-related-data/2.2-patient-demographics"
-    },
-    {
-      "@context": "https://w3id.org/semmap/context/v1",
-      "@type": ["disco:Variable", "dsv:Column"],
-      "skos:notation": "cp",
-      "skos:prefLabel": "Chest pain type",
-      "disco:representation": {
-        "@type": ["disco:Representation", "skos:ConceptScheme"],
-        "skos:hasTopConcept": [
-          {"@type": "skos:Concept", "skos:notation": "1", "skos:prefLabel": "Typical angina", "skos:exactMatch": "http://snomed.info/id/429559004"},
-          {"@type": "skos:Concept", "skos:notation": "2", "skos:prefLabel": "Atypical angina", "skos:exactMatch": "http://snomed.info/id/371807002"},
-          {"@type": "skos:Concept", "skos:notation": "3", "skos:prefLabel": "Non-cardiac chest pain", "skos:exactMatch": "http://snomed.info/id/274668005"},
-          {"@type": "skos:Concept", "skos:notation": "4", "skos:prefLabel": "Asymptomatic", "skos:exactMatch": "http://snomed.info/id/161971004"}
-        ],
-        "dct:source": "https://dicom.nema.org/medical/dicom/current/output/chtml/part16/sect_CID_3202.html"
+      {
+        "name": "cp",
+        "titles": "Chest pain type",
+        "columnProperty": {
+          "statisticalDataType": "dsv:NominalDataType",
+          "source": "https://dicom.nema.org/medical/dicom/current/output/chtml/part16/sect_CID_3202.html",
+          "hasCodeBook": {
+            "source": "https://dicom.nema.org/medical/dicom/current/output/chtml/part16/sect_CID_3202.html",
+            "hasTopConcept": [
+              { "notation": "1", "prefLabel": "Typical angina",          "exactMatch": ["http://snomed.info/id/429559004"] },
+              { "notation": "2", "prefLabel": "Atypical angina",          "exactMatch": ["http://snomed.info/id/371807002"] },
+              { "notation": "3", "prefLabel": "Non-cardiac chest pain",   "exactMatch": ["http://snomed.info/id/274668005"] },
+              { "notation": "4", "prefLabel": "Asymptomatic",             "exactMatch": ["http://snomed.info/id/161971004"] }
+            ]
+          }
+        }
       },
-      "dct:source": "https://dicom.nema.org/medical/dicom/current/output/chtml/part16/sect_CID_3202.html"
-    },
-    {
-      "@context": "https://w3id.org/semmap/context/v1",
-      "@type": ["disco:Variable", "dsv:Column"],
-      "skos:notation": "fbs",
-      "skos:prefLabel": "Fasting blood sugar >120 mg/dL (indicator)",
-      "disco:representation": {
-        "@type": ["disco:Representation", "skos:ConceptScheme"],
-        "skos:hasTopConcept": [
-          {"@type": "skos:Concept", "skos:notation": "0", "skos:prefLabel": "≤120 mg/dL"},
-          {"@type": "skos:Concept", "skos:notation": "1", "skos:prefLabel": ">120 mg/dL"}
-        ],
-        "dct:source": "https://loinc.org/2345-7"
+      {
+        "name": "fbs",
+        "titles": "Fasting blood sugar >120 mg/dL (indicator)",
+        "columnProperty": {
+          "statisticalDataType": "dsv:NominalDataType",
+          "source": "https://loinc.org/2345-7",
+          "hasCodeBook": {
+            "source": "https://loinc.org/2345-7",
+            "hasTopConcept": [
+              { "notation": "0", "prefLabel": "≤120 mg/dL" },
+              { "notation": "1", "prefLabel": ">120 mg/dL" }
+            ]
+          }
+        }
       },
-      "dct:source": "https://loinc.org/2345-7"
-    },
-    {
-      "@context": "https://w3id.org/semmap/context/v1",
-      "@type": ["disco:Variable", "dsv:Column"],
-      "skos:notation": "trestbps",
-      "skos:prefLabel": "Resting systolic blood pressure",
-      "disco:representation": {
-        "@type": "disco:Representation",
-        "dsv:valueType": "xsd:integer",
-        "qudt:hasUnit": "unit:MilliM_HG",
-        "semmap:pintUnit": "mmHg"
+      {
+        "name": "trestbps",
+        "titles": "Resting systolic blood pressure",
+        "columnProperty": {
+          "statisticalDataType": "dsv:QuantitativeDataType",
+          "valueType": "xsd:integer",
+          "hasUnit": "unit:MilliM_HG",
+          "ucumCode": "mm[Hg]",
+          "source": "https://loinc.org/8480-6"
+        }
       },
-      "dct:source": "https://loinc.org/8480-6"
-    },
-    {
-      "@context": "https://w3id.org/semmap/context/v1",
-      "@type": ["disco:Variable", "dsv:Column"],
-      "skos:notation": "chol",
-      "skos:prefLabel": "Total cholesterol",
-      "disco:representation": {
-        "@type": "disco:Representation",
-        "dsv:valueType": "xsd:integer",
-        "qudt:hasUnit": "unit:MilliGM-PER-DeciL",
-        "semmap:pintUnit": "mg/dL"
+      {
+        "name": "chol",
+        "titles": "Total cholesterol",
+        "columnProperty": {
+          "statisticalDataType": "dsv:QuantitativeDataType",
+          "valueType": "xsd:integer",
+          "hasUnit": "unit:MilliGM-PER-DeciL",
+          "ucumCode": "mg/dL",
+          "source": "https://loinc.org/2093-3"
+        }
       },
-      "dct:source": "https://loinc.org/2093-3"
-    },
-    {
-      "@context": "https://w3id.org/semmap/context/v1",
-      "@type": ["disco:Variable", "dsv:Column"],
-      "skos:notation": "restecg",
-      "skos:prefLabel": "Resting ECG result",
-      "disco:representation": {
-        "@type": ["disco:Representation", "skos:ConceptScheme"],
-        "skos:hasTopConcept": [
-          {"@type": "skos:Concept", "skos:notation": "0", "skos:prefLabel": "normal", "skos:exactMatch": "http://snomed.info/id/164854000"},
-          {"@type": "skos:Concept", "skos:notation": "1", "skos:prefLabel": "ST-T abnormality", "skos:exactMatch": "http://snomed.info/id/428750005"},
-          {"@type": "skos:Concept", "skos:notation": "2", "skos:prefLabel": "LVH (Estes)", "skos:exactMatch": "http://snomed.info/id/25488008"}
-        ]
+      {
+        "name": "restecg",
+        "titles": "Resting ECG result",
+        "columnProperty": {
+          "statisticalDataType": "dsv:NominalDataType",
+          "source": "https://cvquality.acc.org/docs/default-source/ncdr/data-collection/epdeviceimplant_v2-3_datadictionarycoders.pdf",
+          "hasCodeBook": {
+            "hasTopConcept": [
+              { "notation": "0", "prefLabel": "normal",             "exactMatch": ["http://snomed.info/id/164854000"] },
+              { "notation": "1", "prefLabel": "ST-T abnormality",   "exactMatch": ["http://snomed.info/id/428750005"] },
+              { "notation": "2", "prefLabel": "LVH (Estes)",        "exactMatch": ["http://snomed.info/id/25488008"] }
+            ]
+          }
+        }
       },
-      "dct:source": "https://cvquality.acc.org/docs/default-source/ncdr/data-collection/epdeviceimplant_v2-3_datadictionarycoders.pdf"
-    },
-    {
-      "@context": "https://w3id.org/semmap/context/v1",
-      "@type": ["disco:Variable", "dsv:Column"],
-      "skos:notation": "thalach",
-      "skos:prefLabel": "Maximum heart rate achieved",
-      "disco:representation": {
-        "@type": "disco:Representation",
-        "dsv:valueType": "xsd:integer",
-        "semmap:pintUnit": "1/min"
+      {
+        "name": "thalach",
+        "titles": "Maximum heart rate achieved",
+        "columnProperty": {
+          "statisticalDataType": "dsv:QuantitativeDataType",
+          "valueType": "xsd:integer",
+          "source": "https://loinc.org/101692-2"
+        }
       },
-      "dct:source": "https://loinc.org/101692-2"
-    },
-    {
-      "@context": "https://w3id.org/semmap/context/v1",
-      "@type": ["disco:Variable", "dsv:Column"],
-      "skos:notation": "exang",
-      "skos:prefLabel": "Exercise-induced angina",
-      "disco:representation": {
-        "@type": ["disco:Representation", "skos:ConceptScheme"],
-        "skos:hasTopConcept": [
-          {"@type": "skos:Concept", "skos:notation": "0", "skos:prefLabel": "no"},
-          {"@type": "skos:Concept", "skos:notation": "1", "skos:prefLabel": "yes"}
-        ]
+      {
+        "name": "exang",
+        "titles": "Exercise-induced angina",
+        "columnProperty": {
+          "statisticalDataType": "dsv:NominalDataType",
+          "hasCodeBook": {
+            "hasTopConcept": [
+              { "notation": "0", "prefLabel": "no" },
+              { "notation": "1", "prefLabel": "yes" }
+            ]
+          },
+          "source": "https://archive.datadictionary.nhs.uk/DD%20Release%20June%202021/Covid19PRA/Coronary_Heart.html"
+        }
       },
-      "dct:source": "https://archive.datadictionary.nhs.uk/DD%20Release%20June%202021/Covid19PRA/Coronary_Heart.html"
-    },
-    {
-      "@context": "https://w3id.org/semmap/context/v1",
-      "@type": ["disco:Variable", "dsv:Column"],
-      "skos:notation": "oldpeak",
-      "skos:prefLabel": "ST depression vs rest (max during study)",
-      "disco:representation": {
-        "@type": "disco:Representation",
-        "dsv:valueType": "xsd:decimal",
-        "semmap:pintUnit": "mV"
+      {
+        "name": "oldpeak",
+        "titles": "ST depression vs rest (max during study)",
+        "columnProperty": {
+          "statisticalDataType": "dsv:QuantitativeDataType",
+          "valueType": "xsd:decimal",
+          "source": "https://loinc.org/91546-2"
+        }
       },
-      "dct:source": "https://loinc.org/91546-2"
-    },
-    {
-      "@context": "https://w3id.org/semmap/context/v1",
-      "@type": ["disco:Variable", "dsv:Column"],
-      "skos:notation": "slope",
-      "skos:prefLabel": "Slope of peak exercise ST segment",
-      "disco:representation": {
-        "@type": ["disco:Representation", "skos:ConceptScheme"],
-        "skos:hasTopConcept": [
-          {"@type": "skos:Concept", "skos:notation": "1", "skos:prefLabel": "upsloping"},
-          {"@type": "skos:Concept", "skos:notation": "2", "skos:prefLabel": "flat"},
-          {"@type": "skos:Concept", "skos:notation": "3", "skos:prefLabel": "downsloping"}
-        ]
+      {
+        "name": "slope",
+        "titles": "Slope of peak exercise ST segment",
+        "columnProperty": {
+          "statisticalDataType": "dsv:NominalDataType",
+          "hasCodeBook": {
+            "hasTopConcept": [
+              { "notation": "1", "prefLabel": "upsloping" },
+              { "notation": "2", "prefLabel": "flat" },
+              { "notation": "3", "prefLabel": "downsloping" }
+            ]
+          },
+          "source": "https://dicom.nema.org/medical/dicom/current/output/chtml/part16/sect_CID_3233.html"
+        }
       },
-      "dct:source": "https://dicom.nema.org/medical/dicom/current/output/chtml/part16/sect_CID_3233.html"
-    },
-    {
-      "@context": "https://w3id.org/semmap/context/v1",
-      "@type": ["disco:Variable", "dsv:Column"],
-      "skos:notation": "ca",
-      "skos:prefLabel": "Number of major vessels (colored by fluoroscopy)",
-      "disco:representation": {
-        "@type": "disco:Representation",
-        "dsv:valueType": "xsd:integer"
+      {
+        "name": "ca",
+        "titles": "Number of major vessels (colored by fluoroscopy)",
+        "columnProperty": {
+          "statisticalDataType": "dsv:QuantitativeDataType",
+          "valueType": "xsd:integer"
+        }
+      },
+      {
+        "name": "thal",
+        "titles": "Thallium perfusion test",
+        "columnProperty": {
+          "statisticalDataType": "dsv:NominalDataType",
+          "hasCodeBook": {
+            "hasTopConcept": [
+              { "notation": "3", "prefLabel": "normal",            "exactMatch": ["http://snomed.info/id/371801000"] },
+              { "notation": "6", "prefLabel": "fixed defect",      "exactMatch": ["http://snomed.info/id/371918009"] },
+              { "notation": "7", "prefLabel": "reversible defect", "exactMatch": ["http://snomed.info/id/371920002"] }
+            ]
+          }
+        }
+      },
+      {
+        "name": "num",
+        "titles": "Angiographic disease status",
+        "columnProperty": {
+          "statisticalDataType": "dsv:NominalDataType",
+          "hasCodeBook": {
+            "hasTopConcept": [
+              { "notation": "0", "prefLabel": "<50% narrowing" },
+              { "notation": "1", "prefLabel": "≥50% narrowing" }
+            ]
+          },
+          "source": "https://purl.bioontology.org/ontology/SNOMEDCT/233970002"
+        }
       }
-    },
-    {
-      "@context": "https://w3id.org/semmap/context/v1",
-      "@type": ["disco:Variable", "dsv:Column"],
-      "skos:notation": "thal",
-      "skos:prefLabel": "Thallium perfusion test",
-      "disco:representation": {
-        "@type": ["disco:Representation", "skos:ConceptScheme"],
-        "skos:hasTopConcept": [
-          {"@type": "skos:Concept", "skos:notation": "3", "skos:prefLabel": "normal", "skos:exactMatch": "http://snomed.info/id/371801000"},
-          {"@type": "skos:Concept", "skos:notation": "6", "skos:prefLabel": "fixed defect", "skos:exactMatch": "http://snomed.info/id/371918009"},
-          {"@type": "skos:Concept", "skos:notation": "7", "skos:prefLabel": "reversible defect", "skos:exactMatch": "http://snomed.info/id/371920002"}
-        ]
-      }
-    },
-    {
-      "@context": "https://w3id.org/semmap/context/v1",
-      "@type": ["disco:Variable", "dsv:Column"],
-      "skos:notation": "num",
-      "skos:prefLabel": "Angiographic disease status",
-      "disco:representation": {
-        "@type": ["disco:Representation", "skos:ConceptScheme"],
-        "skos:hasTopConcept": [
-          {"@type": "skos:Concept", "skos:notation": "0", "skos:prefLabel": "<50% narrowing"},
-          {"@type": "skos:Concept", "skos:notation": "1", "skos:prefLabel": "≥50% narrowing"}
-        ]
-      },
-      "dct:source": "https://purl.bioontology.org/ontology/SNOMEDCT/233970002"
-    }
-  ]
+    ]
+  }
 }

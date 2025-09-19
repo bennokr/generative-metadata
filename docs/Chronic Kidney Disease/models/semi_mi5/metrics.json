@@ -3,8 +3,8 @@
   "summary": {
     "disc_jsd_mean": 0.05624883159315838,
     "disc_jsd_median": 0.05020761778280342,
-    "cont_ks_mean": 0.23076105442176878,
-    "cont_w1_mean": 49.160141072419115
+    "cont_ks_mean": 0.2191397392290249,
+    "cont_w1_mean": 49.072167152805996
   },
   "train_rows": 126,
   "test_rows": 32,
@@ -12,9 +12,9 @@
   "discrete_cols": 11,
   "continuous_cols": 14,
   "heldout_loglik": {
-    "mean_loglik": -104.1036561613223,
-    "std_loglik": 390.4267264081311,
-    "sum_loglik": -3331.316997162314,
+    "mean_loglik": -104.10147368501634,
+    "std_loglik": 390.42634539259086,
+    "sum_loglik": -3331.247157920523,
     "n_rows": 32
   },
   "umap_png": null

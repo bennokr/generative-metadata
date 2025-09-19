@@ -1,75 +1,59 @@
 {
+  "@context": "https://w3id.org/semmap/context/v1",
   "dataset": {
-    "@context": "https://w3id.org/semmap/context/v1",
     "@type": ["disco:LogicalDataSet", "dsv:Dataset", "dcat:Dataset"],
     "dct:title": "Chronic Kidney Disease (UCI id 336)",
     "dct:description": "Clinical records for early detection of CKD (subset of variables mapped)."
   },
-  "disco:variable": [
-    {
-      "@context": "https://w3id.org/semmap/context/v1",
-      "@type": ["disco:Variable", "dsv:Column"],
-      "skos:notation": "bp",
-      "skos:prefLabel": "Diastolic blood pressure",
-      "disco:representation": {
-        "@type": "disco:Representation",
-        "dsv:valueType": "xsd:integer",
-        "qudt:hasUnit": "unit:MilliM_HG",
-        "semmap:pintUnit": "mmHg"
+  "tableSchema": {
+    "columns": [
+      {
+        "name": "bp",
+        "titles": "Diastolic blood pressure",
+        "columnProperty": {
+          "statisticalDataType": "dsv:QuantitativeDataType",
+          "valueType": "xsd:integer",
+          "hasUnit": "unit:MilliM_HG",
+          "ucumCode": "mm[Hg]",
+          "source": "https://loinc.org/8462-4"
+        }
       },
-      "dct:source": "https://loinc.org/8462-4"
-    },
-    {
-      "@context": "https://w3id.org/semmap/context/v1",
-      "@type": ["disco:Variable", "dsv:Column"],
-      "skos:notation": "bp_limit",
-      "skos:prefLabel": "BP threshold flag",
-      "disco:representation": {"@type": ["disco:Representation", "skos:ConceptScheme"]}
-    },
-    {
-      "@context": "https://w3id.org/semmap/context/v1",
-      "@type": ["disco:Variable", "dsv:Column"],
-      "skos:notation": "bgr",
-      "skos:prefLabel": "Blood glucose (random)",
-      "disco:representation": {
-        "@type": "disco:Representation",
-        "dsv:valueType": "xsd:integer",
-        "qudt:hasUnit": "unit:MilliGM-PER-DeciL",
-        "semmap:pintUnit": "mg/dL"
+      {
+        "name": "bgr",
+        "titles": "Blood glucose (random)",
+        "columnProperty": {
+          "statisticalDataType": "dsv:QuantitativeDataType",
+          "valueType": "xsd:integer",
+          "hasUnit": "unit:MilliGM-PER-DeciL",
+          "ucumCode": "mg/dL"
+        }
+      },
+      {
+        "name": "bu",
+        "titles": "Blood urea",
+        "columnProperty": {
+          "statisticalDataType": "dsv:QuantitativeDataType",
+          "valueType": "xsd:integer",
+          "hasUnit": "unit:MilliGM-PER-DeciL",
+          "ucumCode": "mg/dL"
+        }
+      },
+      {
+        "name": "sg",
+        "titles": "Urine specific gravity",
+        "columnProperty": {
+          "statisticalDataType": "dsv:QuantitativeDataType",
+          "valueType": "xsd:decimal",
+          "source": "https://loinc.org/2965-2"
+        }
+      },
+      {
+        "name": "class",
+        "titles": "Outcome label (CKD)",
+        "columnProperty": {
+          "statisticalDataType": "dsv:NominalDataType"
+        }
       }
-    },
-    {
-      "@context": "https://w3id.org/semmap/context/v1",
-      "@type": ["disco:Variable", "dsv:Column"],
-      "skos:notation": "bu",
-      "skos:prefLabel": "Blood urea",
-      "disco:representation": {
-        "@type": "disco:Representation",
-        "dsv:valueType": "xsd:integer",
-        "qudt:hasUnit": "unit:MilliGM-PER-DeciL",
-        "semmap:pintUnit": "mg/dL"
-      }
-    },
-    {
-      "@context": "https://w3id.org/semmap/context/v1",
-      "@type": ["disco:Variable", "dsv:Column"],
-      "skos:notation": "sg",
-      "skos:prefLabel": "Urine specific gravity",
-      "disco:representation": {"@type": "disco:Representation", "dsv:valueType": "xsd:decimal"},
-      "dct:source": "https://loinc.org/2965-2"
-    },
-    {"@context": "https://w3id.org/semmap/context/v1", "@type": ["disco:Variable", "dsv:Column"], "skos:notation": "al", "skos:prefLabel": "Urine albumin (dipstick)", "disco:representation": {"@type": ["disco:Representation", "skos:ConceptScheme"]}, "dct:source": "https://loinc.org/50949-7"},
-    {"@context": "https://w3id.org/semmap/context/v1", "@type": ["disco:Variable", "dsv:Column"], "skos:notation": "class", "skos:prefLabel": "Outcome label (CKD)", "disco:representation": {"@type": ["disco:Representation", "skos:ConceptScheme"]}, "dct:source": "http://snomed.info/id/709044004"},
-    {"@context": "https://w3id.org/semmap/context/v1", "@type": ["disco:Variable", "dsv:Column"], "skos:notation": "rbc", "skos:prefLabel": "RBCs in urine (presence)", "disco:representation": {"@type": ["disco:Representation", "skos:ConceptScheme"]}, "dct:source": "https://loinc.org/32776-7"},
-    {"@context": "https://w3id.org/semmap/context/v1", "@type": ["disco:Variable", "dsv:Column"], "skos:notation": "su", "skos:prefLabel": "Urine glucose (dipstick)", "disco:representation": {"@type": ["disco:Representation", "skos:ConceptScheme"]}, "dct:source": "https://loinc.org/25428-4"},
-    {"@context": "https://w3id.org/semmap/context/v1", "@type": ["disco:Variable", "dsv:Column"], "skos:notation": "pc", "skos:prefLabel": "Urine leukocytes (presence)", "disco:representation": {"@type": ["disco:Representation", "skos:ConceptScheme"]}, "dct:source": "https://loinc.org/20455-2"},
-    {"@context": "https://w3id.org/semmap/context/v1", "@type": ["disco:Variable", "dsv:Column"], "skos:notation": "pcc", "skos:prefLabel": "Pus cell clumps (urine)", "disco:representation": {"@type": ["disco:Representation", "skos:ConceptScheme"]}, "dct:source": "https://loinc.org/67848-2"},
-    {"@context": "https://w3id.org/semmap/context/v1", "@type": ["disco:Variable", "dsv:Column"], "skos:notation": "ba", "skos:prefLabel": "Bacteria in urine (presence)", "disco:representation": {"@type": ["disco:Representation", "skos:ConceptScheme"]}, "dct:source": "https://loinc.org/25145-4"},
-    {"@context": "https://w3id.org/semmap/context/v1", "@type": ["disco:Variable", "dsv:Column"], "skos:notation": "sod", "skos:prefLabel": "Serum sodium", "disco:representation": {"@type": "disco:Representation", "dsv:valueType": "xsd:integer", "semmap:pintUnit": "mmol/L"}, "dct:source": "https://loinc.org/2951-2"},
-    {"@context": "https://w3id.org/semmap/context/v1", "@type": ["disco:Variable", "dsv:Column"], "skos:notation": "sc", "skos:prefLabel": "Serum creatinine", "disco:representation": {"@type": "disco:Representation", "dsv:valueType": "xsd:decimal", "semmap:pintUnit": "mg/dL"}, "dct:source": "https://loinc.org/2160-0"},
-    {"@context": "https://w3id.org/semmap/context/v1", "@type": ["disco:Variable", "dsv:Column"], "skos:notation": "pot", "skos:prefLabel": "Serum potassium", "disco:representation": {"@type": "disco:Representation", "dsv:valueType": "xsd:integer", "semmap:pintUnit": "mmol/L"}, "dct:source": "https://loinc.org/2823-3"},
-    {"@context": "https://w3id.org/semmap/context/v1", "@type": ["disco:Variable", "dsv:Column"], "skos:notation": "hemo", "skos:prefLabel": "Hemoglobin", "disco:representation": {"@type": "disco:Representation", "dsv:valueType": "xsd:decimal", "semmap:pintUnit": "g/dL"}, "dct:source": "https://loinc.org/718-7"},
-    {"@context": "https://w3id.org/semmap/context/v1", "@type": ["disco:Variable", "dsv:Column"], "skos:notation": "pcv", "skos:prefLabel": "Packed cell volume (hematocrit)", "disco:representation": {"@type": "disco:Representation", "dsv:valueType": "xsd:integer", "semmap:pintUnit": "%"}, "dct:source": "https://loinc.org/20570-8"},
-    {"@context": "https://w3id.org/semmap/context/v1", "@type": ["disco:Variable", "dsv:Column"], "skos:notation": "rbcc", "skos:prefLabel": "RBC count (blood)", "disco:representation": {"@type": "disco:Representation", "dsv:valueType": "xsd:decimal"}, "dct:source": "https://loinc.org/789-8"}
-  ]
+    ]
+  }
 }

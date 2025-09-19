@@ -4,19 +4,11 @@
 
 - Metadata file: [metadata.json](metadata.json)
 - JSON-LD (schema.org/Dataset): [dataset.json](dataset.json)
-- SemMap JSON-LD: [dataset.semmap.json](dataset.semmap.json)
-- SemMap HTML: [dataset.semmap.html](dataset.semmap.html)
 - Rows: 297
 - Columns: 14
 - Discrete: 7  |  Continuous: 7
 
 ## Dataset metadata
-
-- Name: Heart Disease (UCI id 45)
-
-### Description
-
-4 databases: Cleveland, Hungary, Switzerland, and the VA Long Beach
 
 - Links:
   - URL: https://archive.ics.uci.edu/dataset/45
@@ -56,7 +48,7 @@
 |:---------|:----------|----------------:|------------------:|---------------:|---------------:|
 | clg_mi2  | pybnesian |          0.1003 |            0.0995 |         0.2344 |         4.4109 |
 | semi_mi5 | pybnesian |          0.1003 |            0.0995 |         0.2344 |         4.4109 |
-| MetaSyn  | metasyn   |          0.1057 |            0.1057 |         0.2923 |         3.0578 |
+| MetaSyn  | metasyn   |          0.0992 |            0.1057 |         0.2984 |         3.0403 |
 
 ## Models
 
@@ -79,10 +71,6 @@
 - Metrics JSON: [models/semi_mi5/metrics.json](models/semi_mi5/metrics.json)
 - UMAP: [umap.png](models/semi_mi5/umap.png)
 MetaSyn GMF: [metasyn_gmf.json](metasyn_gmf.json)
-
-MetaSyn serialization
-
-- Synthetic sample (SemMap Parquet): [synthetic_metasyn.semmap.parquet](synthetic_metasyn.semmap.parquet)
 
 ## UMAP overview (same projection)
 

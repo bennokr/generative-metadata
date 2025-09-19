@@ -87,7 +87,6 @@
     <edge source="pcv" target="rbcc" />
     <edge source="pcv" target="hemo" />
     <edge source="htn" target="bp" />
-    <edge source="htn" target="appet" />
     <edge source="htn" target="al" />
     <edge source="htn" target="class" />
     <edge source="htn" target="ane" />
@@ -95,12 +94,13 @@
     <edge source="htn" target="cad" />
     <edge source="dm" target="pe" />
     <edge source="appet" target="pot" />
+    <edge source="appet" target="htn" />
     <edge source="pe" target="rbcc" />
     <edge source="class" target="ba" />
-    <edge source="class" target="pcv" />
     <edge source="class" target="rbc" />
     <edge source="class" target="hemo" />
     <edge source="class" target="pc" />
+    <edge source="class" target="pcv" />
     <edge source="class" target="sod" />
     <edge source="class" target="wbcc" />
     <edge source="class" target="sg" />

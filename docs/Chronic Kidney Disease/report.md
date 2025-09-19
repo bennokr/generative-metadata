@@ -4,19 +4,11 @@
 
 - Metadata file: [metadata.json](metadata.json)
 - JSON-LD (schema.org/Dataset): [dataset.json](dataset.json)
-- SemMap JSON-LD: [dataset.semmap.json](dataset.semmap.json)
-- SemMap HTML: [dataset.semmap.html](dataset.semmap.html)
 - Rows: 158
 - Columns: 25
 - Discrete: 11  |  Continuous: 14
 
 ## Dataset metadata
-
-- Name: Chronic Kidney Disease (UCI id 336)
-
-### Description
-
-Clinical records for early detection of CKD (subset of variables mapped).
 
 - Links:
   - URL: https://archive.ics.uci.edu/dataset/336
@@ -54,9 +46,9 @@ Clinical records for early detection of CKD (subset of variables mapped).
 
 | model    | backend   |   disc_jsd_mean |   disc_jsd_median |   cont_ks_mean |   cont_w1_mean |
 |:---------|:----------|----------------:|------------------:|---------------:|---------------:|
-| clg_mi2  | pybnesian |          0.0434 |            0.0401 |         0.2489 |        60.354  |
-| semi_mi5 | pybnesian |          0.0562 |            0.0502 |         0.2308 |        49.1601 |
-| MetaSyn  | metasyn   |          0.0455 |            0.0413 |         0.3062 |        52.857  |
+| clg_mi2  | pybnesian |          0.0544 |            0.0502 |         0.2405 |        49.3847 |
+| semi_mi5 | pybnesian |          0.0562 |            0.0502 |         0.2191 |        49.0722 |
+| MetaSyn  | metasyn   |          0.0467 |            0.0411 |         0.2964 |        43.085  |
 
 ## Models
 
@@ -79,10 +71,6 @@ Clinical records for early detection of CKD (subset of variables mapped).
 - Metrics JSON: [models/semi_mi5/metrics.json](models/semi_mi5/metrics.json)
 - UMAP: [umap.png](models/semi_mi5/umap.png)
 MetaSyn GMF: [metasyn_gmf.json](metasyn_gmf.json)
-
-MetaSyn serialization
-
-- Synthetic sample (SemMap Parquet): [synthetic_metasyn.semmap.parquet](synthetic_metasyn.semmap.parquet)
 
 ## UMAP overview (same projection)
 

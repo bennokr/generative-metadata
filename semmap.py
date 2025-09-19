@@ -9,7 +9,7 @@ import pyarrow.parquet as pq
 
 from semmap_schema import CodeBook, CodeConcept, Column, ColumnProperty, TableSchema
 
-# Optional pint support
+# Optional pint/UCUM support (using ucumvert exclusively)
 try:  # pragma: no cover
     from pint_pandas import PintArray, PintType
     from ucumvert import PintUcumRegistry
@@ -49,27 +49,6 @@ JSONLD_CONTEXT_URL = "https://w3id.org/semmap/context/v1"
 # Arrow metadata keys (bytes per Arrow requirements)
 _DATASET_JSONLD_KEY = b"jsonld.dataset"
 _COLUMN_JSONLD_KEY  = b"jsonld.column"
-
-# Minimal QUDT→pint mapping for the example (extend as needed)
-
-QUDT_TO_PINT = {
-    UNIT["MilliM_HG"]: "mmHg",
-    UNIT["MilliGM-PER-DeciL"]: "mg/dL",
-    UNIT["YR"]: "year",
-}
-PINT_TO_QUDT = {v: k for k, v in QUDT_TO_PINT.items()}
-
-QUDT_TO_UCUM = {
-    UNIT["MilliM_HG"]: "mm[Hg]",
-    UNIT["MilliGM-PER-DeciL"]: "mg/dL",
-    UNIT["YR"]: "a",
-}
-UCUM_TO_QUDT = {v: k for k, v in QUDT_TO_UCUM.items()}
-PINT_TO_UCUM = {
-    "mmHg": "mm[Hg]",
-    "mg/dL": "mg/dL",
-    "year": "a",
-}
 
 DSV_NOMINAL = "dsv:NominalDataType"
 DSV_QUANTITATIVE = "dsv:QuantitativeDataType"
@@ -144,7 +123,31 @@ def _dataclass_has_data(obj: Any) -> bool:
 
 
 def _dataclass_to_clean_dict(obj) -> Dict[str, Any]:
-    return _strip_empty(asdict(obj))
+    # Convert dataclass to dict, drop empty values, and ensure SKOS match
+    # predicates (exact/close/broad/narrow/relatedMatch) appear last.
+    data = _strip_empty(asdict(obj))
+
+    SKOS_MATCH_FIELDS = [
+        "exactMatch",
+        "closeMatch",
+        "broadMatch",
+        "narrowMatch",
+        "relatedMatch",
+    ]
+
+    def reorder(o: Any) -> Any:
+        if isinstance(o, list):
+            return [reorder(x) for x in o]
+        if isinstance(o, dict):
+            # Recurse first
+            rec: Dict[str, Any] = {k: reorder(v) for k, v in o.items()}
+            # Move SKOS match keys to the end, preserving their relative order
+            keys = [k for k in rec.keys() if k not in SKOS_MATCH_FIELDS]
+            keys += [k for k in SKOS_MATCH_FIELDS if k in rec]
+            return {k: rec[k] for k in keys}
+        return o
+
+    return reorder(data)
 
 
 def _parse_code_concept_dict(data: Dict[str, Any]) -> CodeConcept:
@@ -332,15 +335,24 @@ def _column_from_metadata_dict(data: Dict[str, Any]) -> Optional[Column]:
         ucum_code = _optional_str(
             _ld_get(rep, [str(QUDT.ucumCode), "qudt:ucumCode", "ucumCode"])
         )
-        if not ucum_code and has_unit:
-            ucum_code = QUDT_TO_UCUM.get(has_unit)
-
         if not ucum_code:
             pint_unit = _optional_str(
                 _ld_get(rep, [str(SEMMAP.pintUnit), "semmap:pintUnit", "pintUnit"])
             )
-            if pint_unit:
-                ucum_code = PINT_TO_UCUM.get(pint_unit)
+            # If a pint unit string is present and ucumvert is available, try to
+            # convert it to a UCUM code (best-effort). When not available, skip.
+            if pint_unit and _HAVE_PINT and _ureg is not None:
+                try:  # pragma: no cover - depends on external registry
+                    u = _ureg.parse_units(pint_unit)
+                    # Some ucumvert builds expose `ucum_string` on the registry;
+                    # if not available, fall back to string form of from_ucum
+                    if hasattr(_ureg, "ucum_string"):
+                        ucum_code = _ureg.ucum_string(u)  # type: ignore[attr-defined]
+                    elif hasattr(_ureg, "to_ucum"):
+                        # to_ucum expects a Quantity; provide unit with magnitude 1
+                        ucum_code = _ureg.to_ucum(1 * u)  # type: ignore[attr-defined]
+                except Exception:
+                    ucum_code = None
 
         if ucum_code:
             cp_kwargs["ucumCode"] = ucum_code
@@ -416,14 +428,7 @@ def _column_property_to_pint_unit(column_property: Optional[ColumnProperty]):
         except Exception:  # pragma: no cover
             pass
 
-    has_unit = getattr(column_property, "hasUnit", None)
-    if has_unit:
-        pint_unit = QUDT_TO_PINT.get(has_unit)
-        if pint_unit:
-            try:
-                return _ureg.parse_units(pint_unit)
-            except Exception:  # pragma: no cover
-                return None
+    # No QUDT→pint mapping: rely solely on UCUM code when converting to pint.
     return None
 
 
@@ -494,10 +499,17 @@ class SemMapSeriesAccessor:
         column_name = str(name)
         titles = str(label)
 
-        inferred_ucum = ucum_code or (PINT_TO_UCUM.get(unit) if unit else None)
-        inferred_qudt = qudt_unit_iri or (
-            UCUM_TO_QUDT.get(inferred_ucum) if inferred_ucum else PINT_TO_QUDT.get(unit)
-        )
+        inferred_ucum = ucum_code
+        if inferred_ucum is None and unit and _HAVE_PINT and _ureg is not None:
+            try:  # pragma: no cover - requires ucumvert runtime
+                u = _ureg.parse_units(unit)
+                if hasattr(_ureg, "ucum_string"):
+                    inferred_ucum = _ureg.ucum_string(u)  # type: ignore[attr-defined]
+                elif hasattr(_ureg, "to_ucum"):
+                    inferred_ucum = _ureg.to_ucum(1 * u)  # type: ignore[attr-defined]
+            except Exception:
+                inferred_ucum = None
+        inferred_qudt = qudt_unit_iri
 
         cp_kwargs: Dict[str, Any] = {}
         if statistical_data_type:
@@ -708,8 +720,7 @@ class SemMapFrameAccessor:
                             "representation",
                         ], default={})
                         pint_unit = _ld_get(rep, [str(SEMMAP.pintUnit), "semmap:pintUnit", "pintUnit"]) if isinstance(rep, dict) else None
-                        qudt_unit = _ld_get(rep, [str(QUDT.hasUnit), "qudt:hasUnit", "hasUnit"]) if isinstance(rep, dict) else None
-                        unit = pint_unit or QUDT_TO_PINT.get(qudt_unit)
+                        unit = pint_unit
                         if unit and _HAVE_PINT and PintArray is not None:
                             try:
                                 magnitudes = df[name].astype("float64").to_numpy() * _ureg.parse_units(unit)
@@ -785,8 +796,7 @@ class SemMapFrameAccessor:
             if convert_pint and _HAVE_PINT and isinstance(raw_meta, dict):
                 rep = _ld_get(raw_meta, [str(DISCO.representation), "disco:representation", "representation"], default={})
                 pint_unit = _ld_get(rep, [str(SEMMAP.pintUnit), "semmap:pintUnit", "pintUnit"]) if isinstance(rep, dict) else None
-                qudt_unit = _ld_get(rep, [str(QUDT.hasUnit), "qudt:hasUnit", "hasUnit"]) if isinstance(rep, dict) else None
-                unit = pint_unit or QUDT_TO_PINT.get(qudt_unit)
+                unit = pint_unit
                 if unit:
                     try:
                         magnitudes = self._df[name].astype("float64").to_numpy() * _ureg.parse_units(unit)

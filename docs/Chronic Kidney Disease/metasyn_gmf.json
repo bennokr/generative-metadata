@@ -6,7 +6,7 @@
             "name": "metasyn",
             "version": "1.1.0"
         },
-        "creation time": "2025-09-16T15:52:05.134622"
+        "creation time": "2025-09-19T12:16:01.828664"
     },
     "vars": [
         {
@@ -63,8 +63,8 @@
                 "parameters": {
                     "lower": 1.00499999,
                     "upper": 1.0250000099999999,
-                    "mean": 2.1071168147721737,
-                    "sd": 0.07882366135337321
+                    "mean": 2.1072374396390687,
+                    "sd": 0.07882802677497766
                 }
             },
             "creation_method": {
@@ -85,8 +85,8 @@
                 "parameters": {
                     "lower": -1e-08,
                     "upper": 4.00000001,
-                    "mean": -518.9492424428054,
-                    "sd": 20.617295887877273
+                    "mean": -698.4866109556256,
+                    "sd": 23.8321225722437
                 }
             },
             "creation_method": {
@@ -107,8 +107,8 @@
                 "parameters": {
                     "lower": -1e-08,
                     "upper": 5.00000001,
-                    "mean": -367.3861476531872,
-                    "sd": 10.269500294972165
+                    "mean": -467.9589311692189,
+                    "sd": 11.584391314168979
                 }
             },
             "creation_method": {
@@ -118,7 +118,7 @@
         {
             "name": "rbc",
             "type": "categorical",
-            "dtype": "Categorical(ordering='physical')",
+            "dtype": "Categorical",
             "prop_missing": 0.0,
             "distribution": {
                 "implements": "core.multinoulli",
@@ -144,7 +144,7 @@
         {
             "name": "pc",
             "type": "categorical",
-            "dtype": "Categorical(ordering='physical')",
+            "dtype": "Categorical",
             "prop_missing": 0.0,
             "distribution": {
                 "implements": "core.multinoulli",
@@ -170,7 +170,7 @@
         {
             "name": "pcc",
             "type": "categorical",
-            "dtype": "Categorical(ordering='physical')",
+            "dtype": "Categorical",
             "prop_missing": 0.0,
             "distribution": {
                 "implements": "core.multinoulli",
@@ -196,7 +196,7 @@
         {
             "name": "ba",
             "type": "categorical",
-            "dtype": "Categorical(ordering='physical')",
+            "dtype": "Categorical",
             "prop_missing": 0.0,
             "distribution": {
                 "implements": "core.multinoulli",
@@ -233,8 +233,8 @@
                 "parameters": {
                     "lower": 69.99999999,
                     "upper": 490.00000001,
-                    "mean": -4975.48135780225,
-                    "sd": 579.1197195128369
+                    "mean": -5378.765062823048,
+                    "sd": 602.7795220960364
                 }
             },
             "creation_method": {
@@ -295,8 +295,8 @@
                 "parameters": {
                     "lower": 110.99999999,
                     "upper": 150.00000001,
-                    "mean": 145.61442370113073,
-                    "sd": 11.959660923967556
+                    "mean": 145.6141080627462,
+                    "sd": 11.959491257588956
                 }
             },
             "creation_method": {
@@ -337,8 +337,8 @@
                 "parameters": {
                     "lower": 3.09999999,
                     "upper": 17.80000001,
-                    "mean": 16.40560119224432,
-                    "sd": 4.416301824253506
+                    "mean": 16.40561875920681,
+                    "sd": 4.416305931040506
                 }
             },
             "creation_method": {
@@ -359,8 +359,8 @@
                 "parameters": {
                     "lower": 8.99999999,
                     "upper": 54.00000001,
-                    "mean": 59.14578082210207,
-                    "sd": 17.026587995504638
+                    "mean": 59.148359054182365,
+                    "sd": 17.027578451001887
                 }
             },
             "creation_method": {
@@ -410,7 +410,7 @@
         {
             "name": "htn",
             "type": "categorical",
-            "dtype": "Categorical(ordering='physical')",
+            "dtype": "Categorical",
             "prop_missing": 0.0,
             "distribution": {
                 "implements": "core.multinoulli",
@@ -436,7 +436,7 @@
         {
             "name": "dm",
             "type": "categorical",
-            "dtype": "Categorical(ordering='physical')",
+            "dtype": "Categorical",
             "prop_missing": 0.0,
             "distribution": {
                 "implements": "core.multinoulli",
@@ -462,7 +462,7 @@
         {
             "name": "cad",
             "type": "categorical",
-            "dtype": "Categorical(ordering='physical')",
+            "dtype": "Categorical",
             "prop_missing": 0.0,
             "distribution": {
                 "implements": "core.multinoulli",
@@ -488,7 +488,7 @@
         {
             "name": "appet",
             "type": "categorical",
-            "dtype": "Categorical(ordering='physical')",
+            "dtype": "Categorical",
             "prop_missing": 0.0,
             "distribution": {
                 "implements": "core.multinoulli",
@@ -514,7 +514,7 @@
         {
             "name": "pe",
             "type": "categorical",
-            "dtype": "Categorical(ordering='physical')",
+            "dtype": "Categorical",
             "prop_missing": 0.0,
             "distribution": {
                 "implements": "core.multinoulli",
@@ -540,7 +540,7 @@
         {
             "name": "ane",
             "type": "categorical",
-            "dtype": "Categorical(ordering='physical')",
+            "dtype": "Categorical",
             "prop_missing": 0.0,
             "distribution": {
                 "implements": "core.multinoulli",
@@ -566,7 +566,7 @@
         {
             "name": "class",
             "type": "categorical",
-            "dtype": "Categorical(ordering='physical')",
+            "dtype": "Categorical",
             "prop_missing": 0.0,
             "distribution": {
                 "implements": "core.multinoulli",

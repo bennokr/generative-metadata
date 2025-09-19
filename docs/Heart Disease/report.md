@@ -18,358 +18,69 @@
 
 4 databases: Cleveland, Hungary, Switzerland, and the VA Long Beach
 
-- Creators: Andras Janosi, William Steinbrunn, Matthias Pfisterer, Robert Detrano
-- Citation: International application of a new probability algorithm for the diagnosis of coronary artery disease.. R. Detrano, A. Jánosi, W. Steinbrunn, M. Pfisterer, J. Schmid, S. Sandhu, K. Guppy, S. Lee, V. Froelicher. American Journal of Cardiology. 1989
 - Links:
   - URL: https://archive.ics.uci.edu/dataset/45
-
-## Metadata (rich)
-
-[Standalone SemMap metadata view](dataset.semmap.html)
-
-<style>
-.semmap-metadata { display: grid; gap: 1.5rem; margin: 1.5rem 0; }
-.semmap-metadata .item { border: 1px solid #e2e8f0; border-radius: 16px; padding: 1.25rem 1.5rem; background: linear-gradient(180deg, rgba(248, 250, 252, 0.6), #ffffff); box-shadow: 0 10px 30px rgba(15, 23, 42, 0.05); }
-.semmap-metadata .item-title { margin: 0 0 .75rem; font-size: 1.1rem; color: #0f172a; }
-.semmap-metadata .prop { margin: .3rem 0; color: #334155; }
-.semmap-metadata .name { font-weight: 600; margin-right: .35rem; color: #0f172a; }
-.semmap-metadata .prop-table { border-collapse: collapse; width: 100%; margin: .35rem 0 1rem; font-size: .95rem; }
-.semmap-metadata .prop-table th, .semmap-metadata .prop-table td { border: 1px solid #e2e8f0; padding: .45rem .6rem; text-align: left; }
-.semmap-metadata .prop-table th { background: #f8fafc; color: #475569; text-transform: uppercase; letter-spacing: .04em; font-size: .7rem; }
-</style>
-<div class="semmap-metadata">
-<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Heart Disease — SemMap metadata</title>
-  <style>
-    body { font-family: system-ui, Arial, sans-serif; line-height: 1.5; margin: 2rem; }
-    .item { border: 1px solid #ddd; border-radius: 8px; padding: 1rem; margin-bottom: 1rem; }
-    .item-title { margin: 0 0 .5rem; font-size: 1.1rem; }
-    .prop { margin: .2rem 0; }
-    .name { font-weight: 600; margin-right: .25rem; }
-    .id-link { margin: .2rem 0; }
-    table.prop-table { border-collapse: collapse; width: 100%; margin: .25rem 0 1rem; }
-    table.prop-table th, table.prop-table td { border: 1px solid #ddd; padding: .35rem .5rem; text-align: left; vertical-align: top; }
-    table.prop-table th { background: #f3f3f3; }
-  </style>
-</head>
-<body>
-<h1>Heart Disease — SemMap metadata</h1>
-<div class="item" vocab="https://w3id.org/semmap/context/v1/" typeof="Thing"><div property="dataset" typeof="disco:LogicalDataSet dsv:Dataset dcat:Dataset"><div class="prop"><span class="name">dct:title</span><span property="dct:title">Heart Disease (UCI id 45)</span></div>
-<div class="prop"><span class="name">dct:description</span><span property="dct:description">4 databases: Cleveland, Hungary, Switzerland, and the VA Long Beach</span></div>
-<div class="prop"><span class="name">dct:license</span><a rel="dct:license" href="https://creativecommons.org/publicdomain/zero/1.0/">https://creativecommons.org/publicdomain/zero/1.0/</a></div></div>
-<div class="prop"><span class="name">disco:variable</span></div><table class="prop-table" data-prop="disco:variable"><thead><tr><th>skos:notation</th><th>skos:prefLabel</th><th>disco:representation</th><th>dct:source</th></tr></thead><tr property="disco:variable" typeof="disco:Variable dsv:Column"><td><span property="skos:notation">age</span></td><td><span property="skos:prefLabel">Age</span></td><td><div property="disco:representation" typeof="disco:Representation"><h2 class="item-title">disco:Representation</h2>
-<div class="prop"><span class="name">dsv:valueType</span><span property="dsv:valueType">xsd:integer</span></div>
-<div class="prop"><span class="name">qudt:hasUnit</span><span property="qudt:hasUnit">unit:YR</span></div>
-<div class="prop"><span class="name">semmap:pintUnit</span><span property="semmap:pintUnit">year</span></div></div></td><td><a rel="dct:source" href="https://loinc.org/30525-0">https://loinc.org/30525-0</a></td></tr><tr property="disco:variable" typeof="disco:Variable dsv:Column"><td><span property="skos:notation">sex</span></td><td><span property="skos:prefLabel">Administrative sex</span></td><td><div property="disco:representation" typeof="disco:Representation skos:ConceptScheme"><div class="prop"><span class="name">skos:hasTopConcept</span></div><table class="prop-table" data-prop="skos:hasTopConcept"><thead><tr><th>skos:notation</th><th>skos:prefLabel</th><th>skos:exactMatch</th></tr></thead><tr property="skos:hasTopConcept" typeof="skos:Concept"><td><span property="skos:notation">0</span></td><td><span property="skos:prefLabel">female</span></td><td><a rel="skos:exactMatch" href="http://snomed.info/id/248152002">http://snomed.info/id/248152002</a></td></tr><tr property="skos:hasTopConcept" typeof="skos:Concept"><td><span property="skos:notation">1</span></td><td><span property="skos:prefLabel">male</span></td><td><a rel="skos:exactMatch" href="http://snomed.info/id/248153007">http://snomed.info/id/248153007</a></td></tr></table></div></td><td><a rel="dct:source" href="https://docs.snomed.org/implementation-guides/snomed-ct-guide-for-covid-19/2-coding-covid-19-related-data/2.2-patient-demographics">https://docs.snomed.org/implementation-guides/snomed-ct-guide-for-covid-19/2-coding-covid-19-related-data/2.2-patient-demographics</a></td></tr><tr property="disco:variable" typeof="disco:Variable dsv:Column"><td><span property="skos:notation">cp</span></td><td><span property="skos:prefLabel">Chest pain type</span></td><td><div property="disco:representation" typeof="disco:Representation skos:ConceptScheme"><div class="prop"><span class="name">skos:hasTopConcept</span></div><table class="prop-table" data-prop="skos:hasTopConcept"><thead><tr><th>skos:notation</th><th>skos:prefLabel</th><th>skos:exactMatch</th></tr></thead><tr property="skos:hasTopConcept" typeof="skos:Concept"><td><span property="skos:notation">1</span></td><td><span property="skos:prefLabel">Typical angina</span></td><td><a rel="skos:exactMatch" href="http://snomed.info/id/429559004">http://snomed.info/id/429559004</a></td></tr><tr property="skos:hasTopConcept" typeof="skos:Concept"><td><span property="skos:notation">2</span></td><td><span property="skos:prefLabel">Atypical angina</span></td><td><a rel="skos:exactMatch" href="http://snomed.info/id/371807002">http://snomed.info/id/371807002</a></td></tr><tr property="skos:hasTopConcept" typeof="skos:Concept"><td><span property="skos:notation">3</span></td><td><span property="skos:prefLabel">Non-cardiac chest pain</span></td><td><a rel="skos:exactMatch" href="http://snomed.info/id/274668005">http://snomed.info/id/274668005</a></td></tr><tr property="skos:hasTopConcept" typeof="skos:Concept"><td><span property="skos:notation">4</span></td><td><span property="skos:prefLabel">Asymptomatic</span></td><td><a rel="skos:exactMatch" href="http://snomed.info/id/161971004">http://snomed.info/id/161971004</a></td></tr></table>
-<div class="prop"><span class="name">dct:source</span><a rel="dct:source" href="https://dicom.nema.org/medical/dicom/current/output/chtml/part16/sect_CID_3202.html">https://dicom.nema.org/medical/dicom/current/output/chtml/part16/sect_CID_3202.html</a></div></div></td><td><a rel="dct:source" href="https://dicom.nema.org/medical/dicom/current/output/chtml/part16/sect_CID_3202.html">https://dicom.nema.org/medical/dicom/current/output/chtml/part16/sect_CID_3202.html</a></td></tr><tr property="disco:variable" typeof="disco:Variable dsv:Column"><td><span property="skos:notation">trestbps</span></td><td><span property="skos:prefLabel">Resting systolic blood pressure</span></td><td><div property="disco:representation" typeof="disco:Representation"><h2 class="item-title">disco:Representation</h2>
-<div class="prop"><span class="name">dsv:valueType</span><span property="dsv:valueType">xsd:integer</span></div>
-<div class="prop"><span class="name">qudt:hasUnit</span><span property="qudt:hasUnit">unit:MilliM_HG</span></div>
-<div class="prop"><span class="name">semmap:pintUnit</span><span property="semmap:pintUnit">mmHg</span></div></div></td><td><a rel="dct:source" href="https://loinc.org/8480-6">https://loinc.org/8480-6</a></td></tr><tr property="disco:variable" typeof="disco:Variable dsv:Column"><td><span property="skos:notation">chol</span></td><td><span property="skos:prefLabel">Total cholesterol</span></td><td><div property="disco:representation" typeof="disco:Representation"><h2 class="item-title">disco:Representation</h2>
-<div class="prop"><span class="name">dsv:valueType</span><span property="dsv:valueType">xsd:integer</span></div>
-<div class="prop"><span class="name">qudt:hasUnit</span><span property="qudt:hasUnit">unit:MilliGM-PER-DeciL</span></div>
-<div class="prop"><span class="name">semmap:pintUnit</span><span property="semmap:pintUnit">mg/dL</span></div></div></td><td><a rel="dct:source" href="https://loinc.org/2093-3">https://loinc.org/2093-3</a></td></tr><tr property="disco:variable" typeof="disco:Variable dsv:Column"><td><span property="skos:notation">fbs</span></td><td><span property="skos:prefLabel">Fasting blood sugar &gt;120 mg/dL (indicator)</span></td><td><div property="disco:representation" typeof="disco:Representation skos:ConceptScheme"><div class="prop"><span class="name">skos:hasTopConcept</span></div><table class="prop-table" data-prop="skos:hasTopConcept"><thead><tr><th>skos:notation</th><th>skos:prefLabel</th></tr></thead><tr property="skos:hasTopConcept" typeof="skos:Concept"><td><span property="skos:notation">0</span></td><td><span property="skos:prefLabel">≤120 mg/dL</span></td></tr><tr property="skos:hasTopConcept" typeof="skos:Concept"><td><span property="skos:notation">1</span></td><td><span property="skos:prefLabel">&gt;120 mg/dL</span></td></tr></table>
-<div class="prop"><span class="name">dct:source</span><a rel="dct:source" href="https://loinc.org/2345-7">https://loinc.org/2345-7</a></div></div></td><td><a rel="dct:source" href="https://loinc.org/2345-7">https://loinc.org/2345-7</a></td></tr><tr property="disco:variable" typeof="disco:Variable dsv:Column"><td><span property="skos:notation">restecg</span></td><td><span property="skos:prefLabel">Resting ECG result</span></td><td><div property="disco:representation" typeof="disco:Representation skos:ConceptScheme"><div class="prop"><span class="name">skos:hasTopConcept</span></div><table class="prop-table" data-prop="skos:hasTopConcept"><thead><tr><th>skos:notation</th><th>skos:prefLabel</th><th>skos:exactMatch</th></tr></thead><tr property="skos:hasTopConcept" typeof="skos:Concept"><td><span property="skos:notation">0</span></td><td><span property="skos:prefLabel">normal</span></td><td><a rel="skos:exactMatch" href="http://snomed.info/id/164854000">http://snomed.info/id/164854000</a></td></tr><tr property="skos:hasTopConcept" typeof="skos:Concept"><td><span property="skos:notation">1</span></td><td><span property="skos:prefLabel">ST-T abnormality</span></td><td><a rel="skos:exactMatch" href="http://snomed.info/id/428750005">http://snomed.info/id/428750005</a></td></tr><tr property="skos:hasTopConcept" typeof="skos:Concept"><td><span property="skos:notation">2</span></td><td><span property="skos:prefLabel">LVH (Estes)</span></td><td><a rel="skos:exactMatch" href="http://snomed.info/id/25488008">http://snomed.info/id/25488008</a></td></tr></table></div></td><td><a rel="dct:source" href="https://cvquality.acc.org/docs/default-source/ncdr/data-collection/epdeviceimplant_v2-3_datadictionarycoders.pdf">https://cvquality.acc.org/docs/default-source/ncdr/data-collection/epdeviceimplant_v2-3_datadictionarycoders.pdf</a></td></tr><tr property="disco:variable" typeof="disco:Variable dsv:Column"><td><span property="skos:notation">thalach</span></td><td><span property="skos:prefLabel">Maximum heart rate achieved</span></td><td><div property="disco:representation" typeof="disco:Representation"><h2 class="item-title">disco:Representation</h2>
-<div class="prop"><span class="name">dsv:valueType</span><span property="dsv:valueType">xsd:integer</span></div>
-<div class="prop"><span class="name">semmap:pintUnit</span><span property="semmap:pintUnit">1/min</span></div></div></td><td><a rel="dct:source" href="https://loinc.org/101692-2">https://loinc.org/101692-2</a></td></tr><tr property="disco:variable" typeof="disco:Variable dsv:Column"><td><span property="skos:notation">exang</span></td><td><span property="skos:prefLabel">Exercise-induced angina</span></td><td><div property="disco:representation" typeof="disco:Representation skos:ConceptScheme"><div class="prop"><span class="name">skos:hasTopConcept</span></div><table class="prop-table" data-prop="skos:hasTopConcept"><thead><tr><th>skos:notation</th><th>skos:prefLabel</th></tr></thead><tr property="skos:hasTopConcept" typeof="skos:Concept"><td><span property="skos:notation">0</span></td><td><span property="skos:prefLabel">no</span></td></tr><tr property="skos:hasTopConcept" typeof="skos:Concept"><td><span property="skos:notation">1</span></td><td><span property="skos:prefLabel">yes</span></td></tr></table></div></td><td><a rel="dct:source" href="https://archive.datadictionary.nhs.uk/DD%20Release%20June%202021/Covid19PRA/Coronary_Heart.html">https://archive.datadictionary.nhs.uk/DD%20Release%20June%202021/Covid19PRA/Coronary_Heart.html</a></td></tr><tr property="disco:variable" typeof="disco:Variable dsv:Column"><td><span property="skos:notation">oldpeak</span></td><td><span property="skos:prefLabel">ST depression vs rest (max during study)</span></td><td><div property="disco:representation" typeof="disco:Representation"><h2 class="item-title">disco:Representation</h2>
-<div class="prop"><span class="name">dsv:valueType</span><span property="dsv:valueType">xsd:decimal</span></div>
-<div class="prop"><span class="name">semmap:pintUnit</span><span property="semmap:pintUnit">mV</span></div></div></td><td><a rel="dct:source" href="https://loinc.org/91546-2">https://loinc.org/91546-2</a></td></tr><tr property="disco:variable" typeof="disco:Variable dsv:Column"><td><span property="skos:notation">slope</span></td><td><span property="skos:prefLabel">Slope of peak exercise ST segment</span></td><td><div property="disco:representation" typeof="disco:Representation skos:ConceptScheme"><div class="prop"><span class="name">skos:hasTopConcept</span></div><table class="prop-table" data-prop="skos:hasTopConcept"><thead><tr><th>skos:notation</th><th>skos:prefLabel</th></tr></thead><tr property="skos:hasTopConcept" typeof="skos:Concept"><td><span property="skos:notation">1</span></td><td><span property="skos:prefLabel">upsloping</span></td></tr><tr property="skos:hasTopConcept" typeof="skos:Concept"><td><span property="skos:notation">2</span></td><td><span property="skos:prefLabel">flat</span></td></tr><tr property="skos:hasTopConcept" typeof="skos:Concept"><td><span property="skos:notation">3</span></td><td><span property="skos:prefLabel">downsloping</span></td></tr></table></div></td><td><a rel="dct:source" href="https://dicom.nema.org/medical/dicom/current/output/chtml/part16/sect_CID_3233.html">https://dicom.nema.org/medical/dicom/current/output/chtml/part16/sect_CID_3233.html</a></td></tr><tr property="disco:variable" typeof="disco:Variable dsv:Column"><td><span property="skos:notation">ca</span></td><td><span property="skos:prefLabel">Number of major vessels (colored by fluoroscopy)</span></td><td><div property="disco:representation" typeof="disco:Representation"><h2 class="item-title">disco:Representation</h2>
-<div class="prop"><span class="name">dsv:valueType</span><span property="dsv:valueType">xsd:integer</span></div></div></td><td></td></tr><tr property="disco:variable" typeof="disco:Variable dsv:Column"><td><span property="skos:notation">thal</span></td><td><span property="skos:prefLabel">Thallium perfusion test</span></td><td><div property="disco:representation" typeof="disco:Representation skos:ConceptScheme"><div class="prop"><span class="name">skos:hasTopConcept</span></div><table class="prop-table" data-prop="skos:hasTopConcept"><thead><tr><th>skos:notation</th><th>skos:prefLabel</th><th>skos:exactMatch</th></tr></thead><tr property="skos:hasTopConcept" typeof="skos:Concept"><td><span property="skos:notation">3</span></td><td><span property="skos:prefLabel">normal</span></td><td><a rel="skos:exactMatch" href="http://snomed.info/id/371801000">http://snomed.info/id/371801000</a></td></tr><tr property="skos:hasTopConcept" typeof="skos:Concept"><td><span property="skos:notation">6</span></td><td><span property="skos:prefLabel">fixed defect</span></td><td><a rel="skos:exactMatch" href="http://snomed.info/id/371918009">http://snomed.info/id/371918009</a></td></tr><tr property="skos:hasTopConcept" typeof="skos:Concept"><td><span property="skos:notation">7</span></td><td><span property="skos:prefLabel">reversible defect</span></td><td><a rel="skos:exactMatch" href="http://snomed.info/id/371920002">http://snomed.info/id/371920002</a></td></tr></table></div></td><td></td></tr><tr property="disco:variable" typeof="disco:Variable dsv:Column"><td><span property="skos:notation">num</span></td><td><span property="skos:prefLabel">Angiographic disease status</span></td><td><div property="disco:representation" typeof="disco:Representation skos:ConceptScheme"><div class="prop"><span class="name">skos:hasTopConcept</span></div><table class="prop-table" data-prop="skos:hasTopConcept"><thead><tr><th>skos:notation</th><th>skos:prefLabel</th></tr></thead><tr property="skos:hasTopConcept" typeof="skos:Concept"><td><span property="skos:notation">0</span></td><td><span property="skos:prefLabel">&lt;50% narrowing</span></td></tr><tr property="skos:hasTopConcept" typeof="skos:Concept"><td><span property="skos:notation">1</span></td><td><span property="skos:prefLabel">≥50% narrowing</span></td></tr></table></div></td><td><a rel="dct:source" href="https://purl.bioontology.org/ontology/SNOMEDCT/233970002">https://purl.bioontology.org/ontology/SNOMEDCT/233970002</a></td></tr></table></div>
-</body>
-</html>
-
-</div>
-
 ## Variables and summary
 
 | variable   | description                                           | inferred   | declared    |   count | unique   | top   | freq   | mean               | std                | min   | 25%   | 50%   | 75%   | max   |
 |:-----------|:------------------------------------------------------|:-----------|:------------|--------:|:---------|:------|:-------|:-------------------|:-------------------|:------|:------|:------|:------|:------|
-| age        |                                                       | continuous | Integer     |     303 |          |       |        | 54.43894389438944  | 9.038662442446743  | 29.0  | 48.0  | 56.0  | 61.0  | 77.0  |
+| age        |                                                       | continuous | Integer     |     303 |          |       |        | 54.43894389438944  | 9.038662442446746  | 29.0  | 48.0  | 56.0  | 61.0  | 77.0  |
 | sex        |                                                       | discrete   | Categorical |     303 | 2        | 1     | 206    |                    |                    |       |       |       |       |       |
 | cp         |                                                       | discrete   | Categorical |     303 | 4        | 4     | 144    |                    |                    |       |       |       |       |       |
-| trestbps   | resting blood pressure (on admission to the hospital) | continuous | Integer     |     303 |          |       |        | 131.68976897689768 | 17.599747729587687 | 94.0  | 120.0 | 130.0 | 140.0 | 200.0 |
-| chol       | serum cholestoral                                     | continuous | Integer     |     303 |          |       |        | 246.69306930693068 | 51.776917542637015 | 126.0 | 211.0 | 241.0 | 275.0 | 564.0 |
+| trestbps   | resting blood pressure (on admission to the hospital) | continuous | Integer     |     303 |          |       |        | 131.68976897689768 | 17.59974772958769  | 94.0  | 120.0 | 130.0 | 140.0 | 200.0 |
+| chol       | serum cholestoral                                     | continuous | Integer     |     303 |          |       |        | 246.69306930693068 | 51.77691754263704  | 126.0 | 211.0 | 241.0 | 275.0 | 564.0 |
 | fbs        | fasting blood sugar > 120 mg/dl                       | discrete   | Categorical |     303 | 2        | 0     | 258    |                    |                    |       |       |       |       |       |
 | restecg    |                                                       | discrete   | Categorical |     303 | 3        | 0     | 151    |                    |                    |       |       |       |       |       |
 | thalach    | maximum heart rate achieved                           | continuous | Integer     |     303 |          |       |        | 149.6072607260726  | 22.875003276980376 | 71.0  | 133.5 | 153.0 | 166.0 | 202.0 |
 | exang      | exercise induced angina                               | discrete   | Categorical |     303 | 2        | 0     | 204    |                    |                    |       |       |       |       |       |
-| oldpeak    | ST depression induced by exercise relative to rest    | continuous | Integer     |     303 |          |       |        | 1.0396039603960396 | 1.161075022068634  | 0.0   | 0.0   | 0.8   | 1.6   | 6.2   |
+| oldpeak    | ST depression induced by exercise relative to rest    | continuous | Integer     |     303 |          |       |        | 1.0396039603960396 | 1.1610750220686348 | 0.0   | 0.0   | 0.8   | 1.6   | 6.2   |
 | slope      |                                                       | discrete   | Categorical |     303 | 3        | 1     | 142    |                    |                    |       |       |       |       |       |
-| ca         | number of major vessels (0-3) colored by flourosopy   | continuous | Integer     |     299 |          |       |        | 0.6722408026755853 | 0.9374383177242157 | 0.0   | 0.0   | 0.0   | 1.0   | 3.0   |
-| thal       |                                                       | continuous | Categorical |     301 |          |       |        | 4.73421926910299   | 1.9397057693786417 | 3.0   | 3.0   | 3.0   | 7.0   | 7.0   |
+| ca         | number of major vessels (0-3) colored by flourosopy   | continuous | Integer     |     299 |          |       |        | 0.6722408026755853 | 0.9374383177242163 | 0.0   | 0.0   | 0.0   | 1.0   | 3.0   |
+| thal       |                                                       | continuous | Categorical |     301 |          |       |        | 4.73421926910299   | 1.939705769378644  | 3.0   | 3.0   | 3.0   | 7.0   | 7.0   |
 | num        | diagnosis of heart disease                            | discrete   | Integer     |     303 | 5        | 0     | 164    |                    |                    |       |       |       |       |       |
 
-## Learned structures and configurations
+## Models
 
+| name     | backend   |   rows |   seed |   disc_jsd_mean |   disc_jsd_median |   cont_ks_mean |   cont_w1_mean |
+|:---------|:----------|-------:|-------:|----------------:|------------------:|---------------:|---------------:|
+| clg_mi2  | pybnesian |    237 |     42 |        0.100273 |         0.0995307 |       0.234388 |        4.41091 |
+| semi_mi5 | pybnesian |    237 |     42 |        0.100273 |         0.0995307 |       0.234388 |        4.41091 |
+
+### Model: clg_mi2 (pybnesian)
+
+- Seed: 42
+- Rows: 237
+- Params: `{"max_indegree": 2, "operators": ["arcs"], "score": "bic", "type": "clg"}`
+- Metrics: disc_jsd_mean=0.1003, disc_jsd_median=0.0995, cont_ks_mean=0.2344, cont_w1_mean=4.4109
+- Synthetic CSV: [models/clg_mi2/synthetic.csv](models/clg_mi2/synthetic.csv)
+- Per-variable metrics: [models/clg_mi2/per_variable_metrics.csv](models/clg_mi2/per_variable_metrics.csv)
+- Metrics JSON: [models/clg_mi2/metrics.json](models/clg_mi2/metrics.json)
+- UMAP: [umap.png](models/clg_mi2/umap.png)
+### Model: semi_mi5 (pybnesian)
+
+- Seed: 42
+- Rows: 237
+- Params: `{"max_indegree": 5, "operators": ["arcs"], "score": "bic", "type": "semiparametric"}`
+- Metrics: disc_jsd_mean=0.1003, disc_jsd_median=0.0995, cont_ks_mean=0.2344, cont_w1_mean=4.4109
+- Synthetic CSV: [models/semi_mi5/synthetic.csv](models/semi_mi5/synthetic.csv)
+- Per-variable metrics: [models/semi_mi5/per_variable_metrics.csv](models/semi_mi5/per_variable_metrics.csv)
+- Metrics JSON: [models/semi_mi5/metrics.json](models/semi_mi5/metrics.json)
+- UMAP: [umap.png](models/semi_mi5/umap.png)
 MetaSyn GMF: [metasyn_gmf.json](metasyn_gmf.json)
 
 MetaSyn serialization
 
 - Synthetic sample (SemMap Parquet): [synthetic_metasyn.semmap.parquet](synthetic_metasyn.semmap.parquet)
 
-### Arc blacklist
+## Fidelity (MetaSyn)
 
-- Root variables: age, sex
-- Forbidden arc count: 28
-
-### clg_mi2
-
-| param        | value    |
-|:-------------|:---------|
-| bn_type      | clg      |
-| score        | bic      |
-| operators    | ['arcs'] |
-| max_indegree | 2        |
-| seed         | 42       |
-
-![BN graph](bn_clg_mi2.png)
-
-Serialization
-
-- Structure (GraphML): [structure_clg_mi2.graphml](structure_clg_mi2.graphml)
-- Full model (pickle): [model_clg_mi2.pickle](model_clg_mi2.pickle)
-
-### semi_mi5
-
-| param        | value          |
-|:-------------|:---------------|
-| bn_type      | semiparametric |
-| score        | bic            |
-| operators    | ['arcs']       |
-| max_indegree | 5              |
-| seed         | 42             |
-
-![BN graph](bn_semi_mi5.png)
-
-Serialization
-
-- Structure (GraphML): [structure_semi_mi5.graphml](structure_semi_mi5.graphml)
-- Full model (pickle): [model_semi_mi5.pickle](model_semi_mi5.pickle)
-
-## Fidelity (BN vs MetaSyn)
-
-| model       | mean_loglik   | std_loglik   | sum_loglik   |   disc_jsd_mean |   disc_jsd_median |   cont_ks_mean |   cont_w1_mean |
-|:------------|:--------------|:-------------|:-------------|----------------:|------------------:|---------------:|---------------:|
-| BN:clg_mi2  | -27.3163      | 2.9854       | -1638.9769   |          0.0979 |            0.1075 |         0.2266 |         3.6304 |
-| BN:semi_mi5 | -27.3163      | 2.9854       | -1638.9769   |          0.0979 |            0.1075 |         0.2266 |         3.6304 |
-| MetaSyn     |               |              |              |          0.0989 |            0.1035 |         0.2942 |         3.0017 |
-
-### Per-variable distances (lower is closer)
-
-<table class="dataframe table per-var-dist">
-  <thead>
-    <tr>
-      <th colspan="2" halign="left"></th>
-      <th colspan="3" halign="left">JSD</th>
-      <th colspan="3" halign="left">KS</th>
-      <th colspan="3" halign="left">W1</th>
-    </tr>
-    <tr>
-      <th>variable</th>
-      <th>type</th>
-      <th>clg_mi2</th>
-      <th>semi_mi5</th>
-      <th>MetaSyn</th>
-      <th>clg_mi2</th>
-      <th>semi_mi5</th>
-      <th>MetaSyn</th>
-      <th>clg_mi2</th>
-      <th>semi_mi5</th>
-      <th>MetaSyn</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>age</td>
-      <td>continuous</td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td>0.0803</td>
-      <td>0.0803</td>
-      <td>0.0797</td>
-      <td>1.2421</td>
-      <td>1.2421</td>
-      <td>1.2806</td>
-    </tr>
-    <tr>
-      <td>ca</td>
-      <td>continuous</td>
-      <td>0.0952</td>
-      <td>0.0952</td>
-      <td>0.1035</td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-    </tr>
-    <tr>
-      <td>chol</td>
-      <td>continuous</td>
-      <td>0.1094</td>
-      <td>0.1094</td>
-      <td>0.1032</td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-    </tr>
-    <tr>
-      <td>cp</td>
-      <td>discrete</td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td>0.1910</td>
-      <td>0.1910</td>
-      <td>0.1470</td>
-      <td>3.5802</td>
-      <td>3.5802</td>
-      <td>2.9223</td>
-    </tr>
-    <tr>
-      <td>exang</td>
-      <td>discrete</td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td>0.1727</td>
-      <td>0.1727</td>
-      <td>0.1037</td>
-      <td>12.6292</td>
-      <td>12.6292</td>
-      <td>7.2077</td>
-    </tr>
-    <tr>
-      <td>fbs</td>
-      <td>discrete</td>
-      <td>0.1128</td>
-      <td>0.1128</td>
-      <td>0.1038</td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-    </tr>
-    <tr>
-      <td>num</td>
-      <td>discrete</td>
-      <td>0.1089</td>
-      <td>0.1089</td>
-      <td>0.1101</td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-    </tr>
-    <tr>
-      <td>oldpeak</td>
-      <td>continuous</td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td>0.2067</td>
-      <td>0.2067</td>
-      <td>0.2627</td>
-      <td>6.3633</td>
-      <td>6.3633</td>
-      <td>8.1438</td>
-    </tr>
-    <tr>
-      <td>restecg</td>
-      <td>discrete</td>
-      <td>0.1075</td>
-      <td>0.1075</td>
-      <td>0.1190</td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-    </tr>
-    <tr>
-      <td>sex</td>
-      <td>discrete</td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td>0.1750</td>
-      <td>0.1750</td>
-      <td>0.2833</td>
-      <td>0.2662</td>
-      <td>0.2662</td>
-      <td>0.2242</td>
-    </tr>
-    <tr>
-      <td>slope</td>
-      <td>discrete</td>
-      <td>0.0561</td>
-      <td>0.0561</td>
-      <td>0.0773</td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-    </tr>
-    <tr>
-      <td>thal</td>
-      <td>continuous</td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td>0.3523</td>
-      <td>0.3523</td>
-      <td>0.5833</td>
-      <td>0.3478</td>
-      <td>0.3478</td>
-      <td>0.3041</td>
-    </tr>
-    <tr>
-      <td>thalach</td>
-      <td>continuous</td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td>0.4080</td>
-      <td>0.4080</td>
-      <td>0.6000</td>
-      <td>0.9840</td>
-      <td>0.9840</td>
-      <td>0.9288</td>
-    </tr>
-    <tr>
-      <td>trestbps</td>
-      <td>continuous</td>
-      <td>0.0952</td>
-      <td>0.0952</td>
-      <td>0.0758</td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-    </tr>
-  </tbody>
-</table>
+| model   |   disc_jsd_mean |   disc_jsd_median |   cont_ks_mean |   cont_w1_mean |
+|:--------|----------------:|------------------:|---------------:|---------------:|
+| MetaSyn |          0.1053 |            0.1034 |         0.2903 |         2.5822 |
 
 ## UMAP overview (same projection)
 
-| Real (sample) | MetaSyn (synthetic) | BN: clg_mi2 | BN: semi_mi5 |
+| Real (sample) | MetaSyn (synthetic) | pybnesian: clg_mi2 | pybnesian: semi_mi5 |
 | --- | --- | --- | --- |
-| <img src='umap_real.png' width='280'/> | <img src='umap_metasyn.png' width='280'/> | <img src='umap_bn_clg_mi2.png' width='280'/> | <img src='umap_bn_semi_mi5.png' width='280'/> |
+| <img src='umap_real.png' width='280'/> | <img src='umap_metasyn.png' width='280'/> | <img src='umap.png' width='280'/> | <img src='umap.png' width='280'/> |
 

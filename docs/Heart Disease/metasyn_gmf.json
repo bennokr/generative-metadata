@@ -6,7 +6,7 @@
             "name": "metasyn",
             "version": "1.1.0"
         },
-        "creation time": "2025-09-16T15:51:53.419493"
+        "creation time": "2025-09-19T12:15:48.797605"
     },
     "vars": [
         {
@@ -32,7 +32,7 @@
         {
             "name": "sex",
             "type": "categorical",
-            "dtype": "Categorical(ordering='physical')",
+            "dtype": "Categorical",
             "prop_missing": 0.0,
             "distribution": {
                 "implements": "core.multinoulli",
@@ -58,7 +58,7 @@
         {
             "name": "cp",
             "type": "categorical",
-            "dtype": "Categorical(ordering='physical')",
+            "dtype": "Categorical",
             "prop_missing": 0.0,
             "distribution": {
                 "implements": "core.multinoulli",
@@ -128,7 +128,7 @@
         {
             "name": "fbs",
             "type": "categorical",
-            "dtype": "Categorical(ordering='physical')",
+            "dtype": "Categorical",
             "prop_missing": 0.0,
             "distribution": {
                 "implements": "core.multinoulli",
@@ -154,7 +154,7 @@
         {
             "name": "restecg",
             "type": "categorical",
-            "dtype": "Categorical(ordering='physical')",
+            "dtype": "Categorical",
             "prop_missing": 0.0,
             "distribution": {
                 "implements": "core.multinoulli",
@@ -202,7 +202,7 @@
         {
             "name": "exang",
             "type": "categorical",
-            "dtype": "Categorical(ordering='physical')",
+            "dtype": "Categorical",
             "prop_missing": 0.0,
             "distribution": {
                 "implements": "core.multinoulli",
@@ -239,8 +239,8 @@
                 "parameters": {
                     "lower": -1e-08,
                     "upper": 5.60000001,
-                    "mean": -262.8497451053882,
-                    "sd": 16.819249627051367
+                    "mean": -254.71821593315843,
+                    "sd": 16.586197844598104
                 }
             },
             "creation_method": {
@@ -250,7 +250,7 @@
         {
             "name": "slope",
             "type": "categorical",
-            "dtype": "Categorical(ordering='physical')",
+            "dtype": "Categorical",
             "prop_missing": 0.0,
             "distribution": {
                 "implements": "core.multinoulli",
@@ -289,8 +289,8 @@
                 "parameters": {
                     "lower": -1e-08,
                     "upper": 3.00000001,
-                    "mean": -271.4327469897052,
-                    "sd": 14.192643809958302
+                    "mean": -280.68157656605484,
+                    "sd": 14.404281658073469
                 }
             },
             "creation_method": {
@@ -320,7 +320,7 @@
         {
             "name": "num",
             "type": "categorical",
-            "dtype": "Categorical(ordering='physical')",
+            "dtype": "Categorical",
             "prop_missing": 0.0,
             "distribution": {
                 "implements": "core.multinoulli",

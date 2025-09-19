@@ -1,0 +1,19 @@
+{
+  "backend": "pybnesian",
+  "name": "clg_mi2",
+  "provider": "uciml",
+  "dataset_name": "Chronic Kidney Disease",
+  "provider_id": 336,
+  "type": "clg",
+  "params": {
+    "type": "clg",
+    "score": "bic",
+    "operators": [
+      "arcs"
+    ],
+    "max_indegree": 2
+  },
+  "seed": 42,
+  "rows": 126,
+  "test_size": 0.2
+}

@@ -5,20 +5,6 @@
   "identifier": 336,
   "url": "https://archive.ics.uci.edu/dataset/336",
   "description": "Clinical records for early detection of CKD (subset of variables mapped).",
-  "creator": [
-    {
-      "@type": "Person",
-      "name": "L. Rubini"
-    },
-    {
-      "@type": "Person",
-      "name": "P. Soundarapandian"
-    },
-    {
-      "@type": "Person",
-      "name": "P. Eswaran"
-    }
-  ],
   "variableMeasured": [
     {
       "@type": "PropertyValue",
@@ -30,117 +16,91 @@
       "@type": "PropertyValue",
       "name": "bp",
       "measurementTechnique": "continuous",
-      "description": "Diastolic blood pressure",
-      "alternateName": "Diastolic blood pressure",
-      "unitText": "mmHg",
-      "unitCode": "unit:MilliM_HG"
+      "description": "blood pressure"
     },
     {
       "@type": "PropertyValue",
       "name": "sg",
       "measurementTechnique": "continuous",
-      "description": "Urine specific gravity",
-      "alternateName": "Urine specific gravity"
+      "description": "specific gravity"
     },
     {
       "@type": "PropertyValue",
       "name": "al",
-      "measurementTechnique": "categorical",
-      "description": "Urine albumin (dipstick)",
-      "alternateName": "Urine albumin (dipstick)"
+      "measurementTechnique": "continuous",
+      "description": "albumin"
     },
     {
       "@type": "PropertyValue",
       "name": "su",
-      "measurementTechnique": "categorical",
-      "description": "Urine glucose (dipstick)",
-      "alternateName": "Urine glucose (dipstick)"
+      "measurementTechnique": "continuous",
+      "description": "sugar"
     },
     {
       "@type": "PropertyValue",
       "name": "rbc",
-      "measurementTechnique": "categorical",
-      "description": "RBCs in urine (presence)",
-      "alternateName": "RBCs in urine (presence)"
+      "measurementTechnique": "discrete",
+      "description": "red blood cells"
     },
     {
       "@type": "PropertyValue",
       "name": "pc",
-      "measurementTechnique": "categorical",
-      "description": "Urine leukocytes (presence)",
-      "alternateName": "Urine leukocytes (presence)"
+      "measurementTechnique": "discrete",
+      "description": "pus cell"
     },
     {
       "@type": "PropertyValue",
       "name": "pcc",
-      "measurementTechnique": "categorical",
-      "description": "Pus cell clumps (urine)",
-      "alternateName": "Pus cell clumps (urine)"
+      "measurementTechnique": "discrete",
+      "description": "pus cell clumps"
     },
     {
       "@type": "PropertyValue",
       "name": "ba",
-      "measurementTechnique": "categorical",
-      "description": "Bacteria in urine (presence)",
-      "alternateName": "Bacteria in urine (presence)"
+      "measurementTechnique": "discrete",
+      "description": "bacteria"
     },
     {
       "@type": "PropertyValue",
       "name": "bgr",
       "measurementTechnique": "continuous",
-      "description": "Blood glucose (random)",
-      "alternateName": "Blood glucose (random)",
-      "unitText": "mg/dL",
-      "unitCode": "unit:MilliGM-PER-DeciL"
+      "description": "blood glucose random"
     },
     {
       "@type": "PropertyValue",
       "name": "bu",
       "measurementTechnique": "continuous",
-      "description": "Blood urea",
-      "alternateName": "Blood urea",
-      "unitText": "mg/dL",
-      "unitCode": "unit:MilliGM-PER-DeciL"
+      "description": "blood urea"
     },
     {
       "@type": "PropertyValue",
       "name": "sc",
       "measurementTechnique": "continuous",
-      "description": "Serum creatinine",
-      "alternateName": "Serum creatinine",
-      "unitText": "mg/dL"
+      "description": "serum creatinine"
     },
     {
       "@type": "PropertyValue",
       "name": "sod",
       "measurementTechnique": "continuous",
-      "description": "Serum sodium",
-      "alternateName": "Serum sodium",
-      "unitText": "mmol/L"
+      "description": "sodium"
     },
     {
       "@type": "PropertyValue",
       "name": "pot",
       "measurementTechnique": "continuous",
-      "description": "Serum potassium",
-      "alternateName": "Serum potassium",
-      "unitText": "mmol/L"
+      "description": "potassium"
     },
     {
       "@type": "PropertyValue",
       "name": "hemo",
       "measurementTechnique": "continuous",
-      "description": "Hemoglobin",
-      "alternateName": "Hemoglobin",
-      "unitText": "g/dL"
+      "description": "hemoglobin"
     },
     {
       "@type": "PropertyValue",
       "name": "pcv",
       "measurementTechnique": "continuous",
-      "description": "Packed cell volume (hematocrit)",
-      "alternateName": "Packed cell volume (hematocrit)",
-      "unitText": "%"
+      "description": "packed cell volume"
     },
     {
       "@type": "PropertyValue",
@@ -152,8 +112,7 @@
       "@type": "PropertyValue",
       "name": "rbcc",
       "measurementTechnique": "continuous",
-      "description": "RBC count (blood)",
-      "alternateName": "RBC count (blood)"
+      "description": "red blood cell count"
     },
     {
       "@type": "PropertyValue",
@@ -194,9 +153,8 @@
     {
       "@type": "PropertyValue",
       "name": "class",
-      "measurementTechnique": "categorical",
-      "description": "Outcome label (CKD)",
-      "alternateName": "Outcome label (CKD)"
+      "measurementTechnique": "discrete",
+      "description": "ckd or not ckd"
     }
   ]
 }

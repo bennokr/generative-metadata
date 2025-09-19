@@ -1,0 +1,19 @@
+{
+  "backend": "pybnesian",
+  "name": "semi_mi5",
+  "provider": "uciml",
+  "dataset_name": "Heart Disease",
+  "provider_id": 45,
+  "type": "semiparametric",
+  "params": {
+    "type": "semiparametric",
+    "score": "bic",
+    "operators": [
+      "arcs"
+    ],
+    "max_indegree": 5
+  },
+  "seed": 42,
+  "rows": 237,
+  "test_size": 0.2
+}

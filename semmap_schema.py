@@ -4,7 +4,7 @@ from typing import List, Optional, Union
 
 
 # --- SKOS mapping mixin -------------------------------------------------------
-@dataclass
+@dataclass(kw_only=True)
 class SkosMappings:
     exactMatch: Optional[List[str]] = None
     closeMatch: Optional[List[str]] = None

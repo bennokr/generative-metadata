@@ -157,8 +157,67 @@ def write_report_md(
                 for label, u in urls:
                     f.write(f"  - {label}: {u}\n")
 
-        # Merge variables and baseline summary into one table
-        baseline_out = baseline_df.round(4).reset_index().rename(columns={baseline_df.index.name or 'index': 'variable'})
+        # Build compact per-variable summary with a single 'dist' column
+        def _format_dist(col: pd.Series, *, top_n: int = 10) -> str:
+            s = col.dropna()
+            if col.name in cont_cols:
+                try:
+                    x = pd.to_numeric(s, errors="coerce")
+                    mean = float(x.mean())
+                    std = float(x.std())
+                    q25 = float(x.quantile(0.25))
+                    q50 = float(x.quantile(0.50))
+                    q75 = float(x.quantile(0.75))
+                    minv = float(x.min())
+                    maxv = float(x.max())
+                    def fmt(v: float) -> str:
+                        txt = f"{v:.4f}".rstrip('0').rstrip('.')
+                        return txt if txt else "0"
+                    quantiles = ", ".join([fmt(minv), fmt(q25), fmt(q50), fmt(q75), fmt(maxv)])
+                    return f"{mean:.4f} ± {std:.4f} [{quantiles}]"
+                except Exception:
+                    return ""
+            # Discrete
+            try:
+                vc = s.astype(str).value_counts(dropna=True)
+                total = float(vc.sum()) if vc.sum() else 1.0
+            except Exception:
+                return ""
+            if len(vc) == 2:
+                labels = list(vc.index)
+                def is_true_label(v: str) -> bool:
+                    t = str(v).strip().lower()
+                    return t in {"true", "1", "yes", "y", "t"}
+                pos_label = None
+                for lab in labels:
+                    if is_true_label(lab):
+                        pos_label = lab
+                        break
+                if pos_label is None:
+                    try:
+                        nums = [float(x) for x in labels]
+                        pos_label = labels[int(nums.index(max(nums)))]
+                    except Exception:
+                        pos_label = labels[0]
+                n_true = int(vc.get(pos_label, 0))
+                pct = 100.0 * (n_true / total)
+                return f"{n_true} ({pct:.2f}%)"
+            parts = []
+            shown = 0
+            for lab, cnt in vc.items():
+                pct = 100.0 * (cnt / total)
+                if shown < top_n:
+                    parts.append(f"{lab}: {int(cnt)} ({pct:.2f}%)")
+                shown += 1
+            if shown > top_n:
+                parts.append(f"… (+{shown - top_n} more)")
+            return "\n".join(parts)
+
+        var_rows = []
+        for c in df.columns:
+            typ = "continuous" if c in cont_cols else "discrete"
+            var_rows.append({"variable": c, "type": typ, "dist": _format_dist(df[c])})
+        baseline_out = pd.DataFrame(var_rows)
         baseline_out = baseline_out.fillna("")
         # Build declared, inferred, and description tables (if provided)
         declared_df = None
@@ -192,29 +251,38 @@ def write_report_md(
         f.write(df_to_markdown(merged, index=False) + "\n\n")
 
         if model_runs:
+            # Unified fidelity summary combining all runs and optional MetaSyn
+            f.write("## Fidelity summary\n\n")
+            rows = []
+            for run in model_runs:
+                summary = run.metrics.get("summary", {}) if isinstance(run.metrics, dict) else {}
+                rows.append({
+                    "model": run.name,
+                    "backend": run.backend,
+                    "disc_jsd_mean": summary.get("disc_jsd_mean"),
+                    "disc_jsd_median": summary.get("disc_jsd_median"),
+                    "cont_ks_mean": summary.get("cont_ks_mean"),
+                    "cont_w1_mean": summary.get("cont_w1_mean"),
+                })
+            # Add MetaSyn row if available
+            if isinstance(dist_table_meta, pd.DataFrame) and not dist_table_meta.empty:
+                d_disc = dist_table_meta[dist_table_meta['type'] == 'discrete'] if 'type' in dist_table_meta.columns else pd.DataFrame()
+                d_cont = dist_table_meta[dist_table_meta['type'] == 'continuous'] if 'type' in dist_table_meta.columns else pd.DataFrame()
+                rows.append({
+                    "model": "MetaSyn",
+                    "backend": "metasyn",
+                    "disc_jsd_mean": float(d_disc['JSD'].mean()) if ('JSD' in d_disc.columns and len(d_disc)) else None,
+                    "disc_jsd_median": float(d_disc['JSD'].median()) if ('JSD' in d_disc.columns and len(d_disc)) else None,
+                    "cont_ks_mean": float(d_cont['KS'].mean()) if ('KS' in d_cont.columns and len(d_cont)) else None,
+                    "cont_w1_mean": float(d_cont['W1'].mean()) if ('W1' in d_cont.columns and len(d_cont)) else None,
+                })
+            if rows:
+                out = pd.DataFrame(rows)
+                f.write(df_to_markdown(out.round(4).fillna(""), index=False) + "\n\n")
+            # Model details (links, params)
             f.write("## Models\n\n")
-            summary_rows = []
             for run in model_runs:
                 manifest = run.manifest or {}
-                summary = run.metrics.get("summary", {}) if isinstance(run.metrics, dict) else {}
-                summary_rows.append(
-                    {
-                        "name": run.name,
-                        "backend": run.backend,
-                        "rows": manifest.get("rows"),
-                        "seed": manifest.get("seed"),
-                        "disc_jsd_mean": summary.get("disc_jsd_mean"),
-                        "disc_jsd_median": summary.get("disc_jsd_median"),
-                        "cont_ks_mean": summary.get("cont_ks_mean"),
-                        "cont_w1_mean": summary.get("cont_w1_mean"),
-                    }
-                )
-            if summary_rows:
-                synth_summary_df = pd.DataFrame(summary_rows)
-                f.write(df_to_markdown(synth_summary_df, index=False) + "\n\n")
-            for run in model_runs:
-                manifest = run.manifest or {}
-                summary = run.metrics.get("summary", {}) if isinstance(run.metrics, dict) else {}
                 f.write(f"### Model: {run.name} ({run.backend})\n\n")
                 f.write(f"- Seed: {manifest.get('seed')}\n")
                 if manifest.get("rows") is not None:
@@ -222,20 +290,6 @@ def write_report_md(
                 params = manifest.get("params") or {}
                 if params:
                     f.write("- Params: `" + json.dumps(params, sort_keys=True) + "`\n")
-                if summary:
-                    stats = []
-                    for key in ("disc_jsd_mean", "disc_jsd_median", "cont_ks_mean", "cont_w1_mean"):
-                        val = summary.get(key)
-                        if val is None:
-                            continue
-                        try:
-                            val_f = float(val)
-                        except (TypeError, ValueError):
-                            continue
-                        if not (val_f != val_f):
-                            stats.append(f"{key}={val_f:.4f}")
-                    if stats:
-                        f.write("- Metrics: " + ", ".join(stats) + "\n")
                 def _write_link(label: str, target: Optional[Path]) -> None:
                     if target is None:
                         return
@@ -262,12 +316,7 @@ def write_report_md(
                 f.write(f"- Synthetic sample (SemMap Parquet): [{pname}]({pname})\n")
             f.write("\n")
         
-        if not fidelity_table.empty:
-            f.write("## Fidelity (MetaSyn)\n\n")
-            # Add BN held-out likelihood as text for clarity as well
-            # If available, include BN likelihoods in the table below; drop separate line
-            if not fidelity_table.empty:
-                f.write(df_to_markdown(fidelity_table.round(4).fillna(""), index=False) + "\n\n")
+        # Standalone fidelity table removed (merged into unified summary)
 
         # Per-variable distances table omitted in unified model view
         
@@ -280,7 +329,7 @@ def write_report_md(
                 if run.umap_png and run.umap_png.exists():
                     extra_headers.append(f"{run.backend}: {run.name}")
                     rel_png = os.path.relpath(run.umap_png, start=md_path.parent)
-                    extra_imgs.append(str(rel_png))
+                    extra_imgs.append(rel_png)
         headers = ["Real (sample)"] + (["MetaSyn (synthetic)"] if umap_png_meta else []) + extra_headers
         tbl = "| " + " | ".join(headers) + " |\n"
         tbl += "| " + " | ".join(["---"] * len(headers)) + " |\n"
@@ -289,7 +338,7 @@ def write_report_md(
         ]
         if umap_png_meta:
             imgs.append(f"<img src='{Path(umap_png_meta).name}' width='280'/>")
-        imgs.extend([f"<img src='{Path(p).name}' width='280'/>" for p in extra_imgs])
+        imgs.extend([f"<img src='{p}' width='280'/>" for p in extra_imgs])
         tbl += "| " + " | ".join(imgs) + " |\n\n"
         f.write(tbl)
     logging.info(f"Wrote report: {md_path}")

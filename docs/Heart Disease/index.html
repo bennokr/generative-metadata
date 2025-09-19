@@ -60,17 +60,8 @@ table.per-var-dist thead th { text-align: center; }
     <th style="text-align: left;">description</th>
     <th style="text-align: left;">inferred</th>
     <th style="text-align: left;">declared</th>
-    <th style="text-align: right;">count</th>
-    <th style="text-align: left;">unique</th>
-    <th style="text-align: left;">top</th>
-    <th style="text-align: left;">freq</th>
-    <th style="text-align: left;">mean</th>
-    <th style="text-align: left;">std</th>
-    <th style="text-align: left;">min</th>
-    <th style="text-align: left;">25%</th>
-    <th style="text-align: left;">50%</th>
-    <th style="text-align: left;">75%</th>
-    <th style="text-align: left;">max</th>
+    <th style="text-align: left;">type</th>
+    <th style="text-align: left;">dist</th>
     </tr>
     </thead>
     <tbody>
@@ -79,249 +70,209 @@ table.per-var-dist thead th { text-align: center; }
     <td style="text-align: left;"></td>
     <td style="text-align: left;">continuous</td>
     <td style="text-align: left;">Integer</td>
-    <td style="text-align: right;">303</td>
-    <td style="text-align: left;"></td>
-    <td style="text-align: left;"></td>
-    <td style="text-align: left;"></td>
-    <td style="text-align: left;">54.43894389438944</td>
-    <td style="text-align: left;">9.038662442446746</td>
-    <td style="text-align: left;">29.0</td>
-    <td style="text-align: left;">48.0</td>
-    <td style="text-align: left;">56.0</td>
-    <td style="text-align: left;">61.0</td>
-    <td style="text-align: left;">77.0</td>
+    <td style="text-align: left;">continuous</td>
+    <td style="text-align: left;">54.5421 ± 9.0497 [29, 48, 56, 61, 77]</td>
     </tr>
     <tr>
     <td style="text-align: left;">sex</td>
     <td style="text-align: left;"></td>
     <td style="text-align: left;">discrete</td>
     <td style="text-align: left;">Categorical</td>
-    <td style="text-align: right;">303</td>
-    <td style="text-align: left;">2</td>
-    <td style="text-align: left;">1</td>
-    <td style="text-align: left;">206</td>
-    <td style="text-align: left;"></td>
-    <td style="text-align: left;"></td>
-    <td style="text-align: left;"></td>
-    <td style="text-align: left;"></td>
-    <td style="text-align: left;"></td>
-    <td style="text-align: left;"></td>
-    <td style="text-align: left;"></td>
+    <td style="text-align: left;">discrete</td>
+    <td style="text-align: left;">201 (67.68%)</td>
     </tr>
     <tr>
     <td style="text-align: left;">cp</td>
     <td style="text-align: left;"></td>
     <td style="text-align: left;">discrete</td>
     <td style="text-align: left;">Categorical</td>
-    <td style="text-align: right;">303</td>
-    <td style="text-align: left;">4</td>
-    <td style="text-align: left;">4</td>
-    <td style="text-align: left;">144</td>
+    <td style="text-align: left;">discrete</td>
+    <td style="text-align: left;">4: 142 (47.81%)</td>
+    </tr>
+    <tr>
     <td style="text-align: left;"></td>
     <td style="text-align: left;"></td>
     <td style="text-align: left;"></td>
     <td style="text-align: left;"></td>
     <td style="text-align: left;"></td>
+    <td style="text-align: left;">3: 83 (27.95%)</td>
+    </tr>
+    <tr>
     <td style="text-align: left;"></td>
     <td style="text-align: left;"></td>
+    <td style="text-align: left;"></td>
+    <td style="text-align: left;"></td>
+    <td style="text-align: left;"></td>
+    <td style="text-align: left;">2: 49 (16.50%)</td>
+    </tr>
+    <tr>
+    <td style="text-align: left;"></td>
+    <td style="text-align: left;"></td>
+    <td style="text-align: left;"></td>
+    <td style="text-align: left;"></td>
+    <td style="text-align: left;"></td>
+    <td style="text-align: left;">1: 23 (7.74%)</td>
     </tr>
     <tr>
     <td style="text-align: left;">trestbps</td>
     <td style="text-align: left;">resting blood pressure (on admission to the hospital)</td>
     <td style="text-align: left;">continuous</td>
     <td style="text-align: left;">Integer</td>
-    <td style="text-align: right;">303</td>
-    <td style="text-align: left;"></td>
-    <td style="text-align: left;"></td>
-    <td style="text-align: left;"></td>
-    <td style="text-align: left;">131.68976897689768</td>
-    <td style="text-align: left;">17.59974772958769</td>
-    <td style="text-align: left;">94.0</td>
-    <td style="text-align: left;">120.0</td>
-    <td style="text-align: left;">130.0</td>
-    <td style="text-align: left;">140.0</td>
-    <td style="text-align: left;">200.0</td>
+    <td style="text-align: left;">continuous</td>
+    <td style="text-align: left;">131.6936 ± 17.7628 [94, 120, 130, 140, 200]</td>
     </tr>
     <tr>
     <td style="text-align: left;">chol</td>
     <td style="text-align: left;">serum cholestoral</td>
     <td style="text-align: left;">continuous</td>
     <td style="text-align: left;">Integer</td>
-    <td style="text-align: right;">303</td>
-    <td style="text-align: left;"></td>
-    <td style="text-align: left;"></td>
-    <td style="text-align: left;"></td>
-    <td style="text-align: left;">246.69306930693068</td>
-    <td style="text-align: left;">51.77691754263704</td>
-    <td style="text-align: left;">126.0</td>
-    <td style="text-align: left;">211.0</td>
-    <td style="text-align: left;">241.0</td>
-    <td style="text-align: left;">275.0</td>
-    <td style="text-align: left;">564.0</td>
+    <td style="text-align: left;">continuous</td>
+    <td style="text-align: left;">247.3502 ± 51.9976 [126, 211, 243, 276, 564]</td>
     </tr>
     <tr>
     <td style="text-align: left;">fbs</td>
     <td style="text-align: left;">fasting blood sugar &gt; 120 mg/dl</td>
     <td style="text-align: left;">discrete</td>
     <td style="text-align: left;">Categorical</td>
-    <td style="text-align: right;">303</td>
-    <td style="text-align: left;">2</td>
-    <td style="text-align: left;">0</td>
-    <td style="text-align: left;">258</td>
-    <td style="text-align: left;"></td>
-    <td style="text-align: left;"></td>
-    <td style="text-align: left;"></td>
-    <td style="text-align: left;"></td>
-    <td style="text-align: left;"></td>
-    <td style="text-align: left;"></td>
-    <td style="text-align: left;"></td>
+    <td style="text-align: left;">discrete</td>
+    <td style="text-align: left;">43 (14.48%)</td>
     </tr>
     <tr>
     <td style="text-align: left;">restecg</td>
     <td style="text-align: left;"></td>
     <td style="text-align: left;">discrete</td>
     <td style="text-align: left;">Categorical</td>
-    <td style="text-align: right;">303</td>
-    <td style="text-align: left;">3</td>
-    <td style="text-align: left;">0</td>
-    <td style="text-align: left;">151</td>
+    <td style="text-align: left;">discrete</td>
+    <td style="text-align: left;">0: 147 (49.49%)</td>
+    </tr>
+    <tr>
     <td style="text-align: left;"></td>
     <td style="text-align: left;"></td>
     <td style="text-align: left;"></td>
     <td style="text-align: left;"></td>
     <td style="text-align: left;"></td>
+    <td style="text-align: left;">2: 146 (49.16%)</td>
+    </tr>
+    <tr>
     <td style="text-align: left;"></td>
     <td style="text-align: left;"></td>
+    <td style="text-align: left;"></td>
+    <td style="text-align: left;"></td>
+    <td style="text-align: left;"></td>
+    <td style="text-align: left;">1: 4 (1.35%)</td>
     </tr>
     <tr>
     <td style="text-align: left;">thalach</td>
     <td style="text-align: left;">maximum heart rate achieved</td>
     <td style="text-align: left;">continuous</td>
     <td style="text-align: left;">Integer</td>
-    <td style="text-align: right;">303</td>
-    <td style="text-align: left;"></td>
-    <td style="text-align: left;"></td>
-    <td style="text-align: left;"></td>
-    <td style="text-align: left;">149.6072607260726</td>
-    <td style="text-align: left;">22.875003276980376</td>
-    <td style="text-align: left;">71.0</td>
-    <td style="text-align: left;">133.5</td>
-    <td style="text-align: left;">153.0</td>
-    <td style="text-align: left;">166.0</td>
-    <td style="text-align: left;">202.0</td>
+    <td style="text-align: left;">continuous</td>
+    <td style="text-align: left;">149.5993 ± 22.9416 [71, 133, 153, 166, 202]</td>
     </tr>
     <tr>
     <td style="text-align: left;">exang</td>
     <td style="text-align: left;">exercise induced angina</td>
     <td style="text-align: left;">discrete</td>
     <td style="text-align: left;">Categorical</td>
-    <td style="text-align: right;">303</td>
-    <td style="text-align: left;">2</td>
-    <td style="text-align: left;">0</td>
-    <td style="text-align: left;">204</td>
-    <td style="text-align: left;"></td>
-    <td style="text-align: left;"></td>
-    <td style="text-align: left;"></td>
-    <td style="text-align: left;"></td>
-    <td style="text-align: left;"></td>
-    <td style="text-align: left;"></td>
-    <td style="text-align: left;"></td>
+    <td style="text-align: left;">discrete</td>
+    <td style="text-align: left;">97 (32.66%)</td>
     </tr>
     <tr>
     <td style="text-align: left;">oldpeak</td>
     <td style="text-align: left;">ST depression induced by exercise relative to rest</td>
     <td style="text-align: left;">continuous</td>
     <td style="text-align: left;">Integer</td>
-    <td style="text-align: right;">303</td>
-    <td style="text-align: left;"></td>
-    <td style="text-align: left;"></td>
-    <td style="text-align: left;"></td>
-    <td style="text-align: left;">1.0396039603960396</td>
-    <td style="text-align: left;">1.1610750220686348</td>
-    <td style="text-align: left;">0.0</td>
-    <td style="text-align: left;">0.0</td>
-    <td style="text-align: left;">0.8</td>
-    <td style="text-align: left;">1.6</td>
-    <td style="text-align: left;">6.2</td>
+    <td style="text-align: left;">continuous</td>
+    <td style="text-align: left;">1.0556 ± 1.1661 [0, 0, 0.8, 1.6, 6.2]</td>
     </tr>
     <tr>
     <td style="text-align: left;">slope</td>
     <td style="text-align: left;"></td>
     <td style="text-align: left;">discrete</td>
     <td style="text-align: left;">Categorical</td>
-    <td style="text-align: right;">303</td>
-    <td style="text-align: left;">3</td>
-    <td style="text-align: left;">1</td>
-    <td style="text-align: left;">142</td>
+    <td style="text-align: left;">discrete</td>
+    <td style="text-align: left;">1: 139 (46.80%)</td>
+    </tr>
+    <tr>
     <td style="text-align: left;"></td>
     <td style="text-align: left;"></td>
     <td style="text-align: left;"></td>
     <td style="text-align: left;"></td>
     <td style="text-align: left;"></td>
+    <td style="text-align: left;">2: 137 (46.13%)</td>
+    </tr>
+    <tr>
     <td style="text-align: left;"></td>
     <td style="text-align: left;"></td>
+    <td style="text-align: left;"></td>
+    <td style="text-align: left;"></td>
+    <td style="text-align: left;"></td>
+    <td style="text-align: left;">3: 21 (7.07%)</td>
     </tr>
     <tr>
     <td style="text-align: left;">ca</td>
     <td style="text-align: left;">number of major vessels (0-3) colored by flourosopy</td>
     <td style="text-align: left;">continuous</td>
     <td style="text-align: left;">Integer</td>
-    <td style="text-align: right;">299</td>
-    <td style="text-align: left;"></td>
-    <td style="text-align: left;"></td>
-    <td style="text-align: left;"></td>
-    <td style="text-align: left;">0.6722408026755853</td>
-    <td style="text-align: left;">0.9374383177242163</td>
-    <td style="text-align: left;">0.0</td>
-    <td style="text-align: left;">0.0</td>
-    <td style="text-align: left;">0.0</td>
-    <td style="text-align: left;">1.0</td>
-    <td style="text-align: left;">3.0</td>
+    <td style="text-align: left;">continuous</td>
+    <td style="text-align: left;">0.6768 ± 0.9390 [0, 0, 0, 1, 3]</td>
     </tr>
     <tr>
     <td style="text-align: left;">thal</td>
     <td style="text-align: left;"></td>
     <td style="text-align: left;">continuous</td>
     <td style="text-align: left;">Categorical</td>
-    <td style="text-align: right;">301</td>
-    <td style="text-align: left;"></td>
-    <td style="text-align: left;"></td>
-    <td style="text-align: left;"></td>
-    <td style="text-align: left;">4.73421926910299</td>
-    <td style="text-align: left;">1.939705769378644</td>
-    <td style="text-align: left;">3.0</td>
-    <td style="text-align: left;">3.0</td>
-    <td style="text-align: left;">3.0</td>
-    <td style="text-align: left;">7.0</td>
-    <td style="text-align: left;">7.0</td>
+    <td style="text-align: left;">continuous</td>
+    <td style="text-align: left;">4.7306 ± 1.9386 [3, 3, 3, 7, 7]</td>
     </tr>
     <tr>
     <td style="text-align: left;">num</td>
     <td style="text-align: left;">diagnosis of heart disease</td>
     <td style="text-align: left;">discrete</td>
     <td style="text-align: left;">Integer</td>
-    <td style="text-align: right;">303</td>
-    <td style="text-align: left;">5</td>
-    <td style="text-align: left;">0</td>
-    <td style="text-align: left;">164</td>
+    <td style="text-align: left;">discrete</td>
+    <td style="text-align: left;">0: 160 (53.87%)</td>
+    </tr>
+    <tr>
     <td style="text-align: left;"></td>
     <td style="text-align: left;"></td>
     <td style="text-align: left;"></td>
     <td style="text-align: left;"></td>
     <td style="text-align: left;"></td>
+    <td style="text-align: left;">1: 54 (18.18%)</td>
+    </tr>
+    <tr>
     <td style="text-align: left;"></td>
     <td style="text-align: left;"></td>
+    <td style="text-align: left;"></td>
+    <td style="text-align: left;"></td>
+    <td style="text-align: left;"></td>
+    <td style="text-align: left;">2: 35 (11.78%)</td>
+    </tr>
+    <tr>
+    <td style="text-align: left;"></td>
+    <td style="text-align: left;"></td>
+    <td style="text-align: left;"></td>
+    <td style="text-align: left;"></td>
+    <td style="text-align: left;"></td>
+    <td style="text-align: left;">3: 35 (11.78%)</td>
+    </tr>
+    <tr>
+    <td style="text-align: left;"></td>
+    <td style="text-align: left;"></td>
+    <td style="text-align: left;"></td>
+    <td style="text-align: left;"></td>
+    <td style="text-align: left;"></td>
+    <td style="text-align: left;">4: 13 (4.38%)</td>
     </tr>
     </tbody>
     </table>
-    <h2>Models</h2>
+    <h2>Fidelity summary</h2>
     <table>
     <thead>
     <tr>
-    <th style="text-align: left;">name</th>
+    <th style="text-align: left;">model</th>
     <th style="text-align: left;">backend</th>
-    <th style="text-align: right;">rows</th>
-    <th style="text-align: right;">seed</th>
     <th style="text-align: right;">disc_jsd_mean</th>
     <th style="text-align: right;">disc_jsd_median</th>
     <th style="text-align: right;">cont_ks_mean</th>
@@ -332,31 +283,35 @@ table.per-var-dist thead th { text-align: center; }
     <tr>
     <td style="text-align: left;">clg_mi2</td>
     <td style="text-align: left;">pybnesian</td>
-    <td style="text-align: right;">237</td>
-    <td style="text-align: right;">42</td>
-    <td style="text-align: right;">0.100273</td>
-    <td style="text-align: right;">0.0995307</td>
-    <td style="text-align: right;">0.234388</td>
-    <td style="text-align: right;">4.41091</td>
+    <td style="text-align: right;">0.1003</td>
+    <td style="text-align: right;">0.0995</td>
+    <td style="text-align: right;">0.2344</td>
+    <td style="text-align: right;">4.4109</td>
     </tr>
     <tr>
     <td style="text-align: left;">semi_mi5</td>
     <td style="text-align: left;">pybnesian</td>
-    <td style="text-align: right;">237</td>
-    <td style="text-align: right;">42</td>
-    <td style="text-align: right;">0.100273</td>
-    <td style="text-align: right;">0.0995307</td>
-    <td style="text-align: right;">0.234388</td>
-    <td style="text-align: right;">4.41091</td>
+    <td style="text-align: right;">0.1003</td>
+    <td style="text-align: right;">0.0995</td>
+    <td style="text-align: right;">0.2344</td>
+    <td style="text-align: right;">4.4109</td>
+    </tr>
+    <tr>
+    <td style="text-align: left;">MetaSyn</td>
+    <td style="text-align: left;">metasyn</td>
+    <td style="text-align: right;">0.1057</td>
+    <td style="text-align: right;">0.1057</td>
+    <td style="text-align: right;">0.2923</td>
+    <td style="text-align: right;">3.0578</td>
     </tr>
     </tbody>
     </table>
+    <h2>Models</h2>
     <h3>Model: clg_mi2 (pybnesian)</h3>
     <ul>
     <li>Seed: 42</li>
     <li>Rows: 237</li>
     <li>Params: <code>{"max_indegree": 2, "operators": ["arcs"], "score": "bic", "type": "clg"}</code></li>
-    <li>Metrics: disc_jsd_mean=0.1003, disc_jsd_median=0.0995, cont_ks_mean=0.2344, cont_w1_mean=4.4109</li>
     <li>Synthetic CSV: <a href="models/clg_mi2/synthetic.csv">models/clg_mi2/synthetic.csv</a></li>
     <li>Per-variable metrics: <a href="models/clg_mi2/per_variable_metrics.csv">models/clg_mi2/per_variable_metrics.csv</a></li>
     <li>Metrics JSON: <a href="models/clg_mi2/metrics.json">models/clg_mi2/metrics.json</a></li>
@@ -367,7 +322,6 @@ table.per-var-dist thead th { text-align: center; }
     <li>Seed: 42</li>
     <li>Rows: 237</li>
     <li>Params: <code>{"max_indegree": 5, "operators": ["arcs"], "score": "bic", "type": "semiparametric"}</code></li>
-    <li>Metrics: disc_jsd_mean=0.1003, disc_jsd_median=0.0995, cont_ks_mean=0.2344, cont_w1_mean=4.4109</li>
     <li>Synthetic CSV: <a href="models/semi_mi5/synthetic.csv">models/semi_mi5/synthetic.csv</a></li>
     <li>Per-variable metrics: <a href="models/semi_mi5/per_variable_metrics.csv">models/semi_mi5/per_variable_metrics.csv</a></li>
     <li>Metrics JSON: <a href="models/semi_mi5/metrics.json">models/semi_mi5/metrics.json</a></li>
@@ -378,27 +332,6 @@ table.per-var-dist thead th { text-align: center; }
     <ul>
     <li>Synthetic sample (SemMap Parquet): <a href="synthetic_metasyn.semmap.parquet">synthetic_metasyn.semmap.parquet</a></li>
     </ul>
-    <h2>Fidelity (MetaSyn)</h2>
-    <table>
-    <thead>
-    <tr>
-    <th style="text-align: left;">model</th>
-    <th style="text-align: right;">disc_jsd_mean</th>
-    <th style="text-align: right;">disc_jsd_median</th>
-    <th style="text-align: right;">cont_ks_mean</th>
-    <th style="text-align: right;">cont_w1_mean</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr>
-    <td style="text-align: left;">MetaSyn</td>
-    <td style="text-align: right;">0.1053</td>
-    <td style="text-align: right;">0.1034</td>
-    <td style="text-align: right;">0.2903</td>
-    <td style="text-align: right;">2.5822</td>
-    </tr>
-    </tbody>
-    </table>
     <h2>UMAP overview (same projection)</h2>
     <table>
     <thead>
@@ -413,8 +346,8 @@ table.per-var-dist thead th { text-align: center; }
     <tr>
     <td><img src='umap_real.png' width='280'/></td>
     <td><img src='umap_metasyn.png' width='280'/></td>
-    <td><img src='umap.png' width='280'/></td>
-    <td><img src='umap.png' width='280'/></td>
+    <td><img src='models/clg_mi2/umap.png' width='280'/></td>
+    <td><img src='models/semi_mi5/umap.png' width='280'/></td>
     </tr>
     </tbody>
     </table>

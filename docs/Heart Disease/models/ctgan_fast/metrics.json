@@ -4,7 +4,7 @@
     "disc_jsd_mean": 0.42687410431939027,
     "disc_jsd_median": 0.40850500205022144,
     "cont_ks_mean": 0.686,
-    "cont_w1_mean": 30.893531730679623
+    "cont_w1_mean": 30.893531730679626
   },
   "train_rows": 237,
   "test_rows": 60,

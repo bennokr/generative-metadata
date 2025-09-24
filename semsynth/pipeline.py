@@ -217,7 +217,7 @@ def process_dataset(
         n_components=cfg.umap_n_components,
     )
     umap_png_real = outdir / "umap_real.png"
-    plot_umap(umap_art.embedding, str(umap_png_real), title=f"{name}: real (sample)", color_labels=umap_art.color_labels)
+    umap_lims = plot_umap(umap_art.embedding, str(umap_png_real), title=f"{name}: real (sample)", color_labels=umap_art.color_labels)
 
     metasyn_semmap_parquet_file: Optional[str] = None
     models_root = model_run_root(outdir)
@@ -322,7 +322,7 @@ def process_dataset(
         synth_meta_no_na = synth_meta_df.dropna(axis=0, how="any")
         synth_meta_emb = transform_with_umap(umap_art, synth_meta_no_na)
         umap_png_meta = outdir / "umap_metasyn.png"
-        plot_umap(synth_meta_emb, str(umap_png_meta), title=f"{name}: synthetic (MetaSyn sample)")
+        plot_umap(synth_meta_emb, str(umap_png_meta), title=f"{name}: synthetic (MetaSyn sample)", lims=umap_lims)
 
     # Fidelity summary table
     def summarize_distances(dt: pd.DataFrame) -> dict:
@@ -372,7 +372,7 @@ def process_dataset(
                 s_no_na = s_df.dropna(axis=0, how="any")
                 s_emb = transform_with_umap(umap_art, s_no_na)
                 run.umap_png = run.run_dir / "umap.png"
-                plot_umap(s_emb, str(run.umap_png), title=f"{name}: synthetic ({run.name})")
+                plot_umap(s_emb, str(run.umap_png), title=f"{name}: synthetic ({run.name})", lims=umap_lims)
             except Exception:
                 logging.exception("Failed to generate UMAP for model run %s", run.run_dir)
     except Exception:

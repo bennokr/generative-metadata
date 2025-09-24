@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import List, Optional
+from typing import List, Optional, Tuple
 
 import numpy as np
 import pandas as pd
@@ -75,15 +75,22 @@ def transform_with_umap(art: UMAPArtifacts, df: pd.DataFrame) -> np.ndarray:
     return art.umap_model.transform(X)
 
 
-def plot_umap(embedding: np.ndarray, outfile: str, title: str, color_labels: Optional[np.ndarray] = None) -> None:
-    plt.figure(figsize=(7, 6), dpi=140)
+def plot_umap(embedding: np.ndarray, outfile: str, title: str, color_labels: Optional[np.ndarray] = None, lims: Optional[Tuple[Tuple[float,float], Tuple[float,float]]] = None) -> None:
+    fig = plt.figure(figsize=(7, 6), dpi=140)
     if color_labels is None:
         plt.scatter(embedding[:, 0], embedding[:, 1], s=4, alpha=0.6)
     else:
         plt.scatter(embedding[:, 0], embedding[:, 1], s=4, alpha=0.6, c=color_labels)
     plt.title(title)
+    if lims:
+        xlim, ylim = lims
+        for ax in fig.axes:
+            ax.set_xlim(xlim)
+            ax.set_ylim(ylim)
     plt.xlabel("UMAP-1")
     plt.ylabel("UMAP-2")
     plt.tight_layout()
     plt.savefig(outfile)
     plt.close()
+    for ax in fig.axes:
+        return ax.get_xlim(), ax.get_ylim()

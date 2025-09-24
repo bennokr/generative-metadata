@@ -1,10 +1,10 @@
 {
   "backend": "pybnesian",
   "summary": {
-    "disc_jsd_mean": 0.05858439471887584,
+    "disc_jsd_mean": 0.04193936999692095,
     "disc_jsd_median": 0.04109491351975766,
-    "cont_ks_mean": 0.22172619047619044,
-    "cont_w1_mean": 49.93672909431644
+    "cont_ks_mean": 0.24464994331065762,
+    "cont_w1_mean": 59.63719362071906
   },
   "train_rows": 126,
   "test_rows": 32,

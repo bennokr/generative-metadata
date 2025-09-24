@@ -54,62 +54,85 @@
 
 | model      | backend   |   disc_jsd_mean |   disc_jsd_median |   cont_ks_mean |   cont_w1_mean |
 |:-----------|:----------|----------------:|------------------:|---------------:|---------------:|
+| MetaSyn    | metasyn   |          0.0985 |            0.0864 |         0.2978 |         3.1557 |
 | clg_mi2    | pybnesian |          0.1003 |            0.0995 |         0.2344 |         4.4109 |
 | ctgan_fast | synthcity |          0.4269 |            0.4085 |         0.686  |        30.8935 |
 | semi_mi5   | pybnesian |          0.1003 |            0.0995 |         0.2344 |         4.4109 |
 | tvae_quick | synthcity |          0.1045 |            0.1199 |         0.2021 |         6.0601 |
-| MetaSyn    | metasyn   |          0.1119 |            0.1179 |         0.301  |         3.1132 |
 
 ## Models
 
-### Model: clg_mi2 (pybnesian)
+<table>
+<tr><th>UMAP</th><th>Details</th><th>Structure</th></tr>
+<tr><td><img src='umap_real.png' width='280'/></td><td><h3>Real data</h3></td><td></td></tr>
+<tr><td><img src='umap_metasyn.png' width='280'/></td><td>
 
-- Seed: 42
-- Rows: 237
-- Params: `{"max_indegree": 2, "operators": ["arcs"], "score": "bic", "type": "clg"}`
-- Synthetic CSV: [models/clg_mi2/synthetic.csv](models/clg_mi2/synthetic.csv)
-- Per-variable metrics: [models/clg_mi2/per_variable_metrics.csv](models/clg_mi2/per_variable_metrics.csv)
-- Metrics JSON: [models/clg_mi2/metrics.json](models/clg_mi2/metrics.json)
-- Structure:
-  ![Structure of clg_mi2](models/clg_mi2/structure.png)
+<h3>MetaSyn</h3>
+<ul>
+<li>GMF: <a href="metasyn_gmf.json">metasyn_gmf.json</a></li>
+<li>Synthetic sample (SemMap Parquet): <a href="synthetic_metasyn.semmap.parquet">synthetic_metasyn.semmap.parquet</a></li>
+</ul></td><td></td></tr>
+<tr><td>
+<img src='models/clg_mi2/umap.png' width='280'/></td><td>
 
-### Model: ctgan_fast (synthcity)
+<h3>Model: clg_mi2 (pybnesian)</h3>
+<ul>
+<li>Seed: 42, rows: 237</li>
+<li>Params: <code>{"max_indegree": 2, "operators": ["arcs"], "score": "bic", "type": "clg"}</code></li>
+<li><a href="models/clg_mi2/synthetic.csv">Synthetic CSV</a></li>
+<li><a href="models/clg_mi2/per_variable_metrics.csv">Per-variable metrics</a></li>
+<li><a href="models/clg_mi2/metrics.json">Metrics JSON</a></li>
+</ul></td><td>
 
-- Seed: 42
-- Rows: 1000
-- Params: `{"batch_size": 256, "n_iter": 5}`
-- Synthetic CSV: [models/ctgan_fast/synthetic.csv](models/ctgan_fast/synthetic.csv)
-- Per-variable metrics: [models/ctgan_fast/per_variable_metrics.csv](models/ctgan_fast/per_variable_metrics.csv)
-- Metrics JSON: [models/ctgan_fast/metrics.json](models/ctgan_fast/metrics.json)
+<img src='models/clg_mi2/structure.png' width='280'/>
+</td></tr>
 
-### Model: semi_mi5 (pybnesian)
 
-- Seed: 42
-- Rows: 237
-- Params: `{"max_indegree": 5, "operators": ["arcs"], "score": "bic", "type": "semiparametric"}`
-- Synthetic CSV: [models/semi_mi5/synthetic.csv](models/semi_mi5/synthetic.csv)
-- Per-variable metrics: [models/semi_mi5/per_variable_metrics.csv](models/semi_mi5/per_variable_metrics.csv)
-- Metrics JSON: [models/semi_mi5/metrics.json](models/semi_mi5/metrics.json)
-- Structure:
-  ![Structure of semi_mi5](models/semi_mi5/structure.png)
+<tr><td>
+<img src='models/semi_mi5/umap.png' width='280'/></td><td>
 
-### Model: tvae_quick (synthcity)
+<h3>Model: semi_mi5 (pybnesian)</h3>
+<ul>
+<li>Seed: 42, rows: 237</li>
+<li>Params: <code>{"max_indegree": 5, "operators": ["arcs"], "score": "bic", "type": "semiparametric"}</code></li>
+<li><a href="models/semi_mi5/synthetic.csv">Synthetic CSV</a></li>
+<li><a href="models/semi_mi5/per_variable_metrics.csv">Per-variable metrics</a></li>
+<li><a href="models/semi_mi5/metrics.json">Metrics JSON</a></li>
+</ul></td><td>
 
-- Seed: 42
-- Rows: 1000
-- Params: `{"batch_size": 256}`
-- Synthetic CSV: [models/tvae_quick/synthetic.csv](models/tvae_quick/synthetic.csv)
-- Per-variable metrics: [models/tvae_quick/per_variable_metrics.csv](models/tvae_quick/per_variable_metrics.csv)
-- Metrics JSON: [models/tvae_quick/metrics.json](models/tvae_quick/metrics.json)
+<img src='models/semi_mi5/structure.png' width='280'/>
+</td></tr>
 
-## MetaSyn
 
-- GMF: [metasyn_gmf.json](metasyn_gmf.json)
-- Synthetic sample (SemMap Parquet): [synthetic_metasyn.semmap.parquet](synthetic_metasyn.semmap.parquet)
+<tr><td>
+<img src='models/ctgan_fast/umap.png' width='280'/></td><td>
 
-## UMAP overview (same projection)
+<h3>Model: ctgan_fast (synthcity)</h3>
+<ul>
+<li>Seed: 42, rows: 1000</li>
+<li>Params: <code>{"batch_size": 256, "n_iter": 5}</code></li>
+<li><a href="models/ctgan_fast/synthetic.csv">Synthetic CSV</a></li>
+<li><a href="models/ctgan_fast/per_variable_metrics.csv">Per-variable metrics</a></li>
+<li><a href="models/ctgan_fast/metrics.json">Metrics JSON</a></li>
+</ul></td><td>
 
-| Real (sample) | MetaSyn (synthetic) | pybnesian: clg_mi2 | synthcity: ctgan_fast | pybnesian: semi_mi5 | synthcity: tvae_quick |
-| --- | --- | --- | --- | --- | --- |
-| <img src='umap_real.png' width='280'/> | <img src='umap_metasyn.png' width='280'/> | <img src='models/clg_mi2/umap.png' width='280'/> | <img src='models/ctgan_fast/umap.png' width='280'/> | <img src='models/semi_mi5/umap.png' width='280'/> | <img src='models/tvae_quick/umap.png' width='280'/> |
+</td></tr>
+
+
+<tr><td>
+<img src='models/tvae_quick/umap.png' width='280'/></td><td>
+
+<h3>Model: tvae_quick (synthcity)</h3>
+<ul>
+<li>Seed: 42, rows: 1000</li>
+<li>Params: <code>{"batch_size": 256}</code></li>
+<li><a href="models/tvae_quick/synthetic.csv">Synthetic CSV</a></li>
+<li><a href="models/tvae_quick/per_variable_metrics.csv">Per-variable metrics</a></li>
+<li><a href="models/tvae_quick/metrics.json">Metrics JSON</a></li>
+</ul></td><td>
+
+</td></tr>
+
+
+<table>
 

@@ -7,6 +7,7 @@ import json
 import logging
 import os
 import textwrap
+import io
 
 import markdown
 
@@ -206,7 +207,7 @@ def write_report_md(
         var_rows = []
         for c in df.columns:
             typ = "continuous" if c in cont_cols else "discrete"
-            var_rows.append({"variable": c, "type": typ, "dist": _format_dist(df[c])})
+            var_rows.append({"variable": c, "dist": _format_dist(df[c])})
         baseline_out = pd.DataFrame(var_rows)
         baseline_out = baseline_out.fillna("")
         # Build declared, inferred, and description tables (if provided)
@@ -240,20 +241,12 @@ def write_report_md(
         f.write("## Variables and summary\n\n")
         f.write(df_to_markdown(merged, index=False) + "\n\n")
 
+        model_runs = sorted(model_runs or [], key=lambda x: (x.backend, x.name))
+
         if model_runs:
             # Unified fidelity summary combining all runs and optional MetaSyn
             f.write("## Fidelity summary\n\n")
             rows = []
-            for run in model_runs:
-                summary = run.metrics.get("summary", {}) if isinstance(run.metrics, dict) else {}
-                rows.append({
-                    "model": run.name,
-                    "backend": run.backend,
-                    "disc_jsd_mean": summary.get("disc_jsd_mean"),
-                    "disc_jsd_median": summary.get("disc_jsd_median"),
-                    "cont_ks_mean": summary.get("cont_ks_mean"),
-                    "cont_w1_mean": summary.get("cont_w1_mean"),
-                })
             # Add MetaSyn row if available
             if isinstance(dist_table_meta, pd.DataFrame) and not dist_table_meta.empty:
                 d_disc = dist_table_meta[dist_table_meta['type'] == 'discrete'] if 'type' in dist_table_meta.columns else pd.DataFrame()
@@ -266,78 +259,84 @@ def write_report_md(
                     "cont_ks_mean": float(d_cont['KS'].mean()) if ('KS' in d_cont.columns and len(d_cont)) else None,
                     "cont_w1_mean": float(d_cont['W1'].mean()) if ('W1' in d_cont.columns and len(d_cont)) else None,
                 })
+            for run in model_runs:
+                summary = run.metrics.get("summary", {}) if isinstance(run.metrics, dict) else {}
+                rows.append({
+                    "model": run.name,
+                    "backend": run.backend,
+                    "disc_jsd_mean": summary.get("disc_jsd_mean"),
+                    "disc_jsd_median": summary.get("disc_jsd_median"),
+                    "cont_ks_mean": summary.get("cont_ks_mean"),
+                    "cont_w1_mean": summary.get("cont_w1_mean"),
+                })
+            
             if rows:
                 out = pd.DataFrame(rows)
                 f.write(df_to_markdown(out.round(4).fillna(""), index=False) + "\n\n")
-            # Model details (links, params)
-            f.write("## Models\n\n")
+        
+        f.write("## Models\n\n")
+        f.write("<table>\n")
+        f.write(f"<tr><th>UMAP</th><th>Details</th><th>Structure</th></tr>\n")
+        f.write(f"<tr><td><img src='{Path(umap_png_real).name}' width='280'/></td><td><h3>Real data</h3></td><td></td></tr>\n")
+        
+        if metasyn_gmf_file:
+            # MetaSyn files
+            f.write(f"<tr><td><img src='{Path(umap_png_meta).name}' width='280'/></td><td>\n\n")
+            c = io.StringIO()
+            c.write("### MetaSyn\n\n")
+            mname = Path(metasyn_gmf_file).name
+            c.write(f"- GMF: [{mname}]({mname})\n")
+            if metasyn_semmap_parquet:
+                if metasyn_semmap_parquet:
+                    pname = Path(metasyn_semmap_parquet).name
+                    c.write(f"- Synthetic sample (SemMap Parquet): [{pname}]({pname})\n")
+            cell = markdown.markdown(c.getvalue(), extensions=['extra'])
+            f.write(f"{cell}</td><td></td></tr>\n")
+
+        if model_runs:
+            # Model details (umap, links, params)
             for run in model_runs:
+                f.write(f"<tr><td>\n")
+                if run.umap_png and run.umap_png.exists():
+                    rel_png = os.path.relpath(run.umap_png, start=md_path.parent)
+                    f.write(f"<img src='{rel_png}' width='280'/>")
+                f.write(f"</td><td>\n\n")
+
+                c = io.StringIO()
                 manifest = run.manifest or {}
-                f.write(f"### Model: {run.name} ({run.backend})\n\n")
-                f.write(f"- Seed: {manifest.get('seed')}\n")
-                if manifest.get("rows") is not None:
-                    f.write(f"- Rows: {manifest.get('rows')}\n")
+                c.write(f"### Model: {run.name} ({run.backend})\n\n")
+                c.write(f"- Seed: {manifest.get('seed')}, rows: {manifest.get('rows')}\n")
                 params = manifest.get("params") or {}
                 if params:
-                    f.write("- Params: `" + json.dumps(params, sort_keys=True) + "`\n")
+                    c.write("- Params: `" + json.dumps(params, sort_keys=True) + "`\n")
                 def _write_link(label: str, target: Optional[Path]) -> None:
                     if target is None:
                         return
                     if not target.exists():
                         return
                     rel = os.path.relpath(target, start=md_path.parent)
-                    f.write(f"- {label}: [{rel}]({rel})\n")
+                    c.write(f"- [{label}]({rel})\n")
                 _write_link("Synthetic CSV", run.synthetic_csv)
                 _write_link("Per-variable metrics", run.per_variable_csv)
                 _write_link("Metrics JSON", run.run_dir / "metrics.json")
-
+                
+                cell = markdown.markdown(c.getvalue(), extensions=['extra'])
+                f.write(cell)
+                f.write(f"</td><td>\n\n")
                 structure_png = run.run_dir / "structure.png"
                 if structure_png.exists():
                     rel_png = os.path.relpath(structure_png, start=md_path.parent)
-                    f.write(f"- Structure:\n  ![Structure of {run.name}]({rel_png})\n")
+                    f.write(f"<img src='{rel_png}' width='280'/>\n")
+                f.write(f"</td></tr>\n\n")
                 f.write("\n")
-
-        # MetaSyn files
-        if metasyn_gmf_file:
-            f.write("## MetaSyn\n\n")
-            mname = Path(metasyn_gmf_file).name
-            f.write(f"- GMF: [{mname}]({mname})\n")
-            if metasyn_semmap_parquet:
-                if metasyn_semmap_parquet:
-                    pname = Path(metasyn_semmap_parquet).name
-                    f.write(f"- Synthetic sample (SemMap Parquet): [{pname}]({pname})\n")
-            f.write("\n")
         
-        # Standalone fidelity table removed (merged into unified summary)
 
-        # Per-variable distances table omitted in unified model view
-        
-        # Dynamically build columns for UMAP images, including additional model runs
-        f.write("## UMAP overview (same projection)\n\n")
-        extra_headers: List[str] = []
-        extra_imgs: List[str] = []
-        if isinstance(model_runs, list) and model_runs:
-            for run in model_runs:
-                if run.umap_png and run.umap_png.exists():
-                    extra_headers.append(f"{run.backend}: {run.name}")
-                    rel_png = os.path.relpath(run.umap_png, start=md_path.parent)
-                    extra_imgs.append(rel_png)
-        headers = ["Real (sample)"] + (["MetaSyn (synthetic)"] if umap_png_meta else []) + extra_headers
-        tbl = "| " + " | ".join(headers) + " |\n"
-        tbl += "| " + " | ".join(["---"] * len(headers)) + " |\n"
-        imgs = [
-            f"<img src='{Path(umap_png_real).name}' width='280'/>",
-        ]
-        if umap_png_meta:
-            imgs.append(f"<img src='{Path(umap_png_meta).name}' width='280'/>")
-        imgs.extend([f"<img src='{p}' width='280'/>" for p in extra_imgs])
-        tbl += "| " + " | ".join(imgs) + " |\n\n"
-        f.write(tbl)
+        f.write("<table>\n\n")
     logging.info(f"Wrote report: {md_path}")
 
     html_path = Path(outdir) / "index.html"
     md_text = md_path.read_text(encoding="utf-8")
-    html_body = markdown.markdown(md_text, extensions=["extra"])
+    html_body = markdown.markdown(md_text, extensions=["extra", "md_in_html"])
     html_body = textwrap.indent(html_body, "    ")
     report_title = f"Data Report — {dataset_name}"
     try:
@@ -351,3 +350,4 @@ def write_report_md(
     html_out = tpl.replace("{{TITLE}}", html.escape(report_title)).replace("{{CSS}}", css_text).replace("{{BODY}}", html_body)
     html_path.write_text(html_out, encoding="utf-8")
     logging.info(f"Converted to HTML: {html_path}")
+ 

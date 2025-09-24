@@ -140,5 +140,6 @@ def discover_model_runs(dataset_outdir: str | Path) -> List[ModelRun]:
                 manifest=manifest,
             )
         )
-    logging.info("Discovered %d model runs under %s", len(runs), root)
+    names = [r.name for r in runs]
+    logging.info("Discovered %d model runs under %s %s", len(runs), root, str(names))
     return runs

@@ -1,0 +1,14 @@
+{
+  "backend": "synthcity",
+  "name": "tvae_quick",
+  "provider": "uciml",
+  "dataset_name": "Heart Disease",
+  "provider_id": 45,
+  "generator": "tvae",
+  "params": {
+    "batch_size": 256
+  },
+  "seed": 42,
+  "rows": 1000,
+  "test_size": 0.2
+}

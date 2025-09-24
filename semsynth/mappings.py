@@ -59,44 +59,7 @@ def load_mapping_json(path: Path) -> Dict[str, Any]:
     if not isinstance(data, dict):
         raise ValueError("Mapping JSON must be an object")
 
-    dataset = data.get("dataset")
-    if not isinstance(dataset, dict):
-        raise ValueError("Mapping JSON missing 'dataset' object")
-    dataset = dict(dataset)
-    dataset.setdefault("@context", JSONLD_CONTEXT_URL)
-
-    var_list = None
-    for key in ("disco:variable", "variable", "variables", "columns"):
-        val = data.get(key)
-        if isinstance(val, list):
-            var_list = val
-            break
-    if var_list is None:
-        for key in ("disco:variable", "variable", "variables", "columns"):
-            val = dataset.get(key)
-            if isinstance(val, list):
-                var_list = val
-                break
-    if var_list is None:
-        raise ValueError("Mapping JSON missing disco:variable list")
-
-    normalized_vars = []
-    for idx, entry in enumerate(var_list):
-        if not isinstance(entry, dict):
-            raise ValueError(f"Variable entry at index {idx} must be an object")
-        var = dict(entry)
-        var.setdefault("@context", dataset["@context"])
-        notation = None
-        for key in ("skos:notation", "notation", "name"):
-            val = var.get(key)
-            if isinstance(val, str) and val.strip():
-                notation = val.strip()
-                break
-        if not notation:
-            raise ValueError(f"Variable entry at index {idx} missing notation/name")
-        normalized_vars.append(var)
-
-    return {"dataset": dataset, "disco:variable": normalized_vars}
+    return data
 
 
 def canonical_generator_name(name: str) -> str:

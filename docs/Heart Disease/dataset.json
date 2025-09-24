@@ -1,9 +1,11 @@
 {
   "@context": "https://schema.org",
   "@type": "Dataset",
-  "name": "Heart Disease",
+  "name": "Heart Disease (UCI id 45)",
   "identifier": 45,
   "url": "https://archive.ics.uci.edu/dataset/45",
+  "description": "4 databases: Cleveland, Hungary, Switzerland, and the VA Long Beach",
+  "license": "https://creativecommons.org/publicdomain/zero/1.0/",
   "variableMeasured": [
     {
       "@type": "PropertyValue",

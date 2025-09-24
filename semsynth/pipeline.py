@@ -371,7 +371,8 @@ def process_dataset(
                 s_df = s_df.reindex(columns=df_no_na.columns)
                 s_no_na = s_df.dropna(axis=0, how="any")
                 s_emb = transform_with_umap(umap_art, s_no_na)
-                plot_umap(s_emb, str(run.run_dir / "umap.png"), title=f"{name}: synthetic ({run.name})")
+                run.umap_png = run.run_dir / "umap.png"
+                plot_umap(s_emb, str(run.umap_png), title=f"{name}: synthetic ({run.name})")
             except Exception:
                 logging.exception("Failed to generate UMAP for model run %s", run.run_dir)
     except Exception:

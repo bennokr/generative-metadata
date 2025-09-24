@@ -1,6 +1,5 @@
 {
   "dataset": {
-    "@context": "https://w3id.org/semmap/context/v1",
     "@type": [
       "disco:LogicalDataSet",
       "dsv:Dataset",
@@ -16,6 +15,7 @@
         "name": "age",
         "titles": "Age",
         "columnProperty": {
+          "statisticalDataType": "dsv:QuantitativeDataType",
           "valueType": "xsd:integer",
           "hasUnit": "unit:YR",
           "ucumCode": "a",
@@ -26,22 +26,23 @@
         "name": "sex",
         "titles": "Administrative sex",
         "columnProperty": {
+          "statisticalDataType": "dsv:NominalDataType",
           "source": "https://docs.snomed.org/implementation-guides/snomed-ct-guide-for-covid-19/2-coding-covid-19-related-data/2.2-patient-demographics",
           "hasCodeBook": {
             "hasTopConcept": [
               {
+                "notation": "0",
+                "prefLabel": "female",
                 "exactMatch": [
                   "http://snomed.info/id/248152002"
-                ],
-                "notation": "0",
-                "prefLabel": "female"
+                ]
               },
               {
+                "notation": "1",
+                "prefLabel": "male",
                 "exactMatch": [
                   "http://snomed.info/id/248153007"
-                ],
-                "notation": "1",
-                "prefLabel": "male"
+                ]
               }
             ]
           }
@@ -51,36 +52,37 @@
         "name": "cp",
         "titles": "Chest pain type",
         "columnProperty": {
+          "statisticalDataType": "dsv:NominalDataType",
           "source": "https://dicom.nema.org/medical/dicom/current/output/chtml/part16/sect_CID_3202.html",
           "hasCodeBook": {
             "hasTopConcept": [
               {
+                "notation": "1",
+                "prefLabel": "Typical angina",
                 "exactMatch": [
                   "http://snomed.info/id/429559004"
-                ],
-                "notation": "1",
-                "prefLabel": "Typical angina"
+                ]
               },
               {
+                "notation": "2",
+                "prefLabel": "Atypical angina",
                 "exactMatch": [
                   "http://snomed.info/id/371807002"
-                ],
-                "notation": "2",
-                "prefLabel": "Atypical angina"
+                ]
               },
               {
+                "notation": "3",
+                "prefLabel": "Non-cardiac chest pain",
                 "exactMatch": [
                   "http://snomed.info/id/274668005"
-                ],
-                "notation": "3",
-                "prefLabel": "Non-cardiac chest pain"
+                ]
               },
               {
+                "notation": "4",
+                "prefLabel": "Asymptomatic",
                 "exactMatch": [
                   "http://snomed.info/id/161971004"
-                ],
-                "notation": "4",
-                "prefLabel": "Asymptomatic"
+                ]
               }
             ],
             "source": "https://dicom.nema.org/medical/dicom/current/output/chtml/part16/sect_CID_3202.html"
@@ -91,6 +93,7 @@
         "name": "trestbps",
         "titles": "Resting systolic blood pressure",
         "columnProperty": {
+          "statisticalDataType": "dsv:QuantitativeDataType",
           "valueType": "xsd:integer",
           "hasUnit": "unit:MilliM_HG",
           "ucumCode": "mm[Hg]",
@@ -101,6 +104,7 @@
         "name": "chol",
         "titles": "Total cholesterol",
         "columnProperty": {
+          "statisticalDataType": "dsv:QuantitativeDataType",
           "valueType": "xsd:integer",
           "hasUnit": "unit:MilliGM-PER-DeciL",
           "ucumCode": "mg/dL",
@@ -111,6 +115,7 @@
         "name": "fbs",
         "titles": "Fasting blood sugar >120 mg/dL (indicator)",
         "columnProperty": {
+          "statisticalDataType": "dsv:NominalDataType",
           "source": "https://loinc.org/2345-7",
           "hasCodeBook": {
             "hasTopConcept": [
@@ -131,29 +136,30 @@
         "name": "restecg",
         "titles": "Resting ECG result",
         "columnProperty": {
+          "statisticalDataType": "dsv:NominalDataType",
           "source": "https://cvquality.acc.org/docs/default-source/ncdr/data-collection/epdeviceimplant_v2-3_datadictionarycoders.pdf",
           "hasCodeBook": {
             "hasTopConcept": [
               {
+                "notation": "0",
+                "prefLabel": "normal",
                 "exactMatch": [
                   "http://snomed.info/id/164854000"
-                ],
-                "notation": "0",
-                "prefLabel": "normal"
+                ]
               },
               {
+                "notation": "1",
+                "prefLabel": "ST-T abnormality",
                 "exactMatch": [
                   "http://snomed.info/id/428750005"
-                ],
-                "notation": "1",
-                "prefLabel": "ST-T abnormality"
+                ]
               },
               {
+                "notation": "2",
+                "prefLabel": "LVH (Estes)",
                 "exactMatch": [
                   "http://snomed.info/id/25488008"
-                ],
-                "notation": "2",
-                "prefLabel": "LVH (Estes)"
+                ]
               }
             ]
           }
@@ -163,6 +169,7 @@
         "name": "thalach",
         "titles": "Maximum heart rate achieved",
         "columnProperty": {
+          "statisticalDataType": "dsv:QuantitativeDataType",
           "valueType": "xsd:integer",
           "source": "https://loinc.org/101692-2"
         }
@@ -171,6 +178,7 @@
         "name": "exang",
         "titles": "Exercise-induced angina",
         "columnProperty": {
+          "statisticalDataType": "dsv:NominalDataType",
           "source": "https://archive.datadictionary.nhs.uk/DD%20Release%20June%202021/Covid19PRA/Coronary_Heart.html",
           "hasCodeBook": {
             "hasTopConcept": [
@@ -190,6 +198,7 @@
         "name": "oldpeak",
         "titles": "ST depression vs rest (max during study)",
         "columnProperty": {
+          "statisticalDataType": "dsv:QuantitativeDataType",
           "valueType": "xsd:decimal",
           "source": "https://loinc.org/91546-2"
         }
@@ -198,6 +207,7 @@
         "name": "slope",
         "titles": "Slope of peak exercise ST segment",
         "columnProperty": {
+          "statisticalDataType": "dsv:NominalDataType",
           "source": "https://dicom.nema.org/medical/dicom/current/output/chtml/part16/sect_CID_3233.html",
           "hasCodeBook": {
             "hasTopConcept": [
@@ -221,6 +231,7 @@
         "name": "ca",
         "titles": "Number of major vessels (colored by fluoroscopy)",
         "columnProperty": {
+          "statisticalDataType": "dsv:QuantitativeDataType",
           "valueType": "xsd:integer"
         }
       },
@@ -228,28 +239,29 @@
         "name": "thal",
         "titles": "Thallium perfusion test",
         "columnProperty": {
+          "statisticalDataType": "dsv:NominalDataType",
           "hasCodeBook": {
             "hasTopConcept": [
               {
+                "notation": "3",
+                "prefLabel": "normal",
                 "exactMatch": [
                   "http://snomed.info/id/371801000"
-                ],
-                "notation": "3",
-                "prefLabel": "normal"
+                ]
               },
               {
+                "notation": "6",
+                "prefLabel": "fixed defect",
                 "exactMatch": [
                   "http://snomed.info/id/371918009"
-                ],
-                "notation": "6",
-                "prefLabel": "fixed defect"
+                ]
               },
               {
+                "notation": "7",
+                "prefLabel": "reversible defect",
                 "exactMatch": [
                   "http://snomed.info/id/371920002"
-                ],
-                "notation": "7",
-                "prefLabel": "reversible defect"
+                ]
               }
             ]
           }
@@ -259,6 +271,7 @@
         "name": "num",
         "titles": "Angiographic disease status",
         "columnProperty": {
+          "statisticalDataType": "dsv:NominalDataType",
           "source": "https://purl.bioontology.org/ontology/SNOMEDCT/233970002",
           "hasCodeBook": {
             "hasTopConcept": [

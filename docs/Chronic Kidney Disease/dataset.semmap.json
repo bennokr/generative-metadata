@@ -1,6 +1,5 @@
 {
   "dataset": {
-    "@context": "https://w3id.org/semmap/context/v1",
     "@type": [
       "disco:LogicalDataSet",
       "dsv:Dataset",
@@ -15,6 +14,7 @@
         "name": "bp",
         "titles": "Diastolic blood pressure",
         "columnProperty": {
+          "statisticalDataType": "dsv:QuantitativeDataType",
           "valueType": "xsd:integer",
           "hasUnit": "unit:MilliM_HG",
           "ucumCode": "mm[Hg]",
@@ -25,56 +25,16 @@
         "name": "sg",
         "titles": "Urine specific gravity",
         "columnProperty": {
+          "statisticalDataType": "dsv:QuantitativeDataType",
           "valueType": "xsd:decimal",
           "source": "https://loinc.org/2965-2"
-        }
-      },
-      {
-        "name": "al",
-        "titles": "Urine albumin (dipstick)",
-        "columnProperty": {
-          "source": "https://loinc.org/50949-7"
-        }
-      },
-      {
-        "name": "su",
-        "titles": "Urine glucose (dipstick)",
-        "columnProperty": {
-          "source": "https://loinc.org/25428-4"
-        }
-      },
-      {
-        "name": "rbc",
-        "titles": "RBCs in urine (presence)",
-        "columnProperty": {
-          "source": "https://loinc.org/32776-7"
-        }
-      },
-      {
-        "name": "pc",
-        "titles": "Urine leukocytes (presence)",
-        "columnProperty": {
-          "source": "https://loinc.org/20455-2"
-        }
-      },
-      {
-        "name": "pcc",
-        "titles": "Pus cell clumps (urine)",
-        "columnProperty": {
-          "source": "https://loinc.org/67848-2"
-        }
-      },
-      {
-        "name": "ba",
-        "titles": "Bacteria in urine (presence)",
-        "columnProperty": {
-          "source": "https://loinc.org/25145-4"
         }
       },
       {
         "name": "bgr",
         "titles": "Blood glucose (random)",
         "columnProperty": {
+          "statisticalDataType": "dsv:QuantitativeDataType",
           "valueType": "xsd:integer",
           "hasUnit": "unit:MilliGM-PER-DeciL",
           "ucumCode": "mg/dL"
@@ -84,65 +44,17 @@
         "name": "bu",
         "titles": "Blood urea",
         "columnProperty": {
+          "statisticalDataType": "dsv:QuantitativeDataType",
           "valueType": "xsd:integer",
           "hasUnit": "unit:MilliGM-PER-DeciL",
           "ucumCode": "mg/dL"
         }
       },
       {
-        "name": "sc",
-        "titles": "Serum creatinine",
-        "columnProperty": {
-          "valueType": "xsd:decimal",
-          "ucumCode": "mg/dL",
-          "source": "https://loinc.org/2160-0"
-        }
-      },
-      {
-        "name": "sod",
-        "titles": "Serum sodium",
-        "columnProperty": {
-          "valueType": "xsd:integer",
-          "source": "https://loinc.org/2951-2"
-        }
-      },
-      {
-        "name": "pot",
-        "titles": "Serum potassium",
-        "columnProperty": {
-          "valueType": "xsd:integer",
-          "source": "https://loinc.org/2823-3"
-        }
-      },
-      {
-        "name": "hemo",
-        "titles": "Hemoglobin",
-        "columnProperty": {
-          "valueType": "xsd:decimal",
-          "source": "https://loinc.org/718-7"
-        }
-      },
-      {
-        "name": "pcv",
-        "titles": "Packed cell volume (hematocrit)",
-        "columnProperty": {
-          "valueType": "xsd:integer",
-          "source": "https://loinc.org/20570-8"
-        }
-      },
-      {
-        "name": "rbcc",
-        "titles": "RBC count (blood)",
-        "columnProperty": {
-          "valueType": "xsd:decimal",
-          "source": "https://loinc.org/789-8"
-        }
-      },
-      {
         "name": "class",
         "titles": "Outcome label (CKD)",
         "columnProperty": {
-          "source": "http://snomed.info/id/709044004"
+          "statisticalDataType": "dsv:NominalDataType"
         }
       }
     ]

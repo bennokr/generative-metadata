@@ -1,14 +1,16 @@
 {
   "@context": "https://schema.org",
   "@type": "Dataset",
-  "name": "Chronic Kidney Disease",
+  "name": "Chronic Kidney Disease (UCI id 336)",
   "identifier": 336,
   "url": "https://archive.ics.uci.edu/dataset/336",
+  "description": "Clinical records for early detection of CKD (subset of variables mapped).",
   "variableMeasured": [
     {
       "@type": "PropertyValue",
       "name": "age",
-      "measurementTechnique": "continuous"
+      "measurementTechnique": "continuous",
+      "description": "Clinical records for early detection of CKD (subset of variables mapped)."
     },
     {
       "@type": "PropertyValue",
@@ -26,37 +28,37 @@
       "@type": "PropertyValue",
       "name": "al",
       "measurementTechnique": "continuous",
-      "description": "albumin"
+      "description": "Clinical records for early detection of CKD (subset of variables mapped)."
     },
     {
       "@type": "PropertyValue",
       "name": "su",
       "measurementTechnique": "continuous",
-      "description": "sugar"
+      "description": "Clinical records for early detection of CKD (subset of variables mapped)."
     },
     {
       "@type": "PropertyValue",
       "name": "rbc",
       "measurementTechnique": "discrete",
-      "description": "red blood cells"
+      "description": "Clinical records for early detection of CKD (subset of variables mapped)."
     },
     {
       "@type": "PropertyValue",
       "name": "pc",
       "measurementTechnique": "discrete",
-      "description": "pus cell"
+      "description": "Clinical records for early detection of CKD (subset of variables mapped)."
     },
     {
       "@type": "PropertyValue",
       "name": "pcc",
       "measurementTechnique": "discrete",
-      "description": "pus cell clumps"
+      "description": "Clinical records for early detection of CKD (subset of variables mapped)."
     },
     {
       "@type": "PropertyValue",
       "name": "ba",
       "measurementTechnique": "discrete",
-      "description": "bacteria"
+      "description": "Clinical records for early detection of CKD (subset of variables mapped)."
     },
     {
       "@type": "PropertyValue",
@@ -74,79 +76,79 @@
       "@type": "PropertyValue",
       "name": "sc",
       "measurementTechnique": "continuous",
-      "description": "serum creatinine"
+      "description": "Clinical records for early detection of CKD (subset of variables mapped)."
     },
     {
       "@type": "PropertyValue",
       "name": "sod",
       "measurementTechnique": "continuous",
-      "description": "sodium"
+      "description": "Clinical records for early detection of CKD (subset of variables mapped)."
     },
     {
       "@type": "PropertyValue",
       "name": "pot",
       "measurementTechnique": "continuous",
-      "description": "potassium"
+      "description": "Clinical records for early detection of CKD (subset of variables mapped)."
     },
     {
       "@type": "PropertyValue",
       "name": "hemo",
       "measurementTechnique": "continuous",
-      "description": "hemoglobin"
+      "description": "Clinical records for early detection of CKD (subset of variables mapped)."
     },
     {
       "@type": "PropertyValue",
       "name": "pcv",
       "measurementTechnique": "continuous",
-      "description": "packed cell volume"
+      "description": "Clinical records for early detection of CKD (subset of variables mapped)."
     },
     {
       "@type": "PropertyValue",
       "name": "wbcc",
       "measurementTechnique": "continuous",
-      "description": "white blood cell count"
+      "description": "Clinical records for early detection of CKD (subset of variables mapped)."
     },
     {
       "@type": "PropertyValue",
       "name": "rbcc",
       "measurementTechnique": "continuous",
-      "description": "red blood cell count"
+      "description": "Clinical records for early detection of CKD (subset of variables mapped)."
     },
     {
       "@type": "PropertyValue",
       "name": "htn",
       "measurementTechnique": "discrete",
-      "description": "hypertension"
+      "description": "Clinical records for early detection of CKD (subset of variables mapped)."
     },
     {
       "@type": "PropertyValue",
       "name": "dm",
       "measurementTechnique": "discrete",
-      "description": "diabetes mellitus"
+      "description": "Clinical records for early detection of CKD (subset of variables mapped)."
     },
     {
       "@type": "PropertyValue",
       "name": "cad",
       "measurementTechnique": "discrete",
-      "description": "coronary artery disease"
+      "description": "Clinical records for early detection of CKD (subset of variables mapped)."
     },
     {
       "@type": "PropertyValue",
       "name": "appet",
       "measurementTechnique": "discrete",
-      "description": "appetite"
+      "description": "Clinical records for early detection of CKD (subset of variables mapped)."
     },
     {
       "@type": "PropertyValue",
       "name": "pe",
       "measurementTechnique": "discrete",
-      "description": "pedal edema"
+      "description": "Clinical records for early detection of CKD (subset of variables mapped)."
     },
     {
       "@type": "PropertyValue",
       "name": "ane",
       "measurementTechnique": "discrete",
-      "description": "anemia"
+      "description": "Clinical records for early detection of CKD (subset of variables mapped)."
     },
     {
       "@type": "PropertyValue",

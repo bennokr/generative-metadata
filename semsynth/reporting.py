@@ -21,18 +21,8 @@ _TEMPLATES_DIR = Path(__file__).resolve().parent.parent / "templates"
 
 
 def _resolve_semmap_context(data: Dict[str, Any]) -> Any:
-    if not isinstance(data, dict):
-        return SCHEMA_ORG
-    if data.get("@context"):
+    if isinstance(data, dict) and data.get("@context"):
         return data["@context"]
-    dataset = data.get("dataset")
-    if isinstance(dataset, dict) and dataset.get("@context"):
-        return dataset["@context"]
-    variables = data.get("disco:variable")
-    if isinstance(variables, list):
-        for entry in variables:
-            if isinstance(entry, dict) and entry.get("@context"):
-                return entry["@context"]
     return SCHEMA_ORG
 
 
@@ -300,20 +290,22 @@ def write_report_md(
                 _write_link("Synthetic CSV", run.synthetic_csv)
                 _write_link("Per-variable metrics", run.per_variable_csv)
                 _write_link("Metrics JSON", run.run_dir / "metrics.json")
-                if run.umap_png and run.umap_png.exists():
-                    rel_png = os.path.relpath(run.umap_png, start=md_path.parent)
-                    f.write(f"- UMAP: [{Path(rel_png).name}]({rel_png})\n")
-                else:
-                    f.write("\n")
 
+                structure_png = run.run_dir / "structure.png"
+                if structure_png.exists():
+                    rel_png = os.path.relpath(structure_png, start=md_path.parent)
+                    f.write(f"- Structure:\n  ![Structure of {run.name}]({rel_png})\n")
+                f.write("\n")
+
+        # MetaSyn files
         if metasyn_gmf_file:
+            f.write("## MetaSyn\n\n")
             mname = Path(metasyn_gmf_file).name
-            f.write(f"MetaSyn GMF: [{mname}]({mname})\n\n")
-        if metasyn_semmap_parquet:
-            f.write("MetaSyn serialization\n\n")
+            f.write(f"- GMF: [{mname}]({mname})\n")
             if metasyn_semmap_parquet:
-                pname = Path(metasyn_semmap_parquet).name
-                f.write(f"- Synthetic sample (SemMap Parquet): [{pname}]({pname})\n")
+                if metasyn_semmap_parquet:
+                    pname = Path(metasyn_semmap_parquet).name
+                    f.write(f"- Synthetic sample (SemMap Parquet): [{pname}]({pname})\n")
             f.write("\n")
         
         # Standalone fidelity table removed (merged into unified summary)

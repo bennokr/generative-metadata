@@ -4,11 +4,19 @@
 
 - Metadata file: [metadata.json](metadata.json)
 - JSON-LD (schema.org/Dataset): [dataset.json](dataset.json)
+- SemMap JSON-LD: [dataset.semmap.json](dataset.semmap.json)
+- SemMap HTML: [dataset.semmap.html](dataset.semmap.html)
 - Rows: 158
 - Columns: 25
 - Discrete: 11  |  Continuous: 14
 
 ## Dataset metadata
+
+- Name: Chronic Kidney Disease (UCI id 336)
+
+### Description
+
+Clinical records for early detection of CKD (subset of variables mapped).
 
 - Links:
   - URL: https://archive.ics.uci.edu/dataset/336
@@ -44,11 +52,13 @@
 
 ## Fidelity summary
 
-| model    | backend   |   disc_jsd_mean |   disc_jsd_median |   cont_ks_mean |   cont_w1_mean |
-|:---------|:----------|----------------:|------------------:|---------------:|---------------:|
-| clg_mi2  | pybnesian |          0.0544 |            0.0502 |         0.2405 |        49.3847 |
-| semi_mi5 | pybnesian |          0.0562 |            0.0502 |         0.2191 |        49.0722 |
-| MetaSyn  | metasyn   |          0.0467 |            0.0411 |         0.2964 |        43.085  |
+| model      | backend   |   disc_jsd_mean |   disc_jsd_median |   cont_ks_mean |   cont_w1_mean |
+|:-----------|:----------|----------------:|------------------:|---------------:|---------------:|
+| clg_mi2    | pybnesian |          0.0544 |            0.0502 |         0.2405 |        49.3847 |
+| ctgan_fast | synthcity |          0.1475 |            0.1492 |         0.6607 |       880.088  |
+| semi_mi5   | pybnesian |          0.0586 |            0.0411 |         0.2217 |        49.9367 |
+| tvae_quick | synthcity |          0.1676 |            0.1862 |         0.2515 |        74.6213 |
+| MetaSyn    | metasyn   |          0.0474 |            0.0441 |         0.3072 |        48.0378 |
 
 ## Models
 
@@ -60,7 +70,18 @@
 - Synthetic CSV: [models/clg_mi2/synthetic.csv](models/clg_mi2/synthetic.csv)
 - Per-variable metrics: [models/clg_mi2/per_variable_metrics.csv](models/clg_mi2/per_variable_metrics.csv)
 - Metrics JSON: [models/clg_mi2/metrics.json](models/clg_mi2/metrics.json)
-- UMAP: [umap.png](models/clg_mi2/umap.png)
+- Structure:
+  ![Structure of clg_mi2](models/clg_mi2/structure.png)
+
+### Model: ctgan_fast (synthcity)
+
+- Seed: 42
+- Rows: 1000
+- Params: `{"batch_size": 256, "n_iter": 5}`
+- Synthetic CSV: [models/ctgan_fast/synthetic.csv](models/ctgan_fast/synthetic.csv)
+- Per-variable metrics: [models/ctgan_fast/per_variable_metrics.csv](models/ctgan_fast/per_variable_metrics.csv)
+- Metrics JSON: [models/ctgan_fast/metrics.json](models/ctgan_fast/metrics.json)
+
 ### Model: semi_mi5 (pybnesian)
 
 - Seed: 42
@@ -69,12 +90,26 @@
 - Synthetic CSV: [models/semi_mi5/synthetic.csv](models/semi_mi5/synthetic.csv)
 - Per-variable metrics: [models/semi_mi5/per_variable_metrics.csv](models/semi_mi5/per_variable_metrics.csv)
 - Metrics JSON: [models/semi_mi5/metrics.json](models/semi_mi5/metrics.json)
-- UMAP: [umap.png](models/semi_mi5/umap.png)
-MetaSyn GMF: [metasyn_gmf.json](metasyn_gmf.json)
+- Structure:
+  ![Structure of semi_mi5](models/semi_mi5/structure.png)
+
+### Model: tvae_quick (synthcity)
+
+- Seed: 42
+- Rows: 1000
+- Params: `{"batch_size": 256}`
+- Synthetic CSV: [models/tvae_quick/synthetic.csv](models/tvae_quick/synthetic.csv)
+- Per-variable metrics: [models/tvae_quick/per_variable_metrics.csv](models/tvae_quick/per_variable_metrics.csv)
+- Metrics JSON: [models/tvae_quick/metrics.json](models/tvae_quick/metrics.json)
+
+## MetaSyn
+
+- GMF: [metasyn_gmf.json](metasyn_gmf.json)
+- Synthetic sample (SemMap Parquet): [synthetic_metasyn.semmap.parquet](synthetic_metasyn.semmap.parquet)
 
 ## UMAP overview (same projection)
 
-| Real (sample) | MetaSyn (synthetic) | pybnesian: clg_mi2 | pybnesian: semi_mi5 |
-| --- | --- | --- | --- |
-| <img src='umap_real.png' width='280'/> | <img src='umap_metasyn.png' width='280'/> | <img src='models/clg_mi2/umap.png' width='280'/> | <img src='models/semi_mi5/umap.png' width='280'/> |
+| Real (sample) | MetaSyn (synthetic) | pybnesian: clg_mi2 | synthcity: ctgan_fast | pybnesian: semi_mi5 | synthcity: tvae_quick |
+| --- | --- | --- | --- | --- | --- |
+| <img src='umap_real.png' width='280'/> | <img src='umap_metasyn.png' width='280'/> | <img src='models/clg_mi2/umap.png' width='280'/> | <img src='models/ctgan_fast/umap.png' width='280'/> | <img src='models/semi_mi5/umap.png' width='280'/> | <img src='models/tvae_quick/umap.png' width='280'/> |
 

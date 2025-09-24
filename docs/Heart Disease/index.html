@@ -36,11 +36,18 @@ table.per-var-dist thead th { text-align: center; }
     <ul>
     <li>Metadata file: <a href="metadata.json">metadata.json</a></li>
     <li>JSON-LD (schema.org/Dataset): <a href="dataset.json">dataset.json</a></li>
+    <li>SemMap JSON-LD: <a href="dataset.semmap.json">dataset.semmap.json</a></li>
+    <li>SemMap HTML: <a href="dataset.semmap.html">dataset.semmap.html</a></li>
     <li>Rows: 297</li>
     <li>Columns: 14</li>
     <li>Discrete: 7  |  Continuous: 7</li>
     </ul>
     <h2>Dataset metadata</h2>
+    <ul>
+    <li>Name: Heart Disease (UCI id 45)</li>
+    </ul>
+    <h3>Description</h3>
+    <p>4 databases: Cleveland, Hungary, Switzerland, and the VA Long Beach</p>
     <ul>
     <li>Links:</li>
     <li>URL: https://archive.ics.uci.edu/dataset/45</li>
@@ -282,6 +289,14 @@ table.per-var-dist thead th { text-align: center; }
     <td style="text-align: right;">4.4109</td>
     </tr>
     <tr>
+    <td style="text-align: left;">ctgan_fast</td>
+    <td style="text-align: left;">synthcity</td>
+    <td style="text-align: right;">0.4269</td>
+    <td style="text-align: right;">0.4085</td>
+    <td style="text-align: right;">0.686</td>
+    <td style="text-align: right;">30.8935</td>
+    </tr>
+    <tr>
     <td style="text-align: left;">semi_mi5</td>
     <td style="text-align: left;">pybnesian</td>
     <td style="text-align: right;">0.1003</td>
@@ -290,12 +305,20 @@ table.per-var-dist thead th { text-align: center; }
     <td style="text-align: right;">4.4109</td>
     </tr>
     <tr>
+    <td style="text-align: left;">tvae_quick</td>
+    <td style="text-align: left;">synthcity</td>
+    <td style="text-align: right;">0.1045</td>
+    <td style="text-align: right;">0.1199</td>
+    <td style="text-align: right;">0.2021</td>
+    <td style="text-align: right;">6.0601</td>
+    </tr>
+    <tr>
     <td style="text-align: left;">MetaSyn</td>
     <td style="text-align: left;">metasyn</td>
-    <td style="text-align: right;">0.0992</td>
-    <td style="text-align: right;">0.1057</td>
-    <td style="text-align: right;">0.2984</td>
-    <td style="text-align: right;">3.0403</td>
+    <td style="text-align: right;">0.1119</td>
+    <td style="text-align: right;">0.1179</td>
+    <td style="text-align: right;">0.301</td>
+    <td style="text-align: right;">3.1132</td>
     </tr>
     </tbody>
     </table>
@@ -308,7 +331,17 @@ table.per-var-dist thead th { text-align: center; }
     <li>Synthetic CSV: <a href="models/clg_mi2/synthetic.csv">models/clg_mi2/synthetic.csv</a></li>
     <li>Per-variable metrics: <a href="models/clg_mi2/per_variable_metrics.csv">models/clg_mi2/per_variable_metrics.csv</a></li>
     <li>Metrics JSON: <a href="models/clg_mi2/metrics.json">models/clg_mi2/metrics.json</a></li>
-    <li>UMAP: <a href="models/clg_mi2/umap.png">umap.png</a></li>
+    <li>Structure:
+      <img alt="Structure of clg_mi2" src="models/clg_mi2/structure.png" /></li>
+    </ul>
+    <h3>Model: ctgan_fast (synthcity)</h3>
+    <ul>
+    <li>Seed: 42</li>
+    <li>Rows: 1000</li>
+    <li>Params: <code>{"batch_size": 256, "n_iter": 5}</code></li>
+    <li>Synthetic CSV: <a href="models/ctgan_fast/synthetic.csv">models/ctgan_fast/synthetic.csv</a></li>
+    <li>Per-variable metrics: <a href="models/ctgan_fast/per_variable_metrics.csv">models/ctgan_fast/per_variable_metrics.csv</a></li>
+    <li>Metrics JSON: <a href="models/ctgan_fast/metrics.json">models/ctgan_fast/metrics.json</a></li>
     </ul>
     <h3>Model: semi_mi5 (pybnesian)</h3>
     <ul>
@@ -318,8 +351,22 @@ table.per-var-dist thead th { text-align: center; }
     <li>Synthetic CSV: <a href="models/semi_mi5/synthetic.csv">models/semi_mi5/synthetic.csv</a></li>
     <li>Per-variable metrics: <a href="models/semi_mi5/per_variable_metrics.csv">models/semi_mi5/per_variable_metrics.csv</a></li>
     <li>Metrics JSON: <a href="models/semi_mi5/metrics.json">models/semi_mi5/metrics.json</a></li>
-    <li>UMAP: <a href="models/semi_mi5/umap.png">umap.png</a>
-    MetaSyn GMF: <a href="metasyn_gmf.json">metasyn_gmf.json</a></li>
+    <li>Structure:
+      <img alt="Structure of semi_mi5" src="models/semi_mi5/structure.png" /></li>
+    </ul>
+    <h3>Model: tvae_quick (synthcity)</h3>
+    <ul>
+    <li>Seed: 42</li>
+    <li>Rows: 1000</li>
+    <li>Params: <code>{"batch_size": 256}</code></li>
+    <li>Synthetic CSV: <a href="models/tvae_quick/synthetic.csv">models/tvae_quick/synthetic.csv</a></li>
+    <li>Per-variable metrics: <a href="models/tvae_quick/per_variable_metrics.csv">models/tvae_quick/per_variable_metrics.csv</a></li>
+    <li>Metrics JSON: <a href="models/tvae_quick/metrics.json">models/tvae_quick/metrics.json</a></li>
+    </ul>
+    <h2>MetaSyn</h2>
+    <ul>
+    <li>GMF: <a href="metasyn_gmf.json">metasyn_gmf.json</a></li>
+    <li>Synthetic sample (SemMap Parquet): <a href="synthetic_metasyn.semmap.parquet">synthetic_metasyn.semmap.parquet</a></li>
     </ul>
     <h2>UMAP overview (same projection)</h2>
     <table>
@@ -328,7 +375,9 @@ table.per-var-dist thead th { text-align: center; }
     <th>Real (sample)</th>
     <th>MetaSyn (synthetic)</th>
     <th>pybnesian: clg_mi2</th>
+    <th>synthcity: ctgan_fast</th>
     <th>pybnesian: semi_mi5</th>
+    <th>synthcity: tvae_quick</th>
     </tr>
     </thead>
     <tbody>
@@ -336,7 +385,9 @@ table.per-var-dist thead th { text-align: center; }
     <td><img src='umap_real.png' width='280'/></td>
     <td><img src='umap_metasyn.png' width='280'/></td>
     <td><img src='models/clg_mi2/umap.png' width='280'/></td>
+    <td><img src='models/ctgan_fast/umap.png' width='280'/></td>
     <td><img src='models/semi_mi5/umap.png' width='280'/></td>
+    <td><img src='models/tvae_quick/umap.png' width='280'/></td>
     </tr>
     </tbody>
     </table>

@@ -89,13 +89,13 @@
     <edge source="pcv" target="rbcc" />
     <edge source="htn" target="bp" />
     <edge source="htn" target="ane" />
-    <edge source="htn" target="cad" />
     <edge source="htn" target="al" />
+    <edge source="htn" target="appet" />
     <edge source="htn" target="class" />
     <edge source="htn" target="su" />
     <edge source="dm" target="pe" />
+    <edge source="cad" target="htn" />
     <edge source="appet" target="pot" />
-    <edge source="appet" target="htn" />
     <edge source="pe" target="rbcc" />
     <edge source="class" target="rbc" />
     <edge source="class" target="pcv" />

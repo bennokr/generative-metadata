@@ -32,7 +32,7 @@
     "hasTopConcept": { "@id": "skos:hasTopConcept", "@type": "@id", "@container": "@set" },
 
     "hasQuantityKind": { "@id": "qudt:hasQuantityKind", "@type": "@id" },
-    "hasUnit": { "@id": "qudt:hasUnit", "@type": "@id" },
+    "unitText": "schema:unitText",
     "ucumCode": "qudt:ucumCode",
     "source": { "@id": "dct:source", "@type": "@id" }
   }

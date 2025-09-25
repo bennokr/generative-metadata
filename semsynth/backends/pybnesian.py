@@ -4,17 +4,25 @@ import json
 import logging
 from pathlib import Path
 from typing import Any, Dict, Optional, Tuple, List
+from dataclasses import dataclass
 
 import pandas as pd
 from sklearn.model_selection import train_test_split
 
-# Integrated BN helper functionality (migrated from bn.py)
-from dataclasses import dataclass
 from graphviz import Digraph
 import networkx as nx
 import numpy as np
 from pybnesian import hc, CLGNetworkType, SemiparametricBNType
 
+from ..metrics import per_variable_distances, summarize_distance_metrics, heldout_loglik
+from ..utils import (
+    coerce_continuous_to_float,
+    coerce_discrete_to_category,
+    ensure_dir,
+    infer_types,
+    rename_categorical_categories_to_str,
+)
+from ..models import model_run_root, write_manifest
 
 @dataclass
 class BNArtifacts:
@@ -92,15 +100,6 @@ def save_graphml_structure(model, node_types: Dict[str, object], out_graphml: st
     for u, v in model.arcs():
         G.add_edge(u, v)
     nx.write_graphml(G, out_graphml)
-from ..metrics import per_variable_distances, summarize_distance_metrics, heldout_loglik
-from ..utils import (
-    coerce_continuous_to_float,
-    coerce_discrete_to_category,
-    ensure_dir,
-    infer_types,
-    rename_categorical_categories_to_str,
-)
-from ..models import model_run_root, write_manifest
 
 
 def run_experiment(
@@ -139,10 +138,10 @@ def run_experiment(
     test_df = test_df.reset_index(drop=True)
 
     # Simple arc blacklist: common sensitive vars
-    default_root = ["age", "sex", "race"]
+    roots = model_info.get("roots") or ["age", "sex", "race"]
     cols = list(working.columns)
     col_map = {str(c).lower(): c for c in cols}
-    sens_in_cols = [col_map[s] for s in [x.lower() for x in default_root] if s in col_map]
+    sens_in_cols = [col_map[s] for s in [x.lower() for x in roots] if s in col_map]
     arc_blacklist_pairs: List[Tuple[str, str]] = []
     for u in sens_in_cols:
         for v in cols:

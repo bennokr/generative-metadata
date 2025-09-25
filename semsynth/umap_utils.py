@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from typing import List, Optional, Tuple
+from typing import List, Optional, Tuple, Dict
+from dataclasses import dataclass
 
 import numpy as np
 import pandas as pd
@@ -12,7 +13,24 @@ from sklearn.preprocessing import OneHotEncoder, StandardScaler
 
 import umap
 
-from .utils import UMAPArtifacts, pick_color_labels
+@dataclass
+class UMAPArtifacts:
+    preproc: object
+    umap_model: object
+    sample_idx: np.ndarray
+    embedding: np.ndarray
+    label_mapping: Optional[Dict]
+    color_labels: Optional[np.ndarray]
+
+
+def pick_color_labels(series: Optional[pd.Series]) -> Tuple[Optional[np.ndarray], Optional[Dict]]:
+    if series is None:
+        return None, None
+    values = series.astype("category")
+    cats = list(values.cat.categories)
+    mapping = {cat: i for i, cat in enumerate(cats)}
+    labels = values.map(mapping).to_numpy()
+    return labels, mapping
 
 
 def build_umap(

@@ -6,7 +6,7 @@ configs:
       score: bic
       operators: [arcs]
       max_indegree: 2
-      seed: 42
+    seed: 42
   - name: semi_mi5
     backend: pybnesian
     model:
@@ -14,21 +14,19 @@ configs:
       score: bic
       operators: [arcs]
       max_indegree: 5
-      seed: 42
+    seed: 42
   - name: ctgan_fast
     backend: synthcity
     model:
-      name: ctgan
-      params:
-        epochs: 5
-        batch_size: 256
+      type: ctgan
+      epochs: 5
+      batch_size: 256
     rows: 1000
     seed: 42
   - name: tvae_quick
     backend: synthcity
     model:
-      name: tvae
-      params:
-        batch_size: 256
+      type: tvae
+      batch_size: 256
     rows: 1000
     seed: 42

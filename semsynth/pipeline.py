@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import copy
 from pathlib import Path
 from typing import Optional, Any, List, Dict, Sequence, Tuple
 import json
@@ -20,19 +19,13 @@ from .utils import (
     ensure_dir,
 )
 from .umap_utils import build_umap, plot_umap, transform_with_umap
-from .metrics import per_variable_distances
 from .reporting import write_report_md
 from .mappings import resolve_mapping_json, load_mapping_json
-from .models import load_model_configs, model_run_dir, model_run_root, ModelSpec, discover_model_runs
+from .models import load_model_configs, ModelSpec, discover_model_runs
 from .backends import pybnesian as backend_pyb, synthcity as backend_syn
 from .metadata import (
-    meta_to_dict,
-    build_dataset_jsonld,
-    select_declared_types,
-    resolve_provider_and_id,
     get_uciml_variable_descriptions,
 )
-from metasyn.metaframe import MetaFrame
 
 
 class Config:
@@ -44,88 +37,42 @@ class Config:
     umap_min_dist = 0.1
     umap_n_components = 2
 
-
-
 def process_dataset(
-    meta: Any,
+    dataset_spec: Any,
     df: pd.DataFrame,
     color_series: Optional[pd.Series],
     base_outdir: str,
     *,
-    provider: Optional[str] = None,
-    provider_id: Optional[int] = None,
     model_configs: Optional[List[ModelSpec]] = None,
-    roots: Optional[List[str]] = None,
     run_metasyn: bool = True,
     cfg: Config = Config(),
 ) -> None:
-    name = getattr(meta, 'name', None) or (meta.get('name') if isinstance(meta, dict) else None) or 'dataset'
-    logging.info(f"Processing dataset: {name}")
+    logging.info(f"Processing dataset: {dataset_spec.name}")
 
-    outdir = Path(base_outdir) / name.replace("/", "_")
+    outdir = Path(base_outdir) / dataset_spec.name.replace("/", "_")
     ensure_dir(str(outdir))
 
-    metadata_file = outdir / "metadata.json"
-    meta_dict = meta_to_dict(meta)
-    with metadata_file.open('w', encoding='utf-8') as f:
-        json.dump(meta_dict, f, indent=2)
-    logging.info(f"Wrote raw metadata JSON: {metadata_file}")
-
-    # Attempt to locate curated SemMap metadata before further processing
-    mapping_provider, mapping_provider_id = resolve_provider_and_id(
-        provider=provider,
-        provider_id=provider_id,
-        meta_dict=meta_dict,
-        dataset_jsonld=None,
-    )
+    # ---- Declared information ---- #
     semmap_export: Optional[Dict[str, Any]] = None
-    semmap_dataset_meta: Optional[Dict[str, Any]] = None
-    mapping_path = resolve_mapping_json(mapping_provider, mapping_provider_id, name)
+    mapping_path = resolve_mapping_json(dataset_spec)
     if mapping_path is not None:
         logging.info(f"Applying curated SemMap metadata from {mapping_path}")
         try:
             curated_mapping = load_mapping_json(mapping_path)
             df.semmap.apply_json_metadata(curated_mapping, convert_pint=True)
             semmap_export = df.semmap.export_json_metadata()
-            if isinstance(semmap_export, dict):
-                semmap_dataset_meta = semmap_export.get("dataset")
         except Exception:
             logging.exception("Failed to apply SemMap metadata", exc_info=True)
             semmap_export = None
-            semmap_dataset_meta = None
     else:
         logging.debug(
             "No curated SemMap metadata for provider=%s id=%s dataset=%s",
-            mapping_provider,
-            mapping_provider_id,
-            name,
+            dataset_spec.provider,
+            dataset_spec.id,
+            dataset_spec.name,
         )
 
-    # Build schema.org/Dataset JSON-LD, enriched with SemMap metadata when available
-    dataset_jsonld = build_dataset_jsonld(
-        name,
-        meta_dict,
-        df,
-        semmap_dataset=semmap_dataset_meta,
-    )
-    dataset_jsonld_file = outdir / 'dataset.json'
-    with dataset_jsonld_file.open('w', encoding='utf-8') as fw:
-        json.dump(dataset_jsonld, fw, indent=2)
-    logging.info(f"Wrote JSON-LD metadata: {dataset_jsonld_file}")
-
-    if semmap_export:
-        semmap_json_file = outdir / "dataset.semmap.json"
-        with semmap_json_file.open('w', encoding='utf-8') as sf:
-            json.dump(semmap_export, sf, indent=2)
-        logging.info(f"Wrote SemMap metadata JSON: {semmap_json_file}")
-
-    provider_name_final, provider_id_final = resolve_provider_and_id(
-        provider=provider,
-        provider_id=provider_id,
-        meta_dict=meta_dict,
-        dataset_jsonld=dataset_jsonld,
-    )
-
+    # ---- Inferred information ---- #
     logging.info("Inferring column types (discrete vs continuous)")
     disc_cols, cont_cols = infer_types(df)
     logging.info(f"Detected columns — discrete: {len(disc_cols)}, continuous: {len(cont_cols)}")
@@ -142,27 +89,15 @@ def process_dataset(
             df = rename_categorical_categories_to_str(df, disc_cols)
             df = coerce_continuous_to_float(df, cont_cols)
 
-    # Baseline summary using pandas describe (transposed so variables are rows)
-    logging.info("Computing baseline summary via pandas describe")
-    baseline_df = df.describe(include='all').transpose()
-    baseline_df.index.name = 'variable'
+    # TODO Build DCAT JSON-LD, enriched with SemMap & DSV when available
 
     # Build declared and inferred type maps for reporting
     inferred_map = {c: ("discrete" if c in disc_cols else "continuous") for c in df.columns}
 
-    declared_map = select_declared_types(
-        provider=provider_name_final,
-        provider_id=provider_id_final,
-        meta_obj=meta,
-        df_columns=list(df.columns),
-        meta_dict=meta_dict,
-        dataset_jsonld=dataset_jsonld,
-    )
-
     logging.info("Dropping rows with any NA for modeling")
     df_no_na = df.dropna(axis=0, how="any").reset_index(drop=True)
     if len(df_no_na) == 0:
-        logging.info("All rows removed by dropna(); imputing missing values as fallback")
+        logging.warning("All rows removed by dropna(); imputing missing values as fallback")
         df_imp = df.copy()
         for c in cont_cols:
             if c in df_imp.columns:
@@ -188,14 +123,8 @@ def process_dataset(
                 else:
                     df_imp[c] = df_imp[c].fillna(fill)
         df_no_na = df_imp.reset_index(drop=True)
-    train_df, test_df = train_test_split(
-        df_no_na, test_size=cfg.test_size, random_state=cfg.random_state, shuffle=True
-    )
-    logging.info(f"Train/test split sizes: {len(train_df)}/{len(test_df)}")
-
-    # Arc blacklist is backend-specific (handled by pybnesian backend if needed)
-
-    # Load model configs (pybnesian + synthcity). If none provided, use default_config.yaml
+    
+    # Load model configs. If none provided, use default_config.yaml
     if model_configs is None:
         model_configs = load_model_configs(None)
 
@@ -219,145 +148,40 @@ def process_dataset(
     umap_png_real = outdir / "umap_real.png"
     umap_lims = plot_umap(umap_art.embedding, str(umap_png_real), title=f"{name}: real (sample)", color_labels=umap_art.color_labels)
 
-    metasyn_semmap_parquet_file: Optional[str] = None
-    models_root = model_run_root(outdir)
     # Run models through backends
     for idx, spec in enumerate(model_configs):
-        backend = (spec.backend or "pybnesian").lower()
         label = spec.name or f"model_{idx+1}"
         seed = int(spec.seed if spec.seed is not None else cfg.random_state)
-        if backend == "pybnesian":
-            try:
-                backend_pyb.run_experiment(
-                    df=df_no_na,
-                    provider=provider_name_final,
-                    dataset_name=name,
-                    provider_id=provider_id_final,
-                    outdir=str(outdir),
-                    label=label,
-                    model_info=spec.model or {},
-                    rows=spec.rows,
-                    seed=seed,
-                    test_size=cfg.test_size,
-                    semmap_export=semmap_export,
-                )
-            except Exception:
-                logging.exception("pybnesian run failed for %s", label)
-        elif backend == "synthcity":
-            try:
-                mname = (spec.model or {}).get("name")
-                params = (spec.model or {}).get("params", {})
-                backend_syn.run_experiment(
-                    df=df_no_na,
-                    provider=provider_name_final,
-                    dataset_name=name,
-                    provider_id=provider_id_final,
-                    outdir=str(outdir),
-                    label=label,
-                    model_name=str(mname),
-                    params=params,
-                    rows=spec.rows,
-                    seed=seed,
-                    test_size=cfg.test_size,
-                    semmap_export=semmap_export,
-                )
-            except Exception:
-                logging.exception("synthcity run failed for %s", label)
+        
+        if spec.backend == "pybnesian":
+            backend_module = backend_pyb
+        elif spec.backend == "synthcity":
+            backend_module = backend_syn
         else:
-            logging.warning("Unknown backend %s for model %s; skipping", backend, label)
-
-    # ------------- MetaSyn fit and synthesize -------------
-    # Fit MetaFrame (GMF) on the same training data
-    metasyn_gmf = None
-    synth_meta_df = pd.DataFrame(columns=df_no_na.columns)
-    if run_metasyn:
-        logging.info("Fitting MetaSyn MetaFrame on train")
-        mf = MetaFrame.fit_dataframe(train_df)
-        metasyn_gmf = outdir / "metasyn_gmf.json"
+            logging.warning("Unknown backend %s for model %s; skipping", spec.backend, label)
+        
         try:
-            mf.save(str(metasyn_gmf))
-        except Exception as e:
-            logging.warning(f"Could not save MetaSyn GMF: {e}")
-            metasyn_gmf = None
+            backend_module.run_experiment(
+                df=df_no_na,
+                provider=dataset_spec.provider,
+                dataset_name=dataset_spec.name,
+                provider_id=dataset_spec.id,
+                outdir=str(outdir),
+                label=label,
+                params=spec.model or {},
+                rows=spec.rows,
+                seed=seed,
+                test_size=cfg.test_size,
+                semmap_export=semmap_export,
+            )
+        except Exception:
+            logging.exception("%s run failed for %s", backend, label)
 
-        # Synthesize MetaSyn data
-        try:
-            synth_meta = mf.synthesize(n=cfg.synthetic_sample)
-            import polars as pl
-            if isinstance(synth_meta, pl.DataFrame):
-                synth_meta_df = synth_meta.to_pandas()
-            else:
-                synth_meta_df = synth_meta
-        except Exception as e:
-            logging.warning(f"MetaSyn synthesis failed: {e}")
-            synth_meta_df = pd.DataFrame(columns=df_no_na.columns)
-
-        # Align columns and dtypes
-        synth_meta_df = synth_meta_df.reindex(columns=df_no_na.columns)
-        for c in disc_cols:
-            if c in synth_meta_df.columns:
-                synth_meta_df[c] = synth_meta_df[c].astype("category")
-                if pd.api.types.is_categorical_dtype(df_no_na[c]):
-                    synth_meta_df[c] = synth_meta_df[c].cat.set_categories(df_no_na[c].cat.categories)
-        synth_meta_df = coerce_continuous_to_float(synth_meta_df, cont_cols)
-
-        if semmap_export:
-            try:
-                synth_meta_df.semmap.apply_json_metadata(copy.deepcopy(semmap_export), convert_pint=False)
-                metasyn_semmap_parquet_path = outdir / "synthetic_metasyn.semmap.parquet"
-                synth_meta_df.semmap.to_parquet(str(metasyn_semmap_parquet_path), index=False)
-                metasyn_semmap_parquet_file = str(metasyn_semmap_parquet_path)
-                logging.info(
-                    "Wrote SemMap parquet for MetaSyn synthetic: %s",
-                    metasyn_semmap_parquet_path,
-                )
-            except Exception:
-                logging.exception("Failed to serialize SemMap parquet for MetaSyn synthetic")
-
-    # Distances for MetaSyn model (use overall discrete/continuous cols inferred earlier)
-    dist_table_meta = per_variable_distances(test_df, synth_meta_df, disc_cols, cont_cols)
-
-    umap_png_meta = None
-    if run_metasyn and len(synth_meta_df):
-        synth_meta_no_na = synth_meta_df.dropna(axis=0, how="any")
-        synth_meta_emb = transform_with_umap(umap_art, synth_meta_no_na)
-        umap_png_meta = outdir / "umap_metasyn.png"
-        plot_umap(synth_meta_emb, str(umap_png_meta), title=f"{name}: synthetic (MetaSyn sample)", lims=umap_lims)
-
-    # Fidelity summary table
-    def summarize_distances(dt: pd.DataFrame) -> dict:
-        d_disc = dt[dt['type'] == 'discrete'] if not dt.empty else pd.DataFrame()
-        d_cont = dt[dt['type'] == 'continuous'] if not dt.empty else pd.DataFrame()
-        res = {
-            'disc_jsd_mean': float(d_disc['JSD'].mean()) if ('JSD' in d_disc.columns and len(d_disc)) else float('nan'),
-            'disc_jsd_median': float(d_disc['JSD'].median()) if ('JSD' in d_disc.columns and len(d_disc)) else float('nan'),
-            'cont_ks_mean': float(d_cont['KS'].mean()) if ('KS' in d_cont.columns and len(d_cont)) else float('nan'),
-            'cont_w1_mean': float(d_cont['W1'].mean()) if ('W1' in d_cont.columns and len(d_cont)) else float('nan'),
-        }
-        return res
-
-    fidelity_rows = []
-    if run_metasyn:
-        def summarize_distances(dt: pd.DataFrame) -> dict:
-            d_disc = dt[dt['type'] == 'discrete'] if not dt.empty else pd.DataFrame()
-            d_cont = dt[dt['type'] == 'continuous'] if not dt.empty else pd.DataFrame()
-            return {
-                'disc_jsd_mean': float(d_disc['JSD'].mean()) if ('JSD' in d_disc.columns and len(d_disc)) else float('nan'),
-                'disc_jsd_median': float(d_disc['JSD'].median()) if ('JSD' in d_disc.columns and len(d_disc)) else float('nan'),
-                'cont_ks_mean': float(d_cont['KS'].mean()) if ('KS' in d_cont.columns and len(d_cont)) else float('nan'),
-                'cont_w1_mean': float(d_cont['W1'].mean()) if ('W1' in d_cont.columns and len(d_cont)) else float('nan'),
-            }
-        meta_summary = summarize_distances(dist_table_meta)
-        fidelity_rows.append(dict(model='MetaSyn', **meta_summary))
-    fidelity_table = pd.DataFrame(fidelity_rows)
-
-    # Determine provider and dataset page links
-    provider_name, prov_id = provider_name_final, provider_id_final
     # If UCI, get variable descriptions from cached metadata for report table
     var_desc_map = {}
-    if provider_name == 'uciml' and isinstance(prov_id, int):
+    if dataset_spec.provider == 'uciml' and isinstance(dataset_spec.id, int):
         try:
-            var_desc_map = get_uciml_variable_descriptions(prov_id)
+            var_desc_map = get_uciml_variable_descriptions(dataset_spec.id)
         except Exception:
             var_desc_map = {}
 
@@ -372,31 +196,24 @@ def process_dataset(
                 s_no_na = s_df.dropna(axis=0, how="any")
                 s_emb = transform_with_umap(umap_art, s_no_na)
                 run.umap_png = run.run_dir / "umap.png"
-                plot_umap(s_emb, str(run.umap_png), title=f"{name}: synthetic ({run.name})", lims=umap_lims)
+                plot_umap(s_emb, str(run.umap_png), title=f"{dataset_spec.name}: synthetic ({run.name})", lims=umap_lims)
             except Exception:
                 logging.exception("Failed to generate UMAP for model run %s", run.run_dir)
     except Exception:
-        logging.exception('Failed to discover model runs for %s', name)
+        logging.exception('Failed to discover model runs for %s', dataset_spec.name)
         model_runs = []
 
     write_report_md(
         outdir=outdir,
-        dataset_name=name,
+        dataset_name=dataset_spec.name,
         metadata_file=metadata_file,
-        dataset_jsonld_file=str(dataset_jsonld_file),
         dataset_jsonld=dataset_jsonld,
-        dataset_provider=provider_name,
-        dataset_provider_id=prov_id,
+        dataset_provider=dataset_spec.provider,
+        dataset_provider_id=dataset_spec.id,
         df=df_no_na,
         disc_cols=disc_cols,
         cont_cols=cont_cols,
-        baseline_df=baseline_df,
-        dist_table_meta=dist_table_meta,
-        fidelity_table=fidelity_table,
         umap_png_real=str(umap_png_real),
-        umap_png_meta=(str(umap_png_meta) if umap_png_meta else None),
-        metasyn_gmf_file=(str(metasyn_gmf) if metasyn_gmf is not None else None),
-        metasyn_semmap_parquet=metasyn_semmap_parquet_file,
         declared_types=declared_map or None,
         inferred_types=inferred_map or None,
         variable_descriptions=var_desc_map or None,

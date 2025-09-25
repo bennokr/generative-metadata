@@ -5,6 +5,8 @@ import re
 from pathlib import Path
 from typing import Any, Dict, Optional
 
+from datasets import DatasetSpec
+
 JSONLD_CONTEXT_URL = "https://w3id.org/semmap/context/v1"
 
 
@@ -18,14 +20,14 @@ def _slugify(value: str) -> str:
     return value.strip("-")
 
 
-def resolve_mapping_json(
-    provider: Optional[str],
-    provider_id: Optional[int],
-    dataset_name: Optional[str],
-) -> Optional[Path]:
+def resolve_mapping_json(dataset_spec: DatasetSpec) -> Optional[Path]:
     """Return the curated JSON-LD mapping path for the dataset if it exists."""
     mappings_dir = _mappings_dir()
     candidates = []
+
+    provider = dataset_spec.provider
+    provider_id = dataset_spec.id
+    dataset_name = dataset_spec.name
 
     provider_norm = provider.lower().strip() if isinstance(provider, str) and provider.strip() else None
     if provider_norm and provider_norm not in {"openml", "uciml"}:
@@ -60,31 +62,3 @@ def load_mapping_json(path: Path) -> Dict[str, Any]:
         raise ValueError("Mapping JSON must be an object")
 
     return data
-
-
-def canonical_generator_name(name: str) -> str:
-    """Return the canonical synthcity plugin name for a user alias."""
-    key = str(name).strip().lower()
-    if not key:
-        raise ValueError("Generator name must be non-empty")
-    aliases = {
-        "ctgan": "ctgan",
-        "ads-gan": "adsgan",
-        "adsgan": "adsgan",
-        "pategan": "pategan",
-        "dp-gan": "dpgan",
-        "dpgan": "dpgan",
-        "tvae": "tvae",
-        "rtvae": "rtvae",
-        "nflow": "nflow",
-        "tabularflow": "tabularflow",
-        "bn": "bayesiannetwork",
-        "bayesiannetwork": "bayesiannetwork",
-        "privbayes": "privbayes",
-        "arf": "arf",
-        "arfpy": "arf",
-        "great": "great",
-    }
-    if key not in aliases:
-        raise ValueError(f"Unknown generator alias: {name}")
-    return aliases[key]

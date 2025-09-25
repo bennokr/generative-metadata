@@ -11,7 +11,6 @@ import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
 
-from ..mappings import canonical_generator_name
 from ..metrics import per_variable_distances, summarize_distance_metrics
 from ..utils import (
     coerce_continuous_to_float,
@@ -22,6 +21,33 @@ from ..utils import (
 )
 from ..models import model_run_root, write_manifest
 
+
+def canonical_generator_name(name: str) -> str:
+    """Return the canonical synthcity plugin name for a user alias."""
+    key = str(name).strip().lower()
+    if not key:
+        raise ValueError("Generator name must be non-empty")
+    aliases = {
+        "ctgan": "ctgan",
+        "ads-gan": "adsgan",
+        "adsgan": "adsgan",
+        "pategan": "pategan",
+        "dp-gan": "dpgan",
+        "dpgan": "dpgan",
+        "tvae": "tvae",
+        "rtvae": "rtvae",
+        "nflow": "nflow",
+        "tabularflow": "tabularflow",
+        "bn": "bayesiannetwork",
+        "bayesiannetwork": "bayesiannetwork",
+        "privbayes": "privbayes",
+        "arf": "arf",
+        "arfpy": "arf",
+        "great": "great",
+    }
+    if key not in aliases:
+        raise ValueError(f"Unknown generator alias: {name}")
+    return aliases[key]
 
 @dataclass
 class SynthRunArtifacts:
@@ -117,8 +143,7 @@ def run_experiment(
     provider_id: Optional[int],
     outdir: str,
     label: str,
-    model_name: str,
-    params: Dict[str, Any] | None,
+    model_info: Dict[str, Any] | None,
     rows: Optional[int],
     seed: int,
     test_size: float,
@@ -134,8 +159,9 @@ def run_experiment(
     train_df = train_df.reset_index(drop=True)
     test_df = test_df.reset_index(drop=True)
 
-    plugin_name = canonical_generator_name(model_name)
-    plugin_params = _normalize_plugin_params(plugin_name, params or {})
+    model_type = model_info.pop('type')
+    plugin_name = canonical_generator_name(model_type)
+    plugin_params = _normalize_plugin_params(plugin_name, model_info)
     plugin = _get_plugin(plugin_name, plugin_params)
     plugin.fit(train_df)
     n_rows = int(rows) if rows else len(train_df)

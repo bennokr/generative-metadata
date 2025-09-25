@@ -163,23 +163,3 @@ def dataframe_to_markdown_table(df: pd.DataFrame, float_fmt: str = "{:.4f}") -> 
     for _, r in df.iterrows():
         lines.append("| " + " | ".join(fmt(r[c]) for c in cols) + " |")
     return "\n".join(lines)
-
-
-def pick_color_labels(series: Optional[pd.Series]) -> Tuple[Optional[np.ndarray], Optional[Dict]]:
-    if series is None:
-        return None, None
-    values = series.astype("category")
-    cats = list(values.cat.categories)
-    mapping = {cat: i for i, cat in enumerate(cats)}
-    labels = values.map(mapping).to_numpy()
-    return labels, mapping
-
-
-@dataclass
-class UMAPArtifacts:
-    preproc: object
-    umap_model: object
-    sample_idx: np.ndarray
-    embedding: np.ndarray
-    label_mapping: Optional[Dict]
-    color_labels: Optional[np.ndarray]

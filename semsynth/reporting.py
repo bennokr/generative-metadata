@@ -32,23 +32,16 @@ def write_report_md(
     dataset_name: str,
     metadata_file: str,
     dataset_jsonld_file: Optional[str],
-    dataset_jsonld: Optional[dict],
     dataset_provider: Optional[str],
     dataset_provider_id: Optional[int],
     df: pd.DataFrame,
     disc_cols: List[str],
     cont_cols: List[str],
-    baseline_df: pd.DataFrame,
-    dist_table_meta: pd.DataFrame,
-    fidelity_table: pd.DataFrame,
     umap_png_real: str,
-    umap_png_meta: Optional[str],
-    metasyn_gmf_file: Optional[str] = None,
     declared_types: Optional[dict] = None,
     inferred_types: Optional[dict] = None,
     variable_descriptions: Optional[dict] = None,
     semmap_jsonld: Optional[dict] = None,
-    metasyn_semmap_parquet: Optional[str] = None,
     model_runs: Optional[List[ModelRun]] = None,
 ) -> None:
     md_path = Path(outdir) / "report.md"
@@ -95,10 +88,7 @@ def write_report_md(
             f.write(f"- JSON-LD (schema.org/Dataset): [{jd_name}]({jd_name})\n")
         if semmap_jsonld:
             semmap_json_name = "dataset.semmap.json"
-            if (md_path.parent / semmap_json_name).exists():
-                f.write(f"- SemMap JSON-LD: [{semmap_json_name}]({semmap_json_name})\n")
-            else:
-                f.write(f"- SemMap JSON-LD: {semmap_json_name}\n")
+            f.write(f"- SemMap JSON-LD: [{semmap_json_name}]({semmap_json_name})\n")
         if semmap_html_name:
             f.write(f"- SemMap HTML: [{semmap_html_name}]({semmap_html_name})\n")
         f.write(f"- Rows: {num_rows}\n")
@@ -106,110 +96,13 @@ def write_report_md(
         f.write(f"- Discrete: {len(disc_cols)}  |  Continuous: {len(cont_cols)}\n")
         f.write("\n")
 
-        if isinstance(dataset_jsonld, dict):
-            f.write("## Dataset metadata\n\n")
-            name = dataset_jsonld.get("name")
-            if name and name != dataset_name:
-                f.write(f"- Name: {name}\n")
-            desc = dataset_jsonld.get("description")
-            if desc:
-                f.write("\n### Description\n\n")
-                f.write(str(desc).strip() + "\n\n")
-            creators = dataset_jsonld.get("creator") or dataset_jsonld.get("author")
-            if creators:
-                if isinstance(creators, dict):
-                    creators = [creators]
-                names = []
-                for c in creators:
-                    if isinstance(c, dict):
-                        nm = c.get("name") or " ".join(filter(None, [c.get("givenName"), c.get("familyName")])).strip()
-                        if nm:
-                            names.append(nm)
-                if names:
-                    f.write("- Creators: " + ", ".join(names) + "\n")
-            date_p = dataset_jsonld.get("datePublished") or dataset_jsonld.get("dateCreated")
-            if date_p:
-                f.write(f"- Date: {date_p}\n")
-            citation = dataset_jsonld.get("citation")
-            if citation:
-                f.write("- Citation: " + (citation if isinstance(citation, str) else str(citation)) + "\n")
-            urls = []
-            if dataset_jsonld.get("url"):
-                urls.append(("URL", dataset_jsonld.get("url")))
-            if dataset_jsonld.get("sameAs"):
-                sa = dataset_jsonld.get("sameAs")
-                if isinstance(sa, (list, tuple)):
-                    for u in sa:
-                        urls.append(("sameAs", u))
-                else:
-                    urls.append(("sameAs", sa))
-            if urls:
-                f.write("- Links:\n")
-                for label, u in urls:
-                    f.write(f"  - {label}: {u}\n")
-
-        # Build compact per-variable summary with a single 'dist' column
-        def _format_dist(col: pd.Series, *, top_n: int = 10) -> str:
-            s = col.dropna()
-            if col.name in cont_cols:
-                try:
-                    x = pd.to_numeric(s, errors="coerce")
-                    mean = float(x.mean())
-                    std = float(x.std())
-                    q25 = float(x.quantile(0.25))
-                    q50 = float(x.quantile(0.50))
-                    q75 = float(x.quantile(0.75))
-                    minv = float(x.min())
-                    maxv = float(x.max())
-                    def fmt(v: float) -> str:
-                        txt = f"{v:.4f}".rstrip('0').rstrip('.')
-                        return txt if txt else "0"
-                    quantiles = ", ".join([fmt(minv), fmt(q25), fmt(q50), fmt(q75), fmt(maxv)])
-                    return f"{mean:.4f} ± {std:.4f} [{quantiles}]"
-                except Exception:
-                    return ""
-            # Discrete
-            try:
-                vc = s.astype(str).value_counts(dropna=True)
-                total = float(vc.sum()) if vc.sum() else 1.0
-            except Exception:
-                return ""
-            if len(vc) == 2:
-                labels = list(vc.index)
-                def is_true_label(v: str) -> bool:
-                    t = str(v).strip().lower()
-                    return t in {"true", "1", "yes", "y", "t"}
-                pos_label = None
-                for lab in labels:
-                    if is_true_label(lab):
-                        pos_label = lab
-                        break
-                if pos_label is None:
-                    try:
-                        nums = [float(x) for x in labels]
-                        pos_label = labels[int(nums.index(max(nums)))]
-                    except Exception:
-                        pos_label = labels[0]
-                n_true = int(vc.get(pos_label, 0))
-                pct = 100.0 * (n_true / total)
-                return f"{n_true} ({pct:.2f}%)"
-            parts = []
-            shown = 0
-            for lab, cnt in vc.items():
-                pct = 100.0 * (cnt / total)
-                if shown < top_n:
-                    parts.append(f"{lab}: {int(cnt)} ({pct:.2f}%)")
-                shown += 1
-            if shown > top_n:
-                parts.append(f"… (+{shown - top_n} more)")
-            return "\n".join(parts)
-
+        # Build compact per-variable summary baseline table with a single 'dist' column
         var_rows = []
         for c in df.columns:
-            typ = "continuous" if c in cont_cols else "discrete"
             var_rows.append({"variable": c, "dist": _format_dist(df[c])})
         baseline_out = pd.DataFrame(var_rows)
         baseline_out = baseline_out.fillna("")
+        
         # Build declared, inferred, and description tables (if provided)
         declared_df = None
         if isinstance(declared_types, dict) and declared_types:
@@ -226,6 +119,7 @@ def write_report_md(
             desc_df = pd.DataFrame(
                 [{"variable": k, "description": v} for k, v in variable_descriptions.items()]
             )
+        
         # Merge into baseline summary
         merged = baseline_out
         if declared_df is not None and not declared_df.empty:
@@ -235,7 +129,6 @@ def write_report_md(
         if desc_df is not None and not desc_df.empty:
             merged = desc_df.merge(merged, on="variable", how="right")
         merged = merged.fillna("")
-        
         
 
         f.write("## Variables and summary\n\n")
@@ -247,18 +140,6 @@ def write_report_md(
             # Unified fidelity summary combining all runs and optional MetaSyn
             f.write("## Fidelity summary\n\n")
             rows = []
-            # Add MetaSyn row if available
-            if isinstance(dist_table_meta, pd.DataFrame) and not dist_table_meta.empty:
-                d_disc = dist_table_meta[dist_table_meta['type'] == 'discrete'] if 'type' in dist_table_meta.columns else pd.DataFrame()
-                d_cont = dist_table_meta[dist_table_meta['type'] == 'continuous'] if 'type' in dist_table_meta.columns else pd.DataFrame()
-                rows.append({
-                    "model": "MetaSyn",
-                    "backend": "metasyn",
-                    "disc_jsd_mean": float(d_disc['JSD'].mean()) if ('JSD' in d_disc.columns and len(d_disc)) else None,
-                    "disc_jsd_median": float(d_disc['JSD'].median()) if ('JSD' in d_disc.columns and len(d_disc)) else None,
-                    "cont_ks_mean": float(d_cont['KS'].mean()) if ('KS' in d_cont.columns and len(d_cont)) else None,
-                    "cont_w1_mean": float(d_cont['W1'].mean()) if ('W1' in d_cont.columns and len(d_cont)) else None,
-                })
             for run in model_runs:
                 summary = run.metrics.get("summary", {}) if isinstance(run.metrics, dict) else {}
                 rows.append({
@@ -278,20 +159,6 @@ def write_report_md(
         f.write("<table>\n")
         f.write(f"<tr><th>UMAP</th><th>Details</th><th>Structure</th></tr>\n")
         f.write(f"<tr><td><img src='{Path(umap_png_real).name}' width='280'/></td><td><h3>Real data</h3></td><td></td></tr>\n")
-        
-        if metasyn_gmf_file:
-            # MetaSyn files
-            f.write(f"<tr><td><img src='{Path(umap_png_meta).name}' width='280'/></td><td>\n\n")
-            c = io.StringIO()
-            c.write("### MetaSyn\n\n")
-            mname = Path(metasyn_gmf_file).name
-            c.write(f"- GMF: [{mname}]({mname})\n")
-            if metasyn_semmap_parquet:
-                if metasyn_semmap_parquet:
-                    pname = Path(metasyn_semmap_parquet).name
-                    c.write(f"- Synthetic sample (SemMap Parquet): [{pname}]({pname})\n")
-            cell = markdown.markdown(c.getvalue(), extensions=['extra'])
-            f.write(f"{cell}</td><td></td></tr>\n")
 
         if model_runs:
             # Model details (umap, links, params)
@@ -351,3 +218,59 @@ def write_report_md(
     html_path.write_text(html_out, encoding="utf-8")
     logging.info(f"Converted to HTML: {html_path}")
  
+
+
+def _format_dist(col: pd.Series, *, top_n: int = 10) -> str:
+    s = col.dropna()
+    if col.name in cont_cols:
+        try:
+            x = pd.to_numeric(s, errors="coerce")
+            mean = float(x.mean())
+            std = float(x.std())
+            q25 = float(x.quantile(0.25))
+            q50 = float(x.quantile(0.50))
+            q75 = float(x.quantile(0.75))
+            minv = float(x.min())
+            maxv = float(x.max())
+            def fmt(v: float) -> str:
+                txt = f"{v:.4f}".rstrip('0').rstrip('.')
+                return txt if txt else "0"
+            quantiles = ", ".join([fmt(minv), fmt(q25), fmt(q50), fmt(q75), fmt(maxv)])
+            return f"{mean:.4f} ± {std:.4f} [{quantiles}]"
+        except Exception:
+            return ""
+    # Discrete
+    try:
+        vc = s.astype(str).value_counts(dropna=True)
+        total = float(vc.sum()) if vc.sum() else 1.0
+    except Exception:
+        return ""
+    if len(vc) == 2:
+        labels = list(vc.index)
+        def is_true_label(v: str) -> bool:
+            t = str(v).strip().lower()
+            return t in {"true", "1", "yes", "y", "t"}
+        pos_label = None
+        for lab in labels:
+            if is_true_label(lab):
+                pos_label = lab
+                break
+        if pos_label is None:
+            try:
+                nums = [float(x) for x in labels]
+                pos_label = labels[int(nums.index(max(nums)))]
+            except Exception:
+                pos_label = labels[0]
+        n_true = int(vc.get(pos_label, 0))
+        pct = 100.0 * (n_true / total)
+        return f"{n_true} ({pct:.2f}%)"
+    parts = []
+    shown = 0
+    for lab, cnt in vc.items():
+        pct = 100.0 * (cnt / total)
+        if shown < top_n:
+            parts.append(f"{lab}: {int(cnt)} ({pct:.2f}%)")
+        shown += 1
+    if shown > top_n:
+        parts.append(f"… (+{shown - top_n} more)")
+    return "\n".join(parts)

@@ -55,7 +55,7 @@ def test_export_metadata_roundtrip(tmp_path):
     df.semmap.apply_json_metadata(str(meta_path), convert_pint=False)
 
     # Export
-    exported = df.semmap.export_json_metadata()
+    exported = df.semmap.jsonld()
     with open(meta_path, "r", encoding="utf-8") as f:
         fixture = json.load(f)
 
@@ -65,5 +65,5 @@ def test_export_metadata_roundtrip(tmp_path):
     # Apply exported to a fresh DataFrame and export again (idempotency)
     df2 = pd.read_csv(csv_path)
     df2.semmap.apply_json_metadata(exported, convert_pint=False)
-    exported2 = df2.semmap.export_json_metadata()
+    exported2 = df2.semmap.jsonld()
     assert json.dumps(exported2, sort_keys=True) == json.dumps(exported, sort_keys=True)

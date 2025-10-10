@@ -28,8 +28,8 @@ def _resolve_semmap_context(data: Dict[str, Any]) -> Any:
 def write_report_md(
     outdir: str,
     dataset_name: str,
-    metadata_file: str,
-    dataset_jsonld_file: Optional[str],
+    # metadata_file: str,
+    # dataset_jsonld_file: Optional[str],
     dataset_provider: Optional[str],
     dataset_provider_id: Optional[int],
     df: pd.DataFrame,
@@ -51,9 +51,7 @@ def write_report_md(
             html_title = f"{dataset_name} — SemMap metadata"
             semmap_fragment = render_rdfa(semmap_jsonld, context, html_title)
             semmap_html_path = md_path.parent / "dataset.semmap.html"
-            semmap_html_path.write_text(
-                semmap_fragment, encoding="utf-8"
-            )
+            semmap_html_path.write_text(semmap_fragment, encoding="utf-8")
             semmap_html_name = semmap_html_path.name
             logging.info(f"Wrote SemMap metadata HTML: {semmap_html_path}")
         except Exception:
@@ -61,29 +59,33 @@ def write_report_md(
             semmap_html_name = None
     num_rows, num_cols = df.shape
     with md_path.open("w", encoding="utf-8") as f:
+
         def df_to_markdown(d: pd.DataFrame, index: bool = False) -> str:
             try:
                 return d.to_markdown(index=index)
             except Exception:
                 return d.to_string(index=index)
+
         f.write(f"# Data Report — {dataset_name}\n\n")
-        
+
         # Provider-specific links
         if dataset_provider and dataset_provider_id:
-            if dataset_provider == 'openml':
-                url = f"https://www.openml.org/search?type=data&id={dataset_provider_id}"
+            if dataset_provider == "openml":
+                url = (
+                    f"https://www.openml.org/search?type=data&id={dataset_provider_id}"
+                )
                 f.write(f"**Source**: [OpenML dataset {dataset_provider_id}]({url})\n")
-            elif dataset_provider == 'uciml':
+            elif dataset_provider == "uciml":
                 url = f"https://archive.ics.uci.edu/dataset/{dataset_provider_id}"
                 f.write(f"**Source**: [UCI dataset {dataset_provider_id}]({url})\n")
         f.write("\n")
-        
+
         # Overview
-        mf_name = Path(metadata_file).name
-        f.write(f"- Metadata file: [{mf_name}]({mf_name})\n")
-        if dataset_jsonld_file:
-            jd_name = Path(dataset_jsonld_file).name
-            f.write(f"- JSON-LD (schema.org/Dataset): [{jd_name}]({jd_name})\n")
+        # mf_name = Path(metadata_file).name
+        # f.write(f"- Metadata file: [{mf_name}]({mf_name})\n")
+        # if dataset_jsonld_file:
+        #     jd_name = Path(dataset_jsonld_file).name
+        #     f.write(f"- JSON-LD (schema.org/Dataset): [{jd_name}]({jd_name})\n")
         if semmap_jsonld:
             semmap_json_name = "dataset.semmap.json"
             f.write(f"- SemMap JSON-LD: [{semmap_json_name}]({semmap_json_name})\n")
@@ -97,10 +99,10 @@ def write_report_md(
         # Build compact per-variable summary baseline table with a single 'dist' column
         var_rows = []
         for c in df.columns:
-            var_rows.append({"variable": c, "dist": _format_dist(df[c])})
+            var_rows.append({"variable": c, "dist": _format_dist(df[c], cont_cols)})
         baseline_out = pd.DataFrame(var_rows)
         baseline_out = baseline_out.fillna("")
-        
+
         # Build declared, inferred, and description tables (if provided)
         declared_df = None
         if isinstance(declared_types, dict) and declared_types:
@@ -115,9 +117,12 @@ def write_report_md(
         desc_df = None
         if isinstance(variable_descriptions, dict) and variable_descriptions:
             desc_df = pd.DataFrame(
-                [{"variable": k, "description": v} for k, v in variable_descriptions.items()]
+                [
+                    {"variable": k, "description": v}
+                    for k, v in variable_descriptions.items()
+                ]
             )
-        
+
         # Merge into baseline summary
         merged = baseline_out
         if declared_df is not None and not declared_df.empty:
@@ -127,7 +132,6 @@ def write_report_md(
         if desc_df is not None and not desc_df.empty:
             merged = desc_df.merge(merged, on="variable", how="right")
         merged = merged.fillna("")
-        
 
         f.write("## Variables and summary\n\n")
         f.write(df_to_markdown(merged, index=False) + "\n\n")
@@ -139,41 +143,52 @@ def write_report_md(
             f.write("## Fidelity summary\n\n")
             rows = []
             for run in model_runs:
-                summary = run.metrics.get("summary", {}) if isinstance(run.metrics, dict) else {}
-                rows.append({
-                    "model": run.name,
-                    "backend": run.backend,
-                    "disc_jsd_mean": summary.get("disc_jsd_mean"),
-                    "disc_jsd_median": summary.get("disc_jsd_median"),
-                    "cont_ks_mean": summary.get("cont_ks_mean"),
-                    "cont_w1_mean": summary.get("cont_w1_mean"),
-                })
-            
+                summary = (
+                    run.metrics.get("summary", {})
+                    if isinstance(run.metrics, dict)
+                    else {}
+                )
+                rows.append(
+                    {
+                        "model": run.name,
+                        "backend": run.backend,
+                        "disc_jsd_mean": summary.get("disc_jsd_mean"),
+                        "disc_jsd_median": summary.get("disc_jsd_median"),
+                        "cont_ks_mean": summary.get("cont_ks_mean"),
+                        "cont_w1_mean": summary.get("cont_w1_mean"),
+                    }
+                )
+
             if rows:
                 out = pd.DataFrame(rows)
                 f.write(df_to_markdown(out.round(4).fillna(""), index=False) + "\n\n")
-        
+
         f.write("## Models\n\n")
         f.write("<table>\n")
-        f.write(f"<tr><th>UMAP</th><th>Details</th><th>Structure</th></tr>\n")
-        f.write(f"<tr><td><img src='{Path(umap_png_real).name}' width='280'/></td><td><h3>Real data</h3></td><td></td></tr>\n")
+        f.write("<tr><th>UMAP</th><th>Details</th><th>Structure</th></tr>\n")
+        f.write(
+            f"<tr><td><img src='{Path(umap_png_real).name}' width='280'/></td><td><h3>Real data</h3></td><td></td></tr>\n"
+        )
 
         if model_runs:
             # Model details (umap, links, params)
             for run in model_runs:
-                f.write(f"<tr><td>\n")
+                f.write("<tr><td>\n")
                 if run.umap_png and run.umap_png.exists():
                     rel_png = os.path.relpath(run.umap_png, start=md_path.parent)
                     f.write(f"<img src='{rel_png}' width='280'/>")
-                f.write(f"</td><td>\n\n")
+                f.write("</td><td>\n\n")
 
                 c = io.StringIO()
                 manifest = run.manifest or {}
                 c.write(f"### Model: {run.name} ({run.backend})\n\n")
-                c.write(f"- Seed: {manifest.get('seed')}, rows: {manifest.get('rows')}\n")
+                c.write(
+                    f"- Seed: {manifest.get('seed')}, rows: {manifest.get('rows')}\n"
+                )
                 params = manifest.get("params") or {}
                 if params:
                     c.write("- Params: `" + json.dumps(params, sort_keys=True) + "`\n")
+
                 def _write_link(label: str, target: Optional[Path]) -> None:
                     if target is None:
                         return
@@ -181,20 +196,20 @@ def write_report_md(
                         return
                     rel = os.path.relpath(target, start=md_path.parent)
                     c.write(f"- [{label}]({rel})\n")
+
                 _write_link("Synthetic CSV", run.synthetic_csv)
                 _write_link("Per-variable metrics", run.per_variable_csv)
                 _write_link("Metrics JSON", run.run_dir / "metrics.json")
-                
-                cell = markdown.markdown(c.getvalue(), extensions=['extra'])
+
+                cell = markdown.markdown(c.getvalue(), extensions=["extra"])
                 f.write(cell)
-                f.write(f"</td><td>\n\n")
+                f.write("</td><td>\n\n")
                 structure_png = run.run_dir / "structure.png"
                 if structure_png.exists():
                     rel_png = os.path.relpath(structure_png, start=md_path.parent)
                     f.write(f"<img src='{rel_png}' width='280'/>\n")
-                f.write(f"</td></tr>\n\n")
+                f.write("</td></tr>\n\n")
                 f.write("\n")
-        
 
         f.write("<table>\n\n")
     logging.info(f"Wrote report: {md_path}")
@@ -211,14 +226,17 @@ def write_report_md(
     try:
         tpl = (_TEMPLATES_DIR / "report_template.html").read_text(encoding="utf-8")
     except Exception:
-        tpl = "<!doctype html><html><head><title>{{TITLE}}</title><style>{{CSS}}</style></head><body><main class=\"report-container\">{{BODY}}</main></body></html>"
-    html_out = tpl.replace("{{TITLE}}", html.escape(report_title)).replace("{{CSS}}", css_text).replace("{{BODY}}", html_body)
+        tpl = '<!doctype html><html><head><title>{{TITLE}}</title><style>{{CSS}}</style></head><body><main class="report-container">{{BODY}}</main></body></html>'
+    html_out = (
+        tpl.replace("{{TITLE}}", html.escape(report_title))
+        .replace("{{CSS}}", css_text)
+        .replace("{{BODY}}", html_body)
+    )
     html_path.write_text(html_out, encoding="utf-8")
     logging.info(f"Converted to HTML: {html_path}")
- 
 
 
-def _format_dist(col: pd.Series, *, top_n: int = 10) -> str:
+def _format_dist(col: pd.Series, cont_cols: List[str], *, top_n: int = 10) -> str:
     s = col.dropna()
     if col.name in cont_cols:
         try:
@@ -230,9 +248,11 @@ def _format_dist(col: pd.Series, *, top_n: int = 10) -> str:
             q75 = float(x.quantile(0.75))
             minv = float(x.min())
             maxv = float(x.max())
+
             def fmt(v: float) -> str:
-                txt = f"{v:.4f}".rstrip('0').rstrip('.')
+                txt = f"{v:.4f}".rstrip("0").rstrip(".")
                 return txt if txt else "0"
+
             quantiles = ", ".join([fmt(minv), fmt(q25), fmt(q50), fmt(q75), fmt(maxv)])
             return f"{mean:.4f} ± {std:.4f} [{quantiles}]"
         except Exception:
@@ -245,9 +265,11 @@ def _format_dist(col: pd.Series, *, top_n: int = 10) -> str:
         return ""
     if len(vc) == 2:
         labels = list(vc.index)
+
         def is_true_label(v: str) -> bool:
             t = str(v).strip().lower()
             return t in {"true", "1", "yes", "y", "t"}
+
         pos_label = None
         for lab in labels:
             if is_true_label(lab):

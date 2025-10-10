@@ -2,13 +2,10 @@ from __future__ import annotations
 
 import os
 import math
-from dataclasses import dataclass
-from pathlib import Path
-from typing import Dict, List, Optional, Tuple, Sequence, Union
+from typing import List, Optional, Tuple
 
 import numpy as np
 import pandas as pd
-from zipfile import ZIP_DEFLATED, ZipFile
 
 try:  # Optional dependency for unit-aware dtypes
     from pint_pandas import PintType  # type: ignore
@@ -36,7 +33,11 @@ def is_numeric_series(s: pd.Series) -> bool:
 
 
 def is_discrete_series(s: pd.Series, cardinality_threshold: int = 20) -> bool:
-    if pd.api.types.is_bool_dtype(s) or pd.api.types.is_categorical_dtype(s) or pd.api.types.is_object_dtype(s):
+    if (
+        pd.api.types.is_bool_dtype(s)
+        or pd.api.types.is_categorical_dtype(s)
+        or pd.api.types.is_object_dtype(s)
+    ):
         return True
     if pd.api.types.is_integer_dtype(s):
         try:
@@ -47,7 +48,9 @@ def is_discrete_series(s: pd.Series, cardinality_threshold: int = 20) -> bool:
     return False
 
 
-def infer_types(df: pd.DataFrame, cardinality_threshold: int = 20) -> Tuple[List[str], List[str]]:
+def infer_types(
+    df: pd.DataFrame, cardinality_threshold: int = 20
+) -> Tuple[List[str], List[str]]:
     disc, cont = [], []
     for c in df.columns:
         s = df[c]
@@ -60,7 +63,9 @@ def infer_types(df: pd.DataFrame, cardinality_threshold: int = 20) -> Tuple[List
     return disc, cont
 
 
-def coerce_discrete_to_category(df: pd.DataFrame, discrete_cols: List[str]) -> pd.DataFrame:
+def coerce_discrete_to_category(
+    df: pd.DataFrame, discrete_cols: List[str]
+) -> pd.DataFrame:
     df = df.copy()
     for c in discrete_cols:
         s = df[c]
@@ -71,7 +76,9 @@ def coerce_discrete_to_category(df: pd.DataFrame, discrete_cols: List[str]) -> p
     return df
 
 
-def coerce_continuous_to_float(df: pd.DataFrame, continuous_cols: List[str]) -> pd.DataFrame:
+def coerce_continuous_to_float(
+    df: pd.DataFrame, continuous_cols: List[str]
+) -> pd.DataFrame:
     df = df.copy()
     for c in continuous_cols:
         s = df[c]
@@ -81,10 +88,14 @@ def coerce_continuous_to_float(df: pd.DataFrame, continuous_cols: List[str]) -> 
         else:
             if PintType is not None and isinstance(getattr(s, "dtype", None), PintType):
                 try:
-                    converted = pd.Series(s.astype("float64"), index=s.index, name=s.name)
+                    converted = pd.Series(
+                        s.astype("float64"), index=s.index, name=s.name
+                    )
                 except Exception:
                     try:
-                        converted = pd.Series(np.asarray(s), index=s.index, name=s.name).astype(float)
+                        converted = pd.Series(
+                            np.asarray(s), index=s.index, name=s.name
+                        ).astype(float)
                     except Exception:
                         converted = None
         if converted is not None:
@@ -92,7 +103,9 @@ def coerce_continuous_to_float(df: pd.DataFrame, continuous_cols: List[str]) -> 
     return df
 
 
-def rename_categorical_categories_to_str(df: pd.DataFrame, discrete_cols: List[str]) -> pd.DataFrame:
+def rename_categorical_categories_to_str(
+    df: pd.DataFrame, discrete_cols: List[str]
+) -> pd.DataFrame:
     df = df.copy()
     for c in discrete_cols:
         s = df[c]
@@ -109,7 +122,9 @@ def rename_categorical_categories_to_str(df: pd.DataFrame, discrete_cols: List[s
     return df
 
 
-def summarize_dataframe(df: pd.DataFrame, discrete_cols: List[str], continuous_cols: List[str]) -> pd.DataFrame:
+def summarize_dataframe(
+    df: pd.DataFrame, discrete_cols: List[str], continuous_cols: List[str]
+) -> pd.DataFrame:
     rows = []
     for c in df.columns:
         col = df[c]
@@ -117,13 +132,29 @@ def summarize_dataframe(df: pd.DataFrame, discrete_cols: List[str], continuous_c
         uniq = int(col.nunique(dropna=True))
         if c in continuous_cols:
             desc = col.describe(percentiles=[0.25, 0.5, 0.75])
-            mean = float(desc.get("mean", np.nan)) if not isinstance(desc, float) else float("nan")
-            std = float(desc.get("std", np.nan)) if not isinstance(desc, float) else float("nan")
-            minv = float(desc.get("min", np.nan)) if not isinstance(desc, float) else float("nan")
+            mean = (
+                float(desc.get("mean", np.nan))
+                if not isinstance(desc, float)
+                else float("nan")
+            )
+            std = (
+                float(desc.get("std", np.nan))
+                if not isinstance(desc, float)
+                else float("nan")
+            )
+            minv = (
+                float(desc.get("min", np.nan))
+                if not isinstance(desc, float)
+                else float("nan")
+            )
             q25 = float(desc.get("25%", np.nan)) if "25%" in desc else float("nan")
             q50 = float(desc.get("50%", np.nan)) if "50%" in desc else float("nan")
             q75 = float(desc.get("75%", np.nan)) if "75%" in desc else float("nan")
-            maxv = float(desc.get("max", np.nan)) if not isinstance(desc, float) else float("nan")
+            maxv = (
+                float(desc.get("max", np.nan))
+                if not isinstance(desc, float)
+                else float("nan")
+            )
             rows.append(
                 dict(
                     variable=c,
@@ -143,7 +174,13 @@ def summarize_dataframe(df: pd.DataFrame, discrete_cols: List[str], continuous_c
             top = col.value_counts(dropna=True).head(3)
             top_items = "; ".join([f"{k}:{int(v)}" for k, v in top.items()])
             rows.append(
-                dict(variable=c, type="discrete", na_frac=na_frac, unique=uniq, top3=top_items)
+                dict(
+                    variable=c,
+                    type="discrete",
+                    na_frac=na_frac,
+                    unique=uniq,
+                    top3=top_items,
+                )
             )
     return pd.DataFrame(rows)
 

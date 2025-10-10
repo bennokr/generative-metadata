@@ -1,35 +1,33 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
-from typing import Iterable, List, Optional, Tuple, Any
+from typing import Any, Iterable, List, Optional, Tuple
+
+import pathlib
 
 import pandas as pd
-import pathlib
-import logging
 
-from .dataproviders.openml import get_default_openml
-from .dataproviders.openml import load_openml_by_name
-from .dataproviders.uciml import get_default_uciml, load_uciml_by_id
+from .dataproviders.openml import get_default_openml, list_openml, load_openml_by_name
+from .dataproviders.uciml import get_default_uciml, list_uciml, load_uciml_by_id
+from .specs import DatasetSpec
+
+__all__ = [
+    "DatasetSpec",
+    "specs_from_input",
+    "load_dataset",
+    "list_openml",
+    "list_uciml",
+]
 
 # Local cache directories for dataset payloads (separate from uciml metadata cache)
-_DATA_CACHE_ROOT = pathlib.Path('.') / 'downloads-cache'
-_OPENML_CACHE_DIR = _DATA_CACHE_ROOT / 'openml'
-_UCIML_CACHE_DIR = _DATA_CACHE_ROOT / 'uciml'
+_DATA_CACHE_ROOT = pathlib.Path(".") / "downloads-cache"
+_OPENML_CACHE_DIR = _DATA_CACHE_ROOT / "openml"
+_UCIML_CACHE_DIR = _DATA_CACHE_ROOT / "uciml"
 
 for _d in (_OPENML_CACHE_DIR, _UCIML_CACHE_DIR):
     try:
         _d.mkdir(parents=True, exist_ok=True)
     except Exception:
         pass
-
-@dataclass
-class DatasetSpec:
-    provider: str  # 'openml' or 'uciml'
-    name: Optional[str] = None
-    id: Optional[int] = None
-    target: Optional[str] = None
-    meta: Optional[Any] = None
-
 
 
 def specs_from_input(

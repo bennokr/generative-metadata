@@ -16,3 +16,5 @@ ucumvert
 umap-learn
 synthcity>=0.2
 torch
+pint-pandas
+ucumvert

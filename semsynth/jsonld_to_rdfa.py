@@ -17,18 +17,21 @@ import argparse
 import html
 import json
 from pathlib import Path
-from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple, Union
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 Value = Union[str, int, float, bool, dict, list, None]
 SCHEMA_ORG = "https://schema.org/"
 
 # ---------------- Context & IRI helpers ----------------
 
+
 def is_iri(v: Any) -> bool:
     return isinstance(v, str) and (v.startswith("http://") or v.startswith("https://"))
 
+
 def ensure_ns(v: str) -> str:
     return v if v.endswith(("/", "#")) else v + "/"
+
 
 def extract_vocab_and_prefixes(context: Any) -> Tuple[str, Dict[str, str]]:
     vocab = ""
@@ -48,8 +51,10 @@ def extract_vocab_and_prefixes(context: Any) -> Tuple[str, Dict[str, str]]:
         vocab = SCHEMA_ORG
     return vocab, prefixes
 
+
 def to_list(x: Any) -> List[Any]:
     return x if isinstance(x, list) else [x]
+
 
 def types_to_iris(types: Union[str, List[str]], vocab: str) -> List[str]:
     out: List[str] = []
@@ -67,9 +72,16 @@ def types_to_iris(types: Union[str, List[str]], vocab: str) -> List[str]:
                 out.append(ensure_ns(vocab) + t)
     return out
 
+
 # ---------------- HTML builders ----------------
 
-def tag(name: str, attrs: Dict[str, Optional[str]] | None = None, content: str = "", self_close: bool = False) -> str:
+
+def tag(
+    name: str,
+    attrs: Dict[str, Optional[str]] | None = None,
+    content: str = "",
+    self_close: bool = False,
+) -> str:
     """Minimal HTML tag builder. Escapes attribute values; content is trusted to be already-escaped as needed."""
     attrs = attrs or {}
     parts = [name]
@@ -81,7 +93,9 @@ def tag(name: str, attrs: Dict[str, Optional[str]] | None = None, content: str =
         return "<" + " ".join(parts) + " />"
     return "<" + " ".join(parts) + ">" + content + f"</{name}>"
 
+
 # ---------------- Repeating-structure detection ----------------
+
 
 def repeating_headers(lst: List[dict]) -> List[str]:
     """Return a stable list of shared keys for a list of dicts (ignoring @-keys)."""
@@ -99,16 +113,22 @@ def repeating_headers(lst: List[dict]) -> List[str]:
     freq = {k: sum(1 for s in key_sets if k in s) for k in allk}
     return sorted(allk, key=lambda k: (-freq[k], k))[:12]
 
+
 # ---------------- Rendering (RDFa only) ----------------
+
 
 def render_literal(prop: str, value: Union[str, int, float, bool]) -> str:
     text = "true" if value is True else "false" if value is False else str(value)
     return tag("span", {"property": prop}, html.escape(text))
 
+
 def render_iri(prop: str, iri: str) -> str:
     return tag("a", {"rel": prop, "href": iri}, html.escape(iri))
 
-def render_property(prop: str, value: Value, vocab: str, prefixes: Dict[str, str], depth: int) -> str:
+
+def render_property(
+    prop: str, value: Value, vocab: str, prefixes: Dict[str, str], depth: int
+) -> str:
     """Render a property value in RDFa. Handles dict, list, and literals. Recursive."""
     if value is None:
         return ""
@@ -129,7 +149,15 @@ def render_property(prop: str, value: Value, vocab: str, prefixes: Dict[str, str
             headers = repeating_headers(dicts)
             if headers:
                 rows: List[str] = []
-                thead = tag("thead", {}, tag("tr", {}, "".join(tag("th", {}, html.escape(h)) for h in headers)))
+                thead = tag(
+                    "thead",
+                    {},
+                    tag(
+                        "tr",
+                        {},
+                        "".join(tag("th", {}, html.escape(h)) for h in headers),
+                    ),
+                )
                 for obj in value:  # type: ignore
                     typeof = " ".join(to_list(obj.get("@type", "Thing")))
                     resource = obj.get("@id")
@@ -142,21 +170,41 @@ def render_property(prop: str, value: Value, vocab: str, prefixes: Dict[str, str
                     if isinstance(resource, str):
                         tr_attrs["resource"] = resource
                     rows.append(tag("tr", tr_attrs, "".join(row_cells)))
-                table = tag("table", {"class": "prop-table", "data-prop": prop}, thead + "".join(rows))
-                wrapper = tag("div", {"class": "prop"}, tag("span", {"class": "name"}, html.escape(prop)))
+                table = tag(
+                    "table",
+                    {"class": "prop-table", "data-prop": prop},
+                    thead + "".join(rows),
+                )
+                wrapper = tag(
+                    "div",
+                    {"class": "prop"},
+                    tag("span", {"class": "name"}, html.escape(prop)),
+                )
                 return wrapper + table
         # Fallback: render each item
-        return "\n".join(render_property(prop, v, vocab, prefixes, depth) for v in value)
+        return "\n".join(
+            render_property(prop, v, vocab, prefixes, depth) for v in value
+        )
     # Literal or IRI
     if isinstance(value, str) and is_iri(value):
-        return tag("div", {"class": "prop"},
-                   tag("span", {"class": "name"}, html.escape(prop)) + render_iri(prop, value))
+        return tag(
+            "div",
+            {"class": "prop"},
+            tag("span", {"class": "name"}, html.escape(prop)) + render_iri(prop, value),
+        )
     if isinstance(value, (str, int, float, bool)):
-        return tag("div", {"class": "prop"},
-                   tag("span", {"class": "name"}, html.escape(prop)) + render_literal(prop, value))
+        return tag(
+            "div",
+            {"class": "prop"},
+            tag("span", {"class": "name"}, html.escape(prop))
+            + render_literal(prop, value),
+        )
     return ""
 
-def render_cell(prop: str, value: Value, vocab: str, prefixes: Dict[str, str], depth: int) -> str:
+
+def render_cell(
+    prop: str, value: Value, vocab: str, prefixes: Dict[str, str], depth: int
+) -> str:
     """Cell-friendly rendering (no leading label)."""
     if value is None:
         return ""
@@ -169,14 +217,19 @@ def render_cell(prop: str, value: Value, vocab: str, prefixes: Dict[str, str], d
             attrs["resource"] = resource
         return tag("div", attrs, inner)
     if isinstance(value, list):
-        return "\n".join(render_property(prop, v, vocab, prefixes, depth) for v in value)
+        return "\n".join(
+            render_property(prop, v, vocab, prefixes, depth) for v in value
+        )
     if isinstance(value, str) and is_iri(value):
         return render_iri(prop, value)
     if isinstance(value, (str, int, float, bool)):
         return render_literal(prop, value)
     return ""
 
-def render_object(obj: Dict[str, Any], vocab: str, prefixes: Dict[str, str], depth: int) -> str:
+
+def render_object(
+    obj: Dict[str, Any], vocab: str, prefixes: Dict[str, str], depth: int
+) -> str:
     parts: List[str] = []
     # Visible title (optional)
     title = obj.get("name") or obj.get("headline") or obj.get("@type")
@@ -185,7 +238,9 @@ def render_object(obj: Dict[str, Any], vocab: str, prefixes: Dict[str, str], dep
     # Visible @id link
     rid = obj.get("@id")
     if isinstance(rid, str) and is_iri(rid):
-        parts.append(tag("div", {"class": "id-link"}, tag("a", {"href": rid}, html.escape(rid))))
+        parts.append(
+            tag("div", {"class": "id-link"}, tag("a", {"href": rid}, html.escape(rid)))
+        )
     # Properties
     for k, v in obj.items():
         if k.startswith("@"):
@@ -193,11 +248,13 @@ def render_object(obj: Dict[str, Any], vocab: str, prefixes: Dict[str, str], dep
         parts.append(render_property(k, v, vocab, prefixes, depth + 1))
     return "\n".join(p for p in parts if p)
 
+
 def render_rdfa(root: Value, context: Any, title: str) -> str:
     vocab, prefixes = extract_vocab_and_prefixes(context)
     prefix_attr = " ".join(f"{p}: {iri}" for p, iri in prefixes.items())
     prefix_html = {"prefix": prefix_attr} if prefix_attr else {}
     items: List[str] = []
+
     def wrap_item(item: Dict[str, Any]) -> str:
         typeof = " ".join(to_list(item.get("@type", "Thing")))
         about = item.get("@id")
@@ -206,6 +263,7 @@ def render_rdfa(root: Value, context: Any, title: str) -> str:
         if isinstance(about, str):
             attrs["about"] = about
         return tag("div", attrs, render_object(item, vocab, prefixes, 1))
+
     if isinstance(root, list):
         items.extend(wrap_item(x) for x in root if isinstance(x, dict))
     elif isinstance(root, dict):
@@ -213,6 +271,7 @@ def render_rdfa(root: Value, context: Any, title: str) -> str:
     else:
         items.append(tag("pre", {}, html.escape(str(root))))
     return HTML_HEAD.format(title=html.escape(title)) + "\n".join(items) + HTML_FOOT
+
 
 # ---------------- HTML shell ----------------
 
@@ -244,10 +303,15 @@ HTML_FOOT = """
 
 # ---------------- CLI ----------------
 
+
 def main() -> None:
-    ap = argparse.ArgumentParser(description="Convert compact JSON-LD to RDFa-annotated HTML.")
+    ap = argparse.ArgumentParser(
+        description="Convert compact JSON-LD to RDFa-annotated HTML."
+    )
     ap.add_argument("input", type=Path, help="Path to JSON(-LD) file")
-    ap.add_argument("--out", type=Path, default=Path("out.html"), help="Output HTML file")
+    ap.add_argument(
+        "--out", type=Path, default=Path("out.html"), help="Output HTML file"
+    )
     ap.add_argument("--title", default="JSON-LD to RDFa", help="HTML <title>")
     args = ap.parse_args()
 
@@ -263,6 +327,7 @@ def main() -> None:
     html_out = render_rdfa(data, context, args.title)
     args.out.write_text(html_out, encoding="utf-8")
     print(f"Wrote {args.out}")
+
 
 if __name__ == "__main__":
     main()

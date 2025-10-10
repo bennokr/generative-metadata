@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
@@ -15,7 +15,7 @@ DEFAULT_CONFIG_PATH = Path("configs/default_config.yaml")
 class ModelSpec:
     name: str
     backend: str  # 'pybnesian' or 'synthcity'
-    model: Dict[str, Any]
+    model: Dict[str, Any] = field(default_factory=dict)
     rows: Optional[int] = None
     seed: Optional[int] = None
 
@@ -69,13 +69,21 @@ def load_model_configs(yaml_path: Optional[str]) -> List[ModelSpec]:
     for i, item in enumerate(items):
         if not isinstance(item, dict):
             raise ValueError(f"Config item at index {i} must be a mapping")
-        name = str(item.get("name") or f"model_{i+1}")
+        name = str(item.get("name") or f"model_{i + 1}")
         backend = str(item.get("backend") or "pybnesian").strip().lower()
         model = item.get("model") or {}
         rows = item.get("rows")
         seed = item.get("seed")
-        specs.append(ModelSpec(name=name, backend=backend, model=model, rows=rows, seed=seed))
-        logging.debug("Loaded model spec: name=%s backend=%s rows=%s seed=%s", name, backend, rows, seed)
+        specs.append(
+            ModelSpec(name=name, backend=backend, model=model, rows=rows, seed=seed)
+        )
+        logging.debug(
+            "Loaded model spec: name=%s backend=%s rows=%s seed=%s",
+            name,
+            backend,
+            rows,
+            seed,
+        )
     logging.info("Loaded %d model configs", len(specs))
     return specs
 
@@ -94,7 +102,9 @@ def model_run_dir(dataset_outdir: Path, name: str) -> Path:
 
 
 def write_manifest(run_dir: Path, manifest: Dict[str, Any]) -> None:
-    (run_dir / "manifest.json").write_text(json.dumps(manifest, indent=2), encoding="utf-8")
+    (run_dir / "manifest.json").write_text(
+        json.dumps(manifest, indent=2), encoding="utf-8"
+    )
     logging.debug("Wrote manifest to %s", run_dir / "manifest.json")
 
 

@@ -11,7 +11,6 @@ from sklearn.model_selection import train_test_split
 
 from graphviz import Digraph
 import networkx as nx
-import numpy as np
 from pybnesian import hc, CLGNetworkType, SemiparametricBNType
 
 from ..metrics import per_variable_distances, summarize_distance_metrics, heldout_loglik
@@ -24,6 +23,7 @@ from ..utils import (
 )
 from ..models import model_run_root, write_manifest
 
+
 @dataclass
 class BNArtifacts:
     model: object
@@ -35,9 +35,17 @@ def _bn_type_from_str(bn_type: str):
     t = bn_type.lower().strip()
     if t in {"clg", "clgnetwork", "clgnetworktype"}:
         return CLGNetworkType()
-    if t in {"semiparametric", "semiparametricbn", "semiparametricbntype", "spbn", "semi"}:
+    if t in {
+        "semiparametric",
+        "semiparametricbn",
+        "semiparametricbntype",
+        "spbn",
+        "semi",
+    }:
         return SemiparametricBNType()
-    raise ValueError(f"Unsupported bn_type: {bn_type!r}. Supported: 'clg', 'semiparametric'")
+    raise ValueError(
+        f"Unsupported bn_type: {bn_type!r}. Supported: 'clg', 'semiparametric'"
+    )
 
 
 def learn_bn(
@@ -72,10 +80,14 @@ def learn_bn(
             discrete_cols.append(node)
         else:
             continuous_cols.append(node)
-    return BNArtifacts(model=model, discrete_cols=discrete_cols, continuous_cols=continuous_cols)
+    return BNArtifacts(
+        model=model, discrete_cols=discrete_cols, continuous_cols=continuous_cols
+    )
 
 
-def bn_to_graphviz(model, node_types: Dict[str, object], out_png: str, title: str = "Learned BN") -> None:
+def bn_to_graphviz(
+    model, node_types: Dict[str, object], out_png: str, title: str = "Learned BN"
+) -> None:
     dot = Digraph(comment=title, format="png")
     dot.attr(rankdir="LR")
     for node, ftype in node_types.items():
@@ -89,10 +101,12 @@ def bn_to_graphviz(model, node_types: Dict[str, object], out_png: str, title: st
         dot.node(node, label=node, shape=shape, style="filled", fillcolor=fillcolor)
     for u, v in model.arcs():
         dot.edge(u, v)
-    dot.render(filename=out_png.replace('.png', ''), cleanup=True)
+    dot.render(filename=out_png.replace(".png", ""), cleanup=True)
 
 
-def save_graphml_structure(model, node_types: Dict[str, object], out_graphml: str) -> None:
+def save_graphml_structure(
+    model, node_types: Dict[str, object], out_graphml: str
+) -> None:
     G = nx.DiGraph()
     for n in model.nodes():
         ftype = node_types[n]
@@ -133,7 +147,9 @@ def run_experiment(
     working = rename_categorical_categories_to_str(working, disc_cols)
     working = coerce_continuous_to_float(working, cont_cols)
 
-    train_df, test_df = train_test_split(working, test_size=test_size, random_state=seed, shuffle=True)
+    train_df, test_df = train_test_split(
+        working, test_size=test_size, random_state=seed, shuffle=True
+    )
     train_df = train_df.reset_index(drop=True)
     test_df = test_df.reset_index(drop=True)
 
@@ -176,9 +192,14 @@ def run_experiment(
         try:
             import copy
             import semsynth.semmap as semmap  # noqa: F401  # register accessor
+
             sdf = synth_df.copy()
-            sdf.semmap.apply_json_metadata(copy.deepcopy(semmap_export), convert_pint=False)
-            sdf.semmap.to_parquet(str(run_dir / "synthetic.semmap.parquet"), index=False)
+            sdf.semmap.apply_json_metadata(
+                copy.deepcopy(semmap_export), convert_pint=False
+            )
+            sdf.semmap.to_parquet(
+                str(run_dir / "synthetic.semmap.parquet"), index=False
+            )
         except Exception as e:
             logging.warning("SemMap parquet failed: %s", e)
 
@@ -196,14 +217,21 @@ def run_experiment(
         "heldout_loglik": heldout_loglik(model, test_df),
         "umap_png": None,
     }
-    (run_dir / "metrics.json").write_text(json.dumps(metrics, indent=2), encoding="utf-8")
+    (run_dir / "metrics.json").write_text(
+        json.dumps(metrics, indent=2), encoding="utf-8"
+    )
 
     # BN visualizations and serialization inside model dir
     try:
         node_types = model.node_types()
-        bn_to_graphviz(model, node_types, str(run_dir / f"structure.png"), title=f"{dataset_name or 'dataset'} — {label} BN")
-        save_graphml_structure(model, node_types, run_dir / f"structure.graphml")
-        model.save(str(run_dir / f"model.pickle"))
+        bn_to_graphviz(
+            model,
+            node_types,
+            str(run_dir / "structure.png"),
+            title=f"{dataset_name or 'dataset'} — {label} BN",
+        )
+        save_graphml_structure(model, node_types, run_dir / "structure.graphml")
+        model.save(str(run_dir / "model.pickle"))
     except Exception as e:
         logging.warning("BN serialization failed: %s", e)
 
@@ -214,7 +242,9 @@ def run_experiment(
         "dataset_name": dataset_name,
         "provider_id": provider_id,
         "type": bn_type,
-        "params": dict(type=bn_type, score=score, operators=operators, max_indegree=max_indegree),
+        "params": dict(
+            type=bn_type, score=score, operators=operators, max_indegree=max_indegree
+        ),
         "seed": seed,
         "rows": n_rows,
         "test_size": test_size,

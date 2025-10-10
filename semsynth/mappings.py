@@ -5,7 +5,7 @@ import re
 from pathlib import Path
 from typing import Any, Dict, Optional
 
-from datasets import DatasetSpec
+from .specs import DatasetSpec
 
 JSONLD_CONTEXT_URL = "https://w3id.org/semmap/context/v1"
 
@@ -29,7 +29,11 @@ def resolve_mapping_json(dataset_spec: DatasetSpec) -> Optional[Path]:
     provider_id = dataset_spec.id
     dataset_name = dataset_spec.name
 
-    provider_norm = provider.lower().strip() if isinstance(provider, str) and provider.strip() else None
+    provider_norm = (
+        provider.lower().strip()
+        if isinstance(provider, str) and provider.strip()
+        else None
+    )
     if provider_norm and provider_norm not in {"openml", "uciml"}:
         provider_norm = _slugify(provider_norm)
     elif provider_norm:
@@ -39,7 +43,9 @@ def resolve_mapping_json(dataset_spec: DatasetSpec) -> Optional[Path]:
         candidates.append(mappings_dir / f"{provider_norm}-{provider_id}.metadata.json")
 
     if provider_norm and isinstance(dataset_name, str) and dataset_name.strip():
-        candidates.append(mappings_dir / f"{provider_norm}-{_slugify(dataset_name)}.metadata.json")
+        candidates.append(
+            mappings_dir / f"{provider_norm}-{_slugify(dataset_name)}.metadata.json"
+        )
 
     if isinstance(dataset_name, str) and dataset_name.strip():
         candidates.append(mappings_dir / f"{_slugify(dataset_name)}.metadata.json")

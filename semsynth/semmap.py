@@ -2,19 +2,31 @@
 from __future__ import annotations
 import json
 from typing import Any, Dict, List, Optional, Union
+
 import pandas as pd
 import pyarrow as pa
 import pyarrow.parquet as pq
 
-from pint_pandas import PintArray, PintType
-from ucumvert import PintUcumRegistry
+try:
+    from pint_pandas import PintType
+except ImportError:  # pragma: no cover - optional dependency
+
+    class PintType:  # type: ignore[too-many-ancestors]
+        """Placeholder type when pint-pandas is unavailable."""
+
+        pass
+
+    _HAVE_PINT = False
+else:
+    _HAVE_PINT = True
 
 # Arrow metadata keys (bytes per Arrow requirements)
 _DATASET_JSONLD_KEY = b"jsonld.dataset"
-_COLUMN_JSONLD_KEY  = b"jsonld.column"
+_COLUMN_JSONLD_KEY = b"jsonld.column"
 
 DSV_NOMINAL = "dsv:NominalDataType"
 DSV_QUANTITATIVE = "dsv:QuantitativeDataType"
+
 
 @pd.api.extensions.register_series_accessor("semmap")
 class SemMapSeriesAccessor:
@@ -29,7 +41,7 @@ class SemMapSeriesAccessor:
 
     def _try_convert_to_pint(self, unit_text: Optional[str]) -> None:
         """Best-effort conversion of the Series to a pint dtype using unit_text."""
-        if unit_text is None:
+        if unit_text is None or not _HAVE_PINT:
             return
         try:
             # pint-pandas supports "pint[<unit>]" dtype strings when pint is available
@@ -45,9 +57,9 @@ class SemMapSeriesAccessor:
         name: str,
         label: str,
         *,
-        unit_text: Optional[str] = None,         # unit string ("mmHg", "mg/dL", "year")
-        ucum_code: Optional[str] = None,         # UCUM code ("mm[Hg]", "mg/dL", "a")
-        qudt_unit_iri: Optional[str] = None,     # QUDT IRI; auto-filled when possible
+        unit_text: Optional[str] = None,  # unit string ("mmHg", "mg/dL", "year")
+        ucum_code: Optional[str] = None,  # UCUM code ("mm[Hg]", "mg/dL", "a")
+        qudt_unit_iri: Optional[str] = None,  # QUDT IRI; auto-filled when possible
         value_type_iri: str = "http://www.w3.org/2001/XMLSchema#decimal",
         statistical_data_type: Optional[str] = "dsv:QuantitativeDataType",
         quantity_kind_iri: Optional[str] = None,
@@ -100,7 +112,7 @@ class SemMapSeriesAccessor:
         scheme_source_iri: Optional[str] = None,
         source_iri: Optional[str] = None,
         statistical_data_type: Optional[str] = "dsv:NominalDataType",
-        **kwargs
+        **kwargs,
     ) -> "SemMapSeriesAccessor":
         """Attach categorical variable metadata (integer-coded or strings)."""
         # Build SKOS CodeBook
@@ -148,7 +160,7 @@ class SemMapSeriesAccessor:
         """Ensure the physical storage is parquet-friendly (e.g., strip pint to magnitudes)."""
         s = self._s
 
-        if isinstance(s.dtype, PintType):
+        if _HAVE_PINT and isinstance(s.dtype, PintType):
             # Store magnitudes; metadata carries units for reconstruction
             s = pd.Series(s.to_numpy().magnitude, index=s.index, name=s.name)
         # For categories, parquet handles pd.Categorical fine.
@@ -169,6 +181,8 @@ class SemMapFrameAccessor:
     @staticmethod
     def _maybe_convert_series_to_pint(s: pd.Series, col_jsonld: Dict[str, Any]) -> None:
         """Best-effort pint conversion based on column JSON-LD."""
+        if not _HAVE_PINT:
+            return
         try:
             col_prop = (col_jsonld or {}).get("columnProperty") or {}
             unit_text = col_prop.get("unitText")
@@ -216,22 +230,38 @@ class SemMapFrameAccessor:
             s_meta = self._df[field.name].semmap.jsonld()
             fmeta = dict(field.metadata or {})
             if s_meta is not None:
-                fmeta[_COLUMN_JSONLD_KEY] = json.dumps(s_meta, ensure_ascii=False).encode("utf-8")
-            fields.append(pa.field(field.name, field.type, nullable=field.nullable, metadata=fmeta))
+                fmeta[_COLUMN_JSONLD_KEY] = json.dumps(
+                    s_meta, ensure_ascii=False
+                ).encode("utf-8")
+            fields.append(
+                pa.field(
+                    field.name, field.type, nullable=field.nullable, metadata=fmeta
+                )
+            )
         schema = pa.schema(fields)
 
         # 4) attach dataset JSON-LD on Schema
         schema_meta = dict(schema.metadata or {})
         d_meta = self.jsonld()
         if d_meta is not None:
-            schema_meta[_DATASET_JSONLD_KEY] = json.dumps(d_meta, ensure_ascii=False).encode("utf-8")
+            schema_meta[_DATASET_JSONLD_KEY] = json.dumps(
+                d_meta, ensure_ascii=False
+            ).encode("utf-8")
         schema = schema.with_metadata(schema_meta)
 
         # 5) write parquet
-        pq.write_table(pa.Table.from_arrays([table.column(i) for i in range(table.num_columns)], schema=schema), path, **pq_kwargs)
+        pq.write_table(
+            pa.Table.from_arrays(
+                [table.column(i) for i in range(table.num_columns)], schema=schema
+            ),
+            path,
+            **pq_kwargs,
+        )
 
     @staticmethod
-    def read_parquet(path: str, *, convert_pint: bool = True, **pq_kwargs) -> pd.DataFrame:
+    def read_parquet(
+        path: str, *, convert_pint: bool = True, **pq_kwargs
+    ) -> pd.DataFrame:
         """Read Parquet and restore JSON-LD + pint units."""
         table = pq.read_table(path, **pq_kwargs)
         schema = table.schema
@@ -241,17 +271,23 @@ class SemMapFrameAccessor:
 
         # Restore dataset JSON-LD
         if schema.metadata and _DATASET_JSONLD_KEY in schema.metadata:
-            df.attrs["semmap_jsonld"] = json.loads(schema.metadata[_DATASET_JSONLD_KEY].decode("utf-8"))
+            df.attrs["semmap_jsonld"] = json.loads(
+                schema.metadata[_DATASET_JSONLD_KEY].decode("utf-8")
+            )
 
         # Restore column JSON-LD, and optionally pint dtypes
         for i, field in enumerate(schema):
             name = field.name
             if field.metadata and _COLUMN_JSONLD_KEY in field.metadata:
-                col_jsonld = json.loads(field.metadata[_COLUMN_JSONLD_KEY].decode("utf-8"))
+                col_jsonld = json.loads(
+                    field.metadata[_COLUMN_JSONLD_KEY].decode("utf-8")
+                )
                 # attach back to Series
                 df[name].attrs["semmap_jsonld"] = col_jsonld
                 if convert_pint:
-                    SemMapFrameAccessor._maybe_convert_series_to_pint(df[name], col_jsonld)
+                    SemMapFrameAccessor._maybe_convert_series_to_pint(
+                        df[name], col_jsonld
+                    )
 
         return df
 
@@ -276,7 +312,9 @@ class SemMapFrameAccessor:
 
         # Apply per-column metadata if present
         cols = (((meta_obj or {}).get("tableSchema") or {}).get("columns")) or []
-        by_name = {c.get("name"): c for c in cols if isinstance(c, dict) and "name" in c}
+        by_name = {
+            c.get("name"): c for c in cols if isinstance(c, dict) and "name" in c
+        }
 
         for name, cmeta in by_name.items():
             if name in self._df.columns:

@@ -1,0 +1,98 @@
+<?xml version='1.0' encoding='utf-8'?>
+<graphml xmlns="http://graphml.graphdrawing.org/xmlns" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd">
+  <key id="d0" for="node" attr.name="bn_type" attr.type="string" />
+  <graph edgedefault="directed">
+    <node id="HighBP">
+      <data key="d0">DiscreteFactorType</data>
+    </node>
+    <node id="HighChol">
+      <data key="d0">DiscreteFactorType</data>
+    </node>
+    <node id="CholCheck">
+      <data key="d0">DiscreteFactorType</data>
+    </node>
+    <node id="BMI">
+      <data key="d0">LinearGaussianCPDType</data>
+    </node>
+    <node id="Smoker">
+      <data key="d0">DiscreteFactorType</data>
+    </node>
+    <node id="Stroke">
+      <data key="d0">DiscreteFactorType</data>
+    </node>
+    <node id="HeartDiseaseorAttack">
+      <data key="d0">DiscreteFactorType</data>
+    </node>
+    <node id="PhysActivity">
+      <data key="d0">DiscreteFactorType</data>
+    </node>
+    <node id="Fruits">
+      <data key="d0">DiscreteFactorType</data>
+    </node>
+    <node id="Veggies">
+      <data key="d0">DiscreteFactorType</data>
+    </node>
+    <node id="HvyAlcoholConsump">
+      <data key="d0">DiscreteFactorType</data>
+    </node>
+    <node id="AnyHealthcare">
+      <data key="d0">DiscreteFactorType</data>
+    </node>
+    <node id="NoDocbcCost">
+      <data key="d0">DiscreteFactorType</data>
+    </node>
+    <node id="GenHlth">
+      <data key="d0">DiscreteFactorType</data>
+    </node>
+    <node id="MentHlth">
+      <data key="d0">LinearGaussianCPDType</data>
+    </node>
+    <node id="PhysHlth">
+      <data key="d0">LinearGaussianCPDType</data>
+    </node>
+    <node id="DiffWalk">
+      <data key="d0">DiscreteFactorType</data>
+    </node>
+    <node id="Sex">
+      <data key="d0">DiscreteFactorType</data>
+    </node>
+    <node id="Age">
+      <data key="d0">DiscreteFactorType</data>
+    </node>
+    <node id="Education">
+      <data key="d0">DiscreteFactorType</data>
+    </node>
+    <node id="Income">
+      <data key="d0">DiscreteFactorType</data>
+    </node>
+    <node id="Diabetes_binary">
+      <data key="d0">DiscreteFactorType</data>
+    </node>
+    <edge source="HighBP" target="HeartDiseaseorAttack" />
+    <edge source="HighBP" target="HighChol" />
+    <edge source="HighBP" target="Diabetes_binary" />
+    <edge source="HighChol" target="CholCheck" />
+    <edge source="HighChol" target="MentHlth" />
+    <edge source="Smoker" target="PhysHlth" />
+    <edge source="HeartDiseaseorAttack" target="Smoker" />
+    <edge source="HeartDiseaseorAttack" target="Stroke" />
+    <edge source="PhysActivity" target="Veggies" />
+    <edge source="PhysActivity" target="Education" />
+    <edge source="Veggies" target="Fruits" />
+    <edge source="NoDocbcCost" target="AnyHealthcare" />
+    <edge source="GenHlth" target="HighBP" />
+    <edge source="GenHlth" target="PhysActivity" />
+    <edge source="GenHlth" target="DiffWalk" />
+    <edge source="GenHlth" target="MentHlth" />
+    <edge source="GenHlth" target="PhysHlth" />
+    <edge source="PhysHlth" target="MentHlth" />
+    <edge source="DiffWalk" target="HeartDiseaseorAttack" />
+    <edge source="DiffWalk" target="NoDocbcCost" />
+    <edge source="DiffWalk" target="BMI" />
+    <edge source="DiffWalk" target="Income" />
+    <edge source="Sex" target="HeartDiseaseorAttack" />
+    <edge source="Sex" target="MentHlth" />
+    <edge source="Diabetes_binary" target="BMI" />
+    <edge source="Diabetes_binary" target="HighChol" />
+  </graph>
+</graphml>

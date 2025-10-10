@@ -1,7 +1,6 @@
 import json
 from pathlib import Path
 import pandas as pd
-import pytest
 
 from semsynth.semmap import SemMapFrameAccessor, _HAVE_PINT
 

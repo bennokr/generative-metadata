@@ -49,6 +49,7 @@ def canonical_generator_name(name: str) -> str:
         raise ValueError(f"Unknown generator alias: {name}")
     return aliases[key]
 
+
 @dataclass
 class SynthRunArtifacts:
     plugin_name: str
@@ -92,7 +93,7 @@ def _ensure_torch_rmsnorm() -> None:
                 else:
                     self.register_parameter("weight", None)
 
-            def forward(self, input: 'torch.Tensor') -> 'torch.Tensor':
+            def forward(self, input: "torch.Tensor") -> "torch.Tensor":
                 dims = tuple(range(-len(self.normalized_shape), 0))
                 rms = torch.rsqrt(input.pow(2).mean(dim=dims, keepdim=True) + self.eps)
                 output = input * rms
@@ -108,11 +109,14 @@ def _ensure_torch_rmsnorm() -> None:
 def _get_plugin(name: str, params: Dict[str, Any]):
     _ensure_torch_rmsnorm()
     from synthcity.plugins import Plugins
+
     logging.info("Loading synthcity plugin: %s", name)
     return Plugins().get(name, **(params or {}))
 
 
-def _normalize_plugin_params(plugin_name: str, params: Dict[str, Any]) -> Dict[str, Any]:
+def _normalize_plugin_params(
+    plugin_name: str, params: Dict[str, Any]
+) -> Dict[str, Any]:
     normalized = {k: v for k, v in (params or {}).items() if v is not None}
     if plugin_name == "ctgan" and "epochs" in normalized and "n_iter" not in normalized:
         normalized["n_iter"] = normalized.pop("epochs")
@@ -155,11 +159,13 @@ def run_experiment(
     working = coerce_discrete_to_category(working, disc_cols)
     working = rename_categorical_categories_to_str(working, disc_cols)
     working = coerce_continuous_to_float(working, cont_cols)
-    train_df, test_df = train_test_split(working, test_size=test_size, random_state=seed, shuffle=True)
+    train_df, test_df = train_test_split(
+        working, test_size=test_size, random_state=seed, shuffle=True
+    )
     train_df = train_df.reset_index(drop=True)
     test_df = test_df.reset_index(drop=True)
 
-    model_type = model_info.pop('type')
+    model_type = model_info.pop("type")
     plugin_name = canonical_generator_name(model_type)
     plugin_params = _normalize_plugin_params(plugin_name, model_info)
     plugin = _get_plugin(plugin_name, plugin_params)
@@ -183,9 +189,14 @@ def run_experiment(
         try:
             import copy
             import semsynth.semmap as semmap  # noqa: F401
+
             sdf = synth_df.copy()
-            sdf.semmap.apply_json_metadata(copy.deepcopy(semmap_export), convert_pint=False)
-            sdf.semmap.to_parquet(str(run_dir / "synthetic.semmap.parquet"), index=False)
+            sdf.semmap.apply_json_metadata(
+                copy.deepcopy(semmap_export), convert_pint=False
+            )
+            sdf.semmap.to_parquet(
+                str(run_dir / "synthetic.semmap.parquet"), index=False
+            )
         except Exception as e:
             logging.warning("SemMap parquet failed: %s", e)
 
@@ -202,7 +213,9 @@ def run_experiment(
         "continuous_cols": len(cont_cols),
         "umap_png": None,
     }
-    (run_dir / "metrics.json").write_text(json.dumps(metrics, indent=2), encoding="utf-8")
+    (run_dir / "metrics.json").write_text(
+        json.dumps(metrics, indent=2), encoding="utf-8"
+    )
     manifest = {
         "backend": "synthcity",
         "name": label,

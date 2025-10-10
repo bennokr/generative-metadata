@@ -1,0 +1,619 @@
+{
+    "n_rows": 800,
+    "n_columns": 22,
+    "provenance": {
+        "created by": {
+            "name": "metasyn",
+            "version": "1.1.0"
+        },
+        "creation time": "2025-10-10T16:40:05.712395"
+    },
+    "vars": [
+        {
+            "name": "HighBP",
+            "type": "categorical",
+            "dtype": "Categorical",
+            "prop_missing": 0.0,
+            "distribution": {
+                "implements": "core.multinoulli",
+                "version": "1.0",
+                "provenance": "builtin",
+                "class_name": "MultinoulliDistribution",
+                "unique": false,
+                "parameters": {
+                    "labels": [
+                        "0",
+                        "1"
+                    ],
+                    "probs": [
+                        0.58,
+                        0.42
+                    ]
+                }
+            },
+            "creation_method": {
+                "created_by": "metasyn"
+            }
+        },
+        {
+            "name": "HighChol",
+            "type": "categorical",
+            "dtype": "Categorical",
+            "prop_missing": 0.0,
+            "distribution": {
+                "implements": "core.multinoulli",
+                "version": "1.0",
+                "provenance": "builtin",
+                "class_name": "MultinoulliDistribution",
+                "unique": false,
+                "parameters": {
+                    "labels": [
+                        "0",
+                        "1"
+                    ],
+                    "probs": [
+                        0.605,
+                        0.395
+                    ]
+                }
+            },
+            "creation_method": {
+                "created_by": "metasyn"
+            }
+        },
+        {
+            "name": "CholCheck",
+            "type": "categorical",
+            "dtype": "Categorical",
+            "prop_missing": 0.0,
+            "distribution": {
+                "implements": "core.multinoulli",
+                "version": "1.0",
+                "provenance": "builtin",
+                "class_name": "MultinoulliDistribution",
+                "unique": false,
+                "parameters": {
+                    "labels": [
+                        "0",
+                        "1"
+                    ],
+                    "probs": [
+                        0.03875,
+                        0.96125
+                    ]
+                }
+            },
+            "creation_method": {
+                "created_by": "metasyn"
+            }
+        },
+        {
+            "name": "BMI",
+            "type": "continuous",
+            "dtype": "Float64",
+            "prop_missing": 0.0,
+            "distribution": {
+                "implements": "core.lognormal",
+                "version": "1.0",
+                "provenance": "builtin",
+                "class_name": "LogNormalDistribution",
+                "unique": false,
+                "parameters": {
+                    "mean": 3.3265659269216257,
+                    "sd": 0.20944972583959778
+                }
+            },
+            "creation_method": {
+                "created_by": "metasyn"
+            }
+        },
+        {
+            "name": "Smoker",
+            "type": "categorical",
+            "dtype": "Categorical",
+            "prop_missing": 0.0,
+            "distribution": {
+                "implements": "core.multinoulli",
+                "version": "1.0",
+                "provenance": "builtin",
+                "class_name": "MultinoulliDistribution",
+                "unique": false,
+                "parameters": {
+                    "labels": [
+                        "0",
+                        "1"
+                    ],
+                    "probs": [
+                        0.55,
+                        0.45
+                    ]
+                }
+            },
+            "creation_method": {
+                "created_by": "metasyn"
+            }
+        },
+        {
+            "name": "Stroke",
+            "type": "categorical",
+            "dtype": "Categorical",
+            "prop_missing": 0.0,
+            "distribution": {
+                "implements": "core.multinoulli",
+                "version": "1.0",
+                "provenance": "builtin",
+                "class_name": "MultinoulliDistribution",
+                "unique": false,
+                "parameters": {
+                    "labels": [
+                        "0",
+                        "1"
+                    ],
+                    "probs": [
+                        0.96875,
+                        0.03125
+                    ]
+                }
+            },
+            "creation_method": {
+                "created_by": "metasyn"
+            }
+        },
+        {
+            "name": "HeartDiseaseorAttack",
+            "type": "categorical",
+            "dtype": "Categorical",
+            "prop_missing": 0.0,
+            "distribution": {
+                "implements": "core.multinoulli",
+                "version": "1.0",
+                "provenance": "builtin",
+                "class_name": "MultinoulliDistribution",
+                "unique": false,
+                "parameters": {
+                    "labels": [
+                        "0",
+                        "1"
+                    ],
+                    "probs": [
+                        0.91,
+                        0.09
+                    ]
+                }
+            },
+            "creation_method": {
+                "created_by": "metasyn"
+            }
+        },
+        {
+            "name": "PhysActivity",
+            "type": "categorical",
+            "dtype": "Categorical",
+            "prop_missing": 0.0,
+            "distribution": {
+                "implements": "core.multinoulli",
+                "version": "1.0",
+                "provenance": "builtin",
+                "class_name": "MultinoulliDistribution",
+                "unique": false,
+                "parameters": {
+                    "labels": [
+                        "0",
+                        "1"
+                    ],
+                    "probs": [
+                        0.24625,
+                        0.75375
+                    ]
+                }
+            },
+            "creation_method": {
+                "created_by": "metasyn"
+            }
+        },
+        {
+            "name": "Fruits",
+            "type": "categorical",
+            "dtype": "Categorical",
+            "prop_missing": 0.0,
+            "distribution": {
+                "implements": "core.multinoulli",
+                "version": "1.0",
+                "provenance": "builtin",
+                "class_name": "MultinoulliDistribution",
+                "unique": false,
+                "parameters": {
+                    "labels": [
+                        "0",
+                        "1"
+                    ],
+                    "probs": [
+                        0.375,
+                        0.625
+                    ]
+                }
+            },
+            "creation_method": {
+                "created_by": "metasyn"
+            }
+        },
+        {
+            "name": "Veggies",
+            "type": "categorical",
+            "dtype": "Categorical",
+            "prop_missing": 0.0,
+            "distribution": {
+                "implements": "core.multinoulli",
+                "version": "1.0",
+                "provenance": "builtin",
+                "class_name": "MultinoulliDistribution",
+                "unique": false,
+                "parameters": {
+                    "labels": [
+                        "0",
+                        "1"
+                    ],
+                    "probs": [
+                        0.18375,
+                        0.81625
+                    ]
+                }
+            },
+            "creation_method": {
+                "created_by": "metasyn"
+            }
+        },
+        {
+            "name": "HvyAlcoholConsump",
+            "type": "categorical",
+            "dtype": "Categorical",
+            "prop_missing": 0.0,
+            "distribution": {
+                "implements": "core.multinoulli",
+                "version": "1.0",
+                "provenance": "builtin",
+                "class_name": "MultinoulliDistribution",
+                "unique": false,
+                "parameters": {
+                    "labels": [
+                        "0",
+                        "1"
+                    ],
+                    "probs": [
+                        0.94,
+                        0.06
+                    ]
+                }
+            },
+            "creation_method": {
+                "created_by": "metasyn"
+            }
+        },
+        {
+            "name": "AnyHealthcare",
+            "type": "categorical",
+            "dtype": "Categorical",
+            "prop_missing": 0.0,
+            "distribution": {
+                "implements": "core.multinoulli",
+                "version": "1.0",
+                "provenance": "builtin",
+                "class_name": "MultinoulliDistribution",
+                "unique": false,
+                "parameters": {
+                    "labels": [
+                        "0",
+                        "1"
+                    ],
+                    "probs": [
+                        0.055,
+                        0.945
+                    ]
+                }
+            },
+            "creation_method": {
+                "created_by": "metasyn"
+            }
+        },
+        {
+            "name": "NoDocbcCost",
+            "type": "categorical",
+            "dtype": "Categorical",
+            "prop_missing": 0.0,
+            "distribution": {
+                "implements": "core.multinoulli",
+                "version": "1.0",
+                "provenance": "builtin",
+                "class_name": "MultinoulliDistribution",
+                "unique": false,
+                "parameters": {
+                    "labels": [
+                        "0",
+                        "1"
+                    ],
+                    "probs": [
+                        0.92875,
+                        0.07125
+                    ]
+                }
+            },
+            "creation_method": {
+                "created_by": "metasyn"
+            }
+        },
+        {
+            "name": "GenHlth",
+            "type": "categorical",
+            "dtype": "Categorical",
+            "prop_missing": 0.0,
+            "distribution": {
+                "implements": "core.multinoulli",
+                "version": "1.0",
+                "provenance": "builtin",
+                "class_name": "MultinoulliDistribution",
+                "unique": false,
+                "parameters": {
+                    "labels": [
+                        "1",
+                        "2",
+                        "3",
+                        "4",
+                        "5"
+                    ],
+                    "probs": [
+                        0.18875,
+                        0.34875,
+                        0.29125,
+                        0.13,
+                        0.04125
+                    ]
+                }
+            },
+            "creation_method": {
+                "created_by": "metasyn"
+            }
+        },
+        {
+            "name": "MentHlth",
+            "type": "continuous",
+            "dtype": "Float64",
+            "prop_missing": 0.0,
+            "distribution": {
+                "implements": "core.truncated_normal",
+                "version": "1.0",
+                "provenance": "builtin",
+                "class_name": "TruncatedNormalDistribution",
+                "unique": false,
+                "parameters": {
+                    "lower": -1e-08,
+                    "upper": 30.00000001,
+                    "mean": -1127.446437418128,
+                    "sd": 59.389198207556795
+                }
+            },
+            "creation_method": {
+                "created_by": "metasyn"
+            }
+        },
+        {
+            "name": "PhysHlth",
+            "type": "continuous",
+            "dtype": "Float64",
+            "prop_missing": 0.0,
+            "distribution": {
+                "implements": "core.truncated_normal",
+                "version": "1.0",
+                "provenance": "builtin",
+                "class_name": "TruncatedNormalDistribution",
+                "unique": false,
+                "parameters": {
+                    "lower": -1e-08,
+                    "upper": 30.00000001,
+                    "mean": -1920.393300529667,
+                    "sd": 90.83710278440631
+                }
+            },
+            "creation_method": {
+                "created_by": "metasyn"
+            }
+        },
+        {
+            "name": "DiffWalk",
+            "type": "categorical",
+            "dtype": "Categorical",
+            "prop_missing": 0.0,
+            "distribution": {
+                "implements": "core.multinoulli",
+                "version": "1.0",
+                "provenance": "builtin",
+                "class_name": "MultinoulliDistribution",
+                "unique": false,
+                "parameters": {
+                    "labels": [
+                        "0",
+                        "1"
+                    ],
+                    "probs": [
+                        0.8475,
+                        0.1525
+                    ]
+                }
+            },
+            "creation_method": {
+                "created_by": "metasyn"
+            }
+        },
+        {
+            "name": "Sex",
+            "type": "categorical",
+            "dtype": "Categorical",
+            "prop_missing": 0.0,
+            "distribution": {
+                "implements": "core.multinoulli",
+                "version": "1.0",
+                "provenance": "builtin",
+                "class_name": "MultinoulliDistribution",
+                "unique": false,
+                "parameters": {
+                    "labels": [
+                        "0",
+                        "1"
+                    ],
+                    "probs": [
+                        0.5575,
+                        0.4425
+                    ]
+                }
+            },
+            "creation_method": {
+                "created_by": "metasyn"
+            }
+        },
+        {
+            "name": "Age",
+            "type": "categorical",
+            "dtype": "Categorical",
+            "prop_missing": 0.0,
+            "distribution": {
+                "implements": "core.multinoulli",
+                "version": "1.0",
+                "provenance": "builtin",
+                "class_name": "MultinoulliDistribution",
+                "unique": false,
+                "parameters": {
+                    "labels": [
+                        "1",
+                        "10",
+                        "11",
+                        "12",
+                        "13",
+                        "2",
+                        "3",
+                        "4",
+                        "5",
+                        "6",
+                        "7",
+                        "8",
+                        "9"
+                    ],
+                    "probs": [
+                        0.015000000000000001,
+                        0.13000000000000003,
+                        0.08875000000000001,
+                        0.07875000000000001,
+                        0.037500000000000006,
+                        0.03875000000000001,
+                        0.030000000000000002,
+                        0.06625000000000002,
+                        0.060000000000000005,
+                        0.06500000000000002,
+                        0.13500000000000004,
+                        0.12375000000000001,
+                        0.13125000000000003
+                    ]
+                }
+            },
+            "creation_method": {
+                "created_by": "metasyn"
+            }
+        },
+        {
+            "name": "Education",
+            "type": "categorical",
+            "dtype": "Categorical",
+            "prop_missing": 0.0,
+            "distribution": {
+                "implements": "core.multinoulli",
+                "version": "1.0",
+                "provenance": "builtin",
+                "class_name": "MultinoulliDistribution",
+                "unique": false,
+                "parameters": {
+                    "labels": [
+                        "1",
+                        "2",
+                        "3",
+                        "4",
+                        "5",
+                        "6"
+                    ],
+                    "probs": [
+                        0.00125,
+                        0.01375,
+                        0.0375,
+                        0.24375,
+                        0.27875,
+                        0.425
+                    ]
+                }
+            },
+            "creation_method": {
+                "created_by": "metasyn"
+            }
+        },
+        {
+            "name": "Income",
+            "type": "categorical",
+            "dtype": "Categorical",
+            "prop_missing": 0.0,
+            "distribution": {
+                "implements": "core.multinoulli",
+                "version": "1.0",
+                "provenance": "builtin",
+                "class_name": "MultinoulliDistribution",
+                "unique": false,
+                "parameters": {
+                    "labels": [
+                        "1",
+                        "2",
+                        "3",
+                        "4",
+                        "5",
+                        "6",
+                        "7",
+                        "8"
+                    ],
+                    "probs": [
+                        0.03375,
+                        0.0675,
+                        0.0525,
+                        0.0725,
+                        0.08875,
+                        0.13125,
+                        0.18125,
+                        0.3725
+                    ]
+                }
+            },
+            "creation_method": {
+                "created_by": "metasyn"
+            }
+        },
+        {
+            "name": "Diabetes_binary",
+            "type": "categorical",
+            "dtype": "Categorical",
+            "prop_missing": 0.0,
+            "distribution": {
+                "implements": "core.multinoulli",
+                "version": "1.0",
+                "provenance": "builtin",
+                "class_name": "MultinoulliDistribution",
+                "unique": false,
+                "parameters": {
+                    "labels": [
+                        "0",
+                        "1"
+                    ],
+                    "probs": [
+                        0.86625,
+                        0.13375
+                    ]
+                }
+            },
+            "creation_method": {
+                "created_by": "metasyn"
+            }
+        }
+    ]
+}

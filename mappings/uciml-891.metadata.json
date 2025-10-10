@@ -1,0 +1,552 @@
+{
+  "@context": "https://w3id.org/semmap/context/v1",
+  "dataset": {
+    "@type": [
+      "disco:LogicalDataSet",
+      "dsv:Dataset",
+      "dcat:Dataset"
+    ],
+    "dct:title": "CDC Diabetes Health Indicators (UCI ML Repository ID 891)",
+    "dct:source": "https://archive.ics.uci.edu/dataset/891/cdc+diabetes+health+indicators",
+    "dcat:landingPage": "https://archive.ics.uci.edu/dataset/891/cdc+diabetes+health+indicators"
+  },
+  "tableSchema": {
+    "columns": [
+      {
+        "name": "ID",
+        "titles": "Record identifier",
+        "columnProperty": {
+          "statisticalDataType": "dsv:IdentifierDataType",
+          "valueType": "xsd:integer"
+        }
+      },
+      {
+        "name": "Diabetes_binary",
+        "titles": "Diabetes status (0 = no diabetes, 1 = prediabetes or diabetes)",
+        "columnProperty": {
+          "statisticalDataType": "dsv:NominalDataType",
+          "hasCodeBook": {
+            "hasTopConcept": [
+              {
+                "notation": "0",
+                "prefLabel": "No diabetes diagnosis"
+              },
+              {
+                "notation": "1",
+                "prefLabel": "Prediabetes or diabetes diagnosis",
+                "closeMatch": [
+                  "http://snomed.info/id/73211009",
+                  "http://snomed.info/id/9414007"
+                ]
+              }
+            ]
+          }
+        }
+      },
+      {
+        "name": "HighBP",
+        "titles": "Ever told you have high blood pressure",
+        "columnProperty": {
+          "statisticalDataType": "dsv:NominalDataType",
+          "hasCodeBook": {
+            "hasTopConcept": [
+              {
+                "notation": "0",
+                "prefLabel": "No reported high blood pressure"
+              },
+              {
+                "notation": "1",
+                "prefLabel": "Reported high blood pressure",
+                "exactMatch": [
+                  "http://snomed.info/id/38341003"
+                ]
+              }
+            ]
+          }
+        }
+      },
+      {
+        "name": "HighChol",
+        "titles": "Ever told you have high cholesterol",
+        "columnProperty": {
+          "statisticalDataType": "dsv:NominalDataType",
+          "hasCodeBook": {
+            "hasTopConcept": [
+              {
+                "notation": "0",
+                "prefLabel": "No reported high cholesterol"
+              },
+              {
+                "notation": "1",
+                "prefLabel": "Reported high cholesterol",
+                "exactMatch": [
+                  "http://snomed.info/id/267432004"
+                ]
+              }
+            ]
+          }
+        }
+      },
+      {
+        "name": "CholCheck",
+        "titles": "Cholesterol checked within the past 5 years",
+        "columnProperty": {
+          "statisticalDataType": "dsv:NominalDataType",
+          "hasCodeBook": {
+            "hasTopConcept": [
+              {
+                "notation": "0",
+                "prefLabel": "No cholesterol check in past five years"
+              },
+              {
+                "notation": "1",
+                "prefLabel": "Cholesterol check in past five years",
+                "exactMatch": [
+                  "http://loinc.org/2093-3"
+                ]
+              }
+            ]
+          }
+        }
+      },
+      {
+        "name": "BMI",
+        "titles": "Body Mass Index",
+        "columnProperty": {
+          "statisticalDataType": "dsv:QuantitativeDataType",
+          "valueType": "xsd:integer",
+          "hasUnit": "unit:KiloGM-PER-M2",
+          "exactMatch": [
+            "http://loinc.org/39156-5"
+          ]
+        }
+      },
+      {
+        "name": "Smoker",
+        "titles": "Lifetime cigarette smoking (\u2265100 cigarettes)",
+        "columnProperty": {
+          "statisticalDataType": "dsv:NominalDataType",
+          "hasCodeBook": {
+            "hasTopConcept": [
+              {
+                "notation": "0",
+                "prefLabel": "Fewer than 100 cigarettes ever",
+                "exactMatch": [
+                  "http://snomed.info/id/266919005"
+                ]
+              },
+              {
+                "notation": "1",
+                "prefLabel": "At least 100 cigarettes ever",
+                "exactMatch": [
+                  "http://snomed.info/id/77176002"
+                ]
+              }
+            ]
+          }
+        }
+      },
+      {
+        "name": "Stroke",
+        "titles": "Ever told you had a stroke",
+        "columnProperty": {
+          "statisticalDataType": "dsv:NominalDataType",
+          "hasCodeBook": {
+            "hasTopConcept": [
+              {
+                "notation": "0",
+                "prefLabel": "No stroke diagnosis"
+              },
+              {
+                "notation": "1",
+                "prefLabel": "Stroke diagnosis",
+                "exactMatch": [
+                  "http://snomed.info/id/230690007"
+                ]
+              }
+            ]
+          }
+        }
+      },
+      {
+        "name": "HeartDiseaseorAttack",
+        "titles": "Ever told you had coronary heart disease or myocardial infarction",
+        "columnProperty": {
+          "statisticalDataType": "dsv:NominalDataType",
+          "hasCodeBook": {
+            "hasTopConcept": [
+              {
+                "notation": "0",
+                "prefLabel": "No CHD or MI diagnosis"
+              },
+              {
+                "notation": "1",
+                "prefLabel": "CHD or MI diagnosis",
+                "exactMatch": [
+                  "http://snomed.info/id/53741008"
+                ]
+              }
+            ]
+          }
+        }
+      },
+      {
+        "name": "PhysActivity",
+        "titles": "Any physical activity besides regular job in past 30 days",
+        "columnProperty": {
+          "statisticalDataType": "dsv:NominalDataType",
+          "hasCodeBook": {
+            "hasTopConcept": [
+              {
+                "notation": "0",
+                "prefLabel": "No physical activity reported"
+              },
+              {
+                "notation": "1",
+                "prefLabel": "Physical activity reported",
+                "exactMatch": [
+                  "http://snomed.info/id/228447005"
+                ]
+              }
+            ]
+          }
+        }
+      },
+      {
+        "name": "Fruits",
+        "titles": "Consumes fruit one or more times per day",
+        "columnProperty": {
+          "statisticalDataType": "dsv:NominalDataType",
+          "hasCodeBook": {
+            "hasTopConcept": [
+              {
+                "notation": "0",
+                "prefLabel": "Less than daily fruit consumption"
+              },
+              {
+                "notation": "1",
+                "prefLabel": "Daily fruit consumption"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "name": "Veggies",
+        "titles": "Consumes vegetables one or more times per day",
+        "columnProperty": {
+          "statisticalDataType": "dsv:NominalDataType",
+          "hasCodeBook": {
+            "hasTopConcept": [
+              {
+                "notation": "0",
+                "prefLabel": "Less than daily vegetable consumption"
+              },
+              {
+                "notation": "1",
+                "prefLabel": "Daily vegetable consumption"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "name": "HvyAlcoholConsump",
+        "titles": "Meets heavy drinking threshold",
+        "columnProperty": {
+          "statisticalDataType": "dsv:NominalDataType",
+          "hasCodeBook": {
+            "hasTopConcept": [
+              {
+                "notation": "0",
+                "prefLabel": "Alcohol consumption below heavy threshold"
+              },
+              {
+                "notation": "1",
+                "prefLabel": "Alcohol consumption above heavy threshold",
+                "exactMatch": [
+                  "http://snomed.info/id/160592001"
+                ]
+              }
+            ]
+          }
+        }
+      },
+      {
+        "name": "AnyHealthcare",
+        "titles": "Has any form of health care coverage",
+        "columnProperty": {
+          "statisticalDataType": "dsv:NominalDataType",
+          "hasCodeBook": {
+            "hasTopConcept": [
+              {
+                "notation": "0",
+                "prefLabel": "No health care coverage"
+              },
+              {
+                "notation": "1",
+                "prefLabel": "Has health care coverage"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "name": "NoDocbcCost",
+        "titles": "Could not see a doctor due to cost in past 12 months",
+        "columnProperty": {
+          "statisticalDataType": "dsv:NominalDataType",
+          "hasCodeBook": {
+            "hasTopConcept": [
+              {
+                "notation": "0",
+                "prefLabel": "Cost did not prevent doctor visit"
+              },
+              {
+                "notation": "1",
+                "prefLabel": "Cost prevented doctor visit"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "name": "GenHlth",
+        "titles": "Self-reported general health (1 = excellent to 5 = poor)",
+        "columnProperty": {
+          "statisticalDataType": "dsv:OrdinalDataType",
+          "hasCodeBook": {
+            "hasTopConcept": [
+              {
+                "notation": "1",
+                "prefLabel": "Excellent health"
+              },
+              {
+                "notation": "2",
+                "prefLabel": "Very good health"
+              },
+              {
+                "notation": "3",
+                "prefLabel": "Good health"
+              },
+              {
+                "notation": "4",
+                "prefLabel": "Fair health"
+              },
+              {
+                "notation": "5",
+                "prefLabel": "Poor health"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "name": "MentHlth",
+        "titles": "Number of days mental health was not good in past 30 days",
+        "columnProperty": {
+          "statisticalDataType": "dsv:QuantitativeDataType",
+          "valueType": "xsd:integer",
+          "hasUnit": "unit:D"
+        }
+      },
+      {
+        "name": "PhysHlth",
+        "titles": "Number of days physical health was not good in past 30 days",
+        "columnProperty": {
+          "statisticalDataType": "dsv:QuantitativeDataType",
+          "valueType": "xsd:integer",
+          "hasUnit": "unit:D"
+        }
+      },
+      {
+        "name": "DiffWalk",
+        "titles": "Serious difficulty walking or climbing stairs",
+        "columnProperty": {
+          "statisticalDataType": "dsv:NominalDataType",
+          "hasCodeBook": {
+            "hasTopConcept": [
+              {
+                "notation": "0",
+                "prefLabel": "No reported difficulty walking or climbing stairs"
+              },
+              {
+                "notation": "1",
+                "prefLabel": "Reported difficulty walking or climbing stairs",
+                "exactMatch": [
+                  "http://snomed.info/id/719232003"
+                ]
+              }
+            ]
+          }
+        }
+      },
+      {
+        "name": "Sex",
+        "titles": "Sex assigned at birth (0 = female, 1 = male)",
+        "columnProperty": {
+          "statisticalDataType": "dsv:NominalDataType",
+          "hasCodeBook": {
+            "hasTopConcept": [
+              {
+                "notation": "0",
+                "prefLabel": "Female",
+                "exactMatch": [
+                  "http://snomed.info/id/248152002"
+                ]
+              },
+              {
+                "notation": "1",
+                "prefLabel": "Male",
+                "exactMatch": [
+                  "http://snomed.info/id/248153007"
+                ]
+              }
+            ]
+          }
+        }
+      },
+      {
+        "name": "Age",
+        "titles": "Age category (1 = 18\u201324 up to 13 = 80 or older)",
+        "columnProperty": {
+          "statisticalDataType": "dsv:OrdinalDataType",
+          "hasCodeBook": {
+            "hasTopConcept": [
+              {
+                "notation": "1",
+                "prefLabel": "18\u201324 years"
+              },
+              {
+                "notation": "2",
+                "prefLabel": "25\u201329 years"
+              },
+              {
+                "notation": "3",
+                "prefLabel": "30\u201334 years"
+              },
+              {
+                "notation": "4",
+                "prefLabel": "35\u201339 years"
+              },
+              {
+                "notation": "5",
+                "prefLabel": "40\u201344 years"
+              },
+              {
+                "notation": "6",
+                "prefLabel": "45\u201349 years"
+              },
+              {
+                "notation": "7",
+                "prefLabel": "50\u201354 years"
+              },
+              {
+                "notation": "8",
+                "prefLabel": "55\u201359 years"
+              },
+              {
+                "notation": "9",
+                "prefLabel": "60\u201364 years"
+              },
+              {
+                "notation": "10",
+                "prefLabel": "65\u201369 years"
+              },
+              {
+                "notation": "11",
+                "prefLabel": "70\u201374 years"
+              },
+              {
+                "notation": "12",
+                "prefLabel": "75\u201379 years"
+              },
+              {
+                "notation": "13",
+                "prefLabel": "80 years or older"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "name": "Education",
+        "titles": "Highest education level completed (1 = less than elementary to 6 = college graduate)",
+        "columnProperty": {
+          "statisticalDataType": "dsv:OrdinalDataType",
+          "hasCodeBook": {
+            "hasTopConcept": [
+              {
+                "notation": "1",
+                "prefLabel": "Never attended school or only kindergarten"
+              },
+              {
+                "notation": "2",
+                "prefLabel": "Grades 1\u20138 (elementary)"
+              },
+              {
+                "notation": "3",
+                "prefLabel": "Grades 9\u201311 (some high school)"
+              },
+              {
+                "notation": "4",
+                "prefLabel": "Grade 12 or GED (high school graduate)"
+              },
+              {
+                "notation": "5",
+                "prefLabel": "College 1\u20133 years (some college or technical school)"
+              },
+              {
+                "notation": "6",
+                "prefLabel": "College 4 years or more (college graduate)"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "name": "Income",
+        "titles": "Household income category (1 = <$10,000 to 8 = \u2265$75,000)",
+        "columnProperty": {
+          "statisticalDataType": "dsv:OrdinalDataType",
+          "hasCodeBook": {
+            "hasTopConcept": [
+              {
+                "notation": "1",
+                "prefLabel": "Less than $10,000"
+              },
+              {
+                "notation": "2",
+                "prefLabel": "$10,000 to <$15,000"
+              },
+              {
+                "notation": "3",
+                "prefLabel": "$15,000 to <$20,000"
+              },
+              {
+                "notation": "4",
+                "prefLabel": "$20,000 to <$25,000"
+              },
+              {
+                "notation": "5",
+                "prefLabel": "$25,000 to <$35,000"
+              },
+              {
+                "notation": "6",
+                "prefLabel": "$35,000 to <$50,000"
+              },
+              {
+                "notation": "7",
+                "prefLabel": "$50,000 to <$75,000"
+              },
+              {
+                "notation": "8",
+                "prefLabel": "$75,000 or more"
+              }
+            ]
+          }
+        }
+      }
+    ]
+  }
+}

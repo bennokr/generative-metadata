@@ -1,7 +1,20 @@
 from __future__ import annotations
 
-from typing import List, Optional, Tuple, Dict
+from typing import Dict, List, Optional, Tuple
 from dataclasses import dataclass
+
+import os
+import tempfile
+from pathlib import Path
+
+# Ensure numba has a writable cache directory and disable caching to avoid sandbox errors.
+os.environ.setdefault("NUMBA_DISABLE_CACHING", "1")
+cache_dir = Path(
+    os.environ.setdefault(
+        "NUMBA_CACHE_DIR", str(Path(tempfile.gettempdir()) / "numba_cache")
+    )
+)
+cache_dir.mkdir(parents=True, exist_ok=True)
 
 import numpy as np
 import pandas as pd
@@ -13,6 +26,7 @@ from sklearn.preprocessing import OneHotEncoder, StandardScaler
 
 import umap
 
+
 @dataclass
 class UMAPArtifacts:
     preproc: object
@@ -23,7 +37,9 @@ class UMAPArtifacts:
     color_labels: Optional[np.ndarray]
 
 
-def pick_color_labels(series: Optional[pd.Series]) -> Tuple[Optional[np.ndarray], Optional[Dict]]:
+def pick_color_labels(
+    series: Optional[pd.Series],
+) -> Tuple[Optional[np.ndarray], Optional[Dict]]:
     if series is None:
         return None, None
     values = series.astype("category")
@@ -46,7 +62,10 @@ def build_umap(
     n_components: int = 2,
 ) -> UMAPArtifacts:
     cont_pipe = Pipeline(
-        [("impute", SimpleImputer(strategy="median")), ("scale", StandardScaler(with_mean=True, with_std=True))]
+        [
+            ("impute", SimpleImputer(strategy="median")),
+            ("scale", StandardScaler(with_mean=True, with_std=True)),
+        ]
     )
     disc_pipe = Pipeline(
         [
@@ -56,7 +75,10 @@ def build_umap(
     )
 
     preproc = ColumnTransformer(
-        transformers=[("cont", cont_pipe, continuous_cols), ("disc", disc_pipe, discrete_cols)],
+        transformers=[
+            ("cont", cont_pipe, continuous_cols),
+            ("disc", disc_pipe, discrete_cols),
+        ],
         remainder="drop",
         sparse_threshold=1.0,
     )
@@ -77,7 +99,9 @@ def build_umap(
     )
     embedding = reducer.fit_transform(X)
 
-    labels, mapping = pick_color_labels(color_series.iloc[sample_idx] if color_series is not None else None)
+    labels, mapping = pick_color_labels(
+        color_series.iloc[sample_idx] if color_series is not None else None
+    )
     return UMAPArtifacts(
         preproc=preproc,
         umap_model=reducer,
@@ -93,7 +117,13 @@ def transform_with_umap(art: UMAPArtifacts, df: pd.DataFrame) -> np.ndarray:
     return art.umap_model.transform(X)
 
 
-def plot_umap(embedding: np.ndarray, outfile: str, title: str, color_labels: Optional[np.ndarray] = None, lims: Optional[Tuple[Tuple[float,float], Tuple[float,float]]] = None) -> None:
+def plot_umap(
+    embedding: np.ndarray,
+    outfile: str,
+    title: str,
+    color_labels: Optional[np.ndarray] = None,
+    lims: Optional[Tuple[Tuple[float, float], Tuple[float, float]]] = None,
+) -> None:
     fig = plt.figure(figsize=(7, 6), dpi=140)
     if color_labels is None:
         plt.scatter(embedding[:, 0], embedding[:, 1], s=4, alpha=0.6)

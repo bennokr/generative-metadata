@@ -1,0 +1,10 @@
+{
+  "backend": "metasyn",
+  "name": "metasyn",
+  "provider": "uciml",
+  "dataset_name": "CDC Diabetes Health Indicators",
+  "provider_id": 891,
+  "seed": 42,
+  "rows": 1000,
+  "test_size": 0.2
+}

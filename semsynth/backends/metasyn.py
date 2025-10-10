@@ -1,16 +1,17 @@
 import copy
+import json
 import logging
 from pathlib import Path
 from typing import Any, Dict, Optional
 
 import pandas as pd
 from metasyn.metaframe import MetaFrame
-
 from sklearn.model_selection import train_test_split
 
+from ..metrics import per_variable_distances, summarize_distance_metrics
 from ..models import model_run_root, write_manifest
 from ..utils import coerce_continuous_to_float, ensure_dir, infer_types
-from ..metrics import heldout_loglik, per_variable_distances, summarize_distance_metrics
+
 
 def run_experiment(
     df: pd.DataFrame,
@@ -25,13 +26,15 @@ def run_experiment(
     seed: int,
     test_size: float,
     semmap_export: Optional[Dict[str, Any]] = None,
-):
+) -> Path:
     rows = rows or len(df)
-    
-    train_df, test_df = train_test_split(df.copy(), test_size=test_size, random_state=seed, shuffle=True)
+
+    train_df, test_df = train_test_split(
+        df.copy(), test_size=test_size, random_state=seed, shuffle=True
+    )
     train_df = train_df.reset_index(drop=True)
     test_df = test_df.reset_index(drop=True)
-    
+
     run_root = model_run_root(Path(outdir))
     run_dir = run_root / label
     ensure_dir(str(run_dir))
@@ -50,6 +53,7 @@ def run_experiment(
     try:
         synth_meta = mf.synthesize(n=rows)
         import polars as pl
+
         if isinstance(synth_meta, pl.DataFrame):
             synth_df = synth_meta.to_pandas()
         else:
@@ -73,7 +77,9 @@ def run_experiment(
 
     if semmap_export:
         try:
-            synth_df.semmap.apply_json_metadata(copy.deepcopy(semmap_export), convert_pint=False)
+            synth_df.semmap.apply_json_metadata(
+                copy.deepcopy(semmap_export), convert_pint=False
+            )
             metasyn_semmap_parquet_path = run_dir / "synthetic_metasyn.semmap.parquet"
             synth_df.semmap.to_parquet(str(metasyn_semmap_parquet_path), index=False)
             metasyn_semmap_parquet_file = str(metasyn_semmap_parquet_path)
@@ -82,13 +88,15 @@ def run_experiment(
                 metasyn_semmap_parquet_path,
             )
         except Exception:
-            logging.exception("Failed to serialize SemMap parquet for MetaSyn synthetic")
+            logging.exception(
+                "Failed to serialize SemMap parquet for MetaSyn synthetic"
+            )
 
     # Distances for MetaSyn model (use overall discrete/continuous cols inferred earlier)
     dist_df = per_variable_distances(test_df, synth_df, disc_cols, cont_cols)
     dist_df.to_csv(run_dir / "per_variable_metrics.csv", index=False)
     metrics = {
-        "backend": "pybnesian",
+        "backend": "metasyn",
         "summary": summarize_distance_metrics(dist_df),
         "train_rows": len(train_df),
         "test_rows": len(test_df),
@@ -97,7 +105,9 @@ def run_experiment(
         "continuous_cols": len(cont_cols),
         "umap_png": None,
     }
-    (run_dir / "metrics.json").write_text(json.dumps(metrics, indent=2), encoding="utf-8")
+    (run_dir / "metrics.json").write_text(
+        json.dumps(metrics, indent=2), encoding="utf-8"
+    )
 
     manifest = {
         "backend": "metasyn",

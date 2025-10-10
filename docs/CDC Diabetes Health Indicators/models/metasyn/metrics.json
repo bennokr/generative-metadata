@@ -1,0 +1,15 @@
+{
+  "backend": "metasyn",
+  "summary": {
+    "disc_jsd_mean": 0.0420252407855113,
+    "disc_jsd_median": 0.02788634027278416,
+    "cont_ks_mean": 0.46599999999999997,
+    "cont_w1_mean": 2.3241842407095383
+  },
+  "train_rows": 800,
+  "test_rows": 200,
+  "synth_rows": 1000,
+  "discrete_cols": 19,
+  "continuous_cols": 3,
+  "umap_png": null
+}

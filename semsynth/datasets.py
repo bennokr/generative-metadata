@@ -7,10 +7,9 @@ import pandas as pd
 import pathlib
 import logging
 
-from metadata import DCATSchema
-from dataproviders.openml import get_default_openml
-from semsynth.dataproviders.openml import load_openml_by_name
-from semsynth.dataproviders.uciml import get_default_uciml, load_uciml_by_id
+from .dataproviders.openml import get_default_openml
+from .dataproviders.openml import load_openml_by_name
+from .dataproviders.uciml import get_default_uciml, load_uciml_by_id
 
 # Local cache directories for dataset payloads (separate from uciml metadata cache)
 _DATA_CACHE_ROOT = pathlib.Path('.') / 'downloads-cache'

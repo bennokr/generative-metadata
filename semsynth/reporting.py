@@ -10,11 +10,9 @@ import textwrap
 import io
 
 import markdown
-
-from jsonld_to_rdfa import SCHEMA_ORG, render_rdfa
-
 import pandas as pd
 
+from .jsonld_to_rdfa import SCHEMA_ORG, render_rdfa
 from .models import ModelRun
 
 

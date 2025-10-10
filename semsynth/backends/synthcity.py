@@ -182,7 +182,7 @@ def run_experiment(
     if semmap_export:
         try:
             import copy
-            import semmap  # noqa: F401
+            import semsynth.semmap as semmap  # noqa: F401
             sdf = synth_df.copy()
             sdf.semmap.apply_json_metadata(copy.deepcopy(semmap_export), convert_pint=False)
             sdf.semmap.to_parquet(str(run_dir / "synthetic.semmap.parquet"), index=False)

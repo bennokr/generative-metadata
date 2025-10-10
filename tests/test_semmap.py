@@ -3,7 +3,7 @@ from pathlib import Path
 import pandas as pd
 import pytest
 
-from semmap import SemMapFrameAccessor, _HAVE_PINT
+from semsynth.semmap import SemMapFrameAccessor, _HAVE_PINT
 
 
 def data_dir() -> Path:

@@ -56,13 +56,25 @@ class JSONLDMixin:
         if not k: raise KeyError(key)
         return getattr(self, k)
 
+    @classmethod
+    def fields_subclass_first(cls):
+        if not is_dataclass(cls): raise TypeError(f"{cls.__name__} is not a dataclass")
+        fby = {f.name: f for f in fields(cls)}
+        seen, out = set(), []
+        for C in cls.__mro__:
+            if C is object: break
+            for n in C.__dict__.get('__annotations__', ()):
+                if n in fby and n not in seen:
+                    seen.add(n); out.append(fby[n])
+        return tuple(out)
+
     def to_jsonld(self, context=True):
         def enc(v):
             if isinstance(v, JSONLDMixin): return v.to_jsonld(context=False)
             if isinstance(v, (list, tuple)): return [enc(x) for x in v]
             return v
         doc = {"@context": getattr(self, "__context__", {})} if context else {}
-        for f in fields(self):
+        for f in self.fields_subclass_first():
             v = getattr(self, f.name)
             if v is not None: doc[f.name] = enc(v)
         return doc

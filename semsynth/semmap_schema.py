@@ -4,7 +4,7 @@ from typing import List, Optional, Union
 import json
 import pathlib
 
-from jsonld import JSONLDMixin
+from .jsonld import JSONLDMixin
 
 # CONTEXT = json.load(pathlib.Path(__file__).with_name('semmap_context.jsonld'))
 CONTEXT = {
@@ -56,22 +56,6 @@ class SkosMappings(JSONLDMixin):
     broadMatch: Optional[List[str]] = None
     narrowMatch: Optional[List[str]] = None
     relatedMatch: Optional[List[str]] = None
-
-    def to_jsonld(self, context=True):
-        def enc(v):
-            if isinstance(v, JSONLDMixin): return v.to_jsonld(context=False)
-            if isinstance(v, (list, tuple)): return [enc(x) for x in v]
-            return v
-        doc = {"@context": getattr(self, "__context__", {})} if context else {}
-        skos_fields = {f.name for f in fields(SkosMappings)}
-        regular, skos = [], []
-        for f in fields(self):
-            (skos if f.name in skos_fields else regular).append(f)
-
-        for f in regular + skos:
-            v = getattr(self, f.name)
-            if v is not None: doc[f.name] = enc(v)
-        return doc
 
 
 # --- Code book (SKOS) ---------------------------------------------------------

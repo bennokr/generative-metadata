@@ -10,8 +10,7 @@ from typing import List, Optional
 import numpy as np
 import pandas as pd
 
-from datasets import DatasetSpec
-from ..jsonld import JSONLDMixin
+from .jsonld import JSONLDMixin
 
 JSONLD_CONTEXT = {
   "@context": {

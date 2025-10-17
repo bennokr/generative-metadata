@@ -124,19 +124,25 @@ def plot_umap(
     color_labels: Optional[np.ndarray] = None,
     lims: Optional[Tuple[Tuple[float, float], Tuple[float, float]]] = None,
 ) -> None:
-    fig = plt.figure(figsize=(7, 6), dpi=140)
+    fig = plt.figure(figsize=(4, 3), dpi=140)
     if color_labels is None:
-        plt.scatter(embedding[:, 0], embedding[:, 1], s=4, alpha=0.6)
+        plt.scatter(embedding[:, 0], embedding[:, 1], s=4)
     else:
-        plt.scatter(embedding[:, 0], embedding[:, 1], s=4, alpha=0.6, c=color_labels)
+        dark = plt.cm.colors.LinearSegmentedColormap.from_list(
+            "dark_viridis", plt.cm.viridis(np.linspace(0, 0.5, 256))
+        )
+        plt.scatter(embedding[:, 0], embedding[:, 1], s=4, c=color_labels, cmap=dark)
     plt.title(title)
+    for ax in fig.axes:
+        ax.set_xticks([])  # Remove x-axis ticks
+        ax.set_yticks([])  # Remove y-axis ticks
     if lims:
         xlim, ylim = lims
         for ax in fig.axes:
             ax.set_xlim(xlim)
             ax.set_ylim(ylim)
-    plt.xlabel("UMAP-1")
-    plt.ylabel("UMAP-2")
+    # plt.xlabel("UMAP-1")
+    # plt.ylabel("UMAP-2")
     plt.tight_layout()
     plt.savefig(outfile)
     plt.close()

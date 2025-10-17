@@ -1,9 +1,9 @@
 {
   "@context": "https://w3id.org/semmap/context/v1",
   "dataset": {
-    "@type": ["disco:LogicalDataSet", "dsv:Dataset", "dcat:Dataset"],
-    "dct:title": "Chronic Kidney Disease (UCI id 336)",
-    "dct:description": "Clinical records for early detection of CKD (subset of variables mapped)."
+    "@type": ["disco:LogicalDataSet", "Dataset", "dcat:Dataset"],
+    "title": "Chronic Kidney Disease (UCI id 336)",
+    "description": "Clinical records for early detection of CKD (subset of variables mapped)."
   },
   "tableSchema": {
     "columns": [
@@ -11,10 +11,11 @@
         "name": "bp",
         "titles": "Diastolic blood pressure",
         "columnProperty": {
-          "statisticalDataType": "dsv:QuantitativeDataType",
+          "statisticalDataType": "QuantitativeDataType",
           "valueType": "xsd:integer",
           "hasUnit": "unit:MilliM_HG",
           "ucumCode": "mm[Hg]",
+          "unitText": "mmHg",
           "source": "https://loinc.org/8462-4"
         }
       },
@@ -22,17 +23,18 @@
         "name": "bgr",
         "titles": "Blood glucose (random)",
         "columnProperty": {
-          "statisticalDataType": "dsv:QuantitativeDataType",
+          "statisticalDataType": "QuantitativeDataType",
           "valueType": "xsd:integer",
           "hasUnit": "unit:MilliGM-PER-DeciL",
-          "ucumCode": "mg/dL"
+          "ucumCode": "mg/dL",
+          "source": "https://loinc.org/2345-7"
         }
       },
       {
         "name": "bu",
         "titles": "Blood urea",
         "columnProperty": {
-          "statisticalDataType": "dsv:QuantitativeDataType",
+          "statisticalDataType": "QuantitativeDataType",
           "valueType": "xsd:integer",
           "hasUnit": "unit:MilliGM-PER-DeciL",
           "ucumCode": "mg/dL"
@@ -42,16 +44,124 @@
         "name": "sg",
         "titles": "Urine specific gravity",
         "columnProperty": {
-          "statisticalDataType": "dsv:QuantitativeDataType",
+          "statisticalDataType": "QuantitativeDataType",
           "valueType": "xsd:decimal",
           "source": "https://loinc.org/2965-2"
         }
       },
       {
-        "name": "class",
+        "notation": "al",
+        "titles": "Urine albumin (dipstick)",
+        "columnProperty": {
+          "source": "https://loinc.org/50949-7"
+        }
+      },
+      {
+        "notation": "class",
         "titles": "Outcome label (CKD)",
         "columnProperty": {
-          "statisticalDataType": "dsv:NominalDataType"
+          "summaryStatistics": {"statisticalDataType": "NominalDataType"},
+          "source": "http://snomed.info/id/709044004"
+        }
+      },
+      {
+        "notation": "rbc",
+        "titles": "RBCs in urine (presence)",
+        "columnProperty": {
+          "summaryStatistics": {"statisticalDataType": "NominalDataType"},
+          "source": "https://loinc.org/32776-7"
+        }
+      },
+      {
+        "notation": "su",
+        "titles": "Urine glucose (dipstick)",
+        "columnProperty": {
+          "source": "https://loinc.org/25428-4"
+        }
+      },
+      {
+        "notation": "pc",
+        "titles": "pus cell",
+        "titles": "Urine leukocytes (presence)",
+        "columnProperty": {
+          "summaryStatistics": {"statisticalDataType": "NominalDataType"},
+          "source": "https://loinc.org/20455-2"
+        }
+      },
+      {
+        "notation": "pcc",
+        "titles": "Pus cell clumps (urine)",
+        "columnProperty": {
+          "summaryStatistics": {"statisticalDataType": "NominalDataType"},
+          "source": "https://loinc.org/67848-2"
+        }
+      },
+      {
+        "notation": "ba",
+        "titles": "Bacteria in urine (presence)",
+        "columnProperty": {
+          "summaryStatistics": {"statisticalDataType": "NominalDataType"},
+          "source": "https://loinc.org/25145-4"
+        }
+      },
+      {
+        "notation": "htn",
+        "titles": "hypertension",
+        "columnProperty": {
+          "summaryStatistics": {"statisticalDataType": "NominalDataType"},
+        }
+      },
+      {
+        "notation": "sod",
+        "titles": "Serum sodium",
+        "columnProperty": {
+          "valueType": "xsd:integer",
+          "ucumCode": "mmol/L",
+          "source": "https://loinc.org/2951-2"
+        }
+      },
+      {
+        "notation": "sc",
+        "titles": "Serum creatinine",
+        "columnProperty": {
+          "valueType": "xsd:decimal",
+          "ucumCode": "mg/dL",
+          "source": "https://loinc.org/2160-0"
+        }
+      },
+      {
+        "notation": "pot",
+        "titles": "Serum potassium",
+        "columnProperty": {
+          "valueType": "xsd:integer",
+          "ucumCode": "mmol/L",
+          "source": "https://loinc.org/2823-3"
+        }
+      },
+      {
+        "notation": "hemo",
+        "titles": "Hemoglobin",
+        "columnProperty": {
+          "valueType": "xsd:decimal",
+          "ucumCode": "g/dL",
+          "source": "https://loinc.org/718-7"
+        }
+      },
+      {
+        "notation": "pcv",
+        "titles": "Packed cell volume (hematocrit)",
+        "columnProperty": {
+          "valueType": "xsd:integer",
+          "ucumCode": "%",
+          "source": "https://loinc.org/20570-8"
+        }
+      },
+      {
+        "notation": "rbcc",
+        "titles": "RBC count (blood)",
+        "columnProperty": {
+          "valueType": "xsd:decimal",
+          "source": "https://loinc.org/789-8"
         }
       }
     ]

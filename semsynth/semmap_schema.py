@@ -23,6 +23,7 @@ CONTEXT = {
         "name": "csvw:name",
         "titles": "csvw:titles",
         "columnProperty": "dsv:columnProperty",
+        "summaryStatistics": "dsv:summaryStatistics",
         "statisticalDataType": {"@id": "dsv:statisticalDataType", "@type": "@id"},
         "valueType": {"@id": "dsv:valueType", "@type": "@id"},
         "hasCodeBook": {"@id": "dsv:hasCodeBook", "@type": "@id"},
@@ -77,11 +78,14 @@ class CodeBook(JSONLDMixin):
     hasTopConcept: Optional[List[CodeConcept]] = None
     source: Optional[str] = None
 
-
 # --- Column property (DSV + QUDT/UCUM) ---------------------------------------
+
+@dataclass
+class SummaryStatistics(JSONLDMixin):
+    statisticalDataType: Optional[str] = None  # e.g., "dsv:NominalDataType"
 @dataclass
 class ColumnProperty(SkosMappings):
-    statisticalDataType: Optional[str] = None  # e.g., "dsv:NominalDataType"
+    summaryStatistics: Optional[SummaryStatistics] = None
     valueType: Optional[str] = None  # e.g., "xsd:integer"
     hasQuantityKind: Optional[str] = None  # e.g., "quantitykind:Time"
     unitText: Optional[str] = None  # e.g., "unit:YR"

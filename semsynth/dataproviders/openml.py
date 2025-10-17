@@ -86,7 +86,7 @@ def load_openml_by_name(
             spec.id = int(info.get("did") or info.get("dataset_id") or info.get("id"))
             data_path = by_name_dir / f"{spec.id}.csv.gz"
             if data_path.exists():
-                df_all = pd.read_csv(data_path)
+                df_all = pd.read_csv(data_path).convert_dtypes()
                 for col in list(df_all.columns):
                     if str(col).lower() in {"id", "index"}:
                         df_all = df_all.drop(columns=[col])

@@ -229,7 +229,7 @@ def process_dataset(
         model_runs = discover_model_runs(outdir)
         for run in model_runs:
             try:
-                s_df = pd.read_csv(run.synthetic_csv)
+                s_df = pd.read_csv(run.synthetic_csv).convert_dtypes()
                 if len(s_df) > cfg.max_umap_sample:
                     s_df = s_df.sample(cfg.max_umap_sample)
                 s_df = s_df.reindex(columns=df_no_na.columns)

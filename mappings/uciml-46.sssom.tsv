@@ -1,0 +1,24 @@
+# curie_map: semmap=https://w3id.org/semsynth/uciml-46/variable/
+# curie_map: LOINC=https://loinc.org/
+# curie_map: SNOMEDCT=http://snomed.info/id/
+# curie_map: skos=http://www.w3.org/2004/02/skos/core#
+# curie_map: semapv=http://purl.org/semapv/vocab/
+# generated_by: codex-agent
+# mapping_set_id: https://w3id.org/semsynth/uciml-46/mappings
+# mapping_set_version: 2025-10-17
+subject_id	subject_label	predicate_id	object_id	object_label	mapping_justification	comment
+semmap:Age	Age	skos:exactMatch	LOINC:30525-0	Age	semapv:ManualMappingCuration	Recorded in years; modeled as continuous age observation.
+semmap:Sex	Sex	skos:exactMatch	LOINC:76689-9	Sex assigned at birth	semapv:ManualMappingCuration	Binary coding (male/female) assumed to follow dataset documentation.
+semmap:Bilirubin	Bilirubin	skos:exactMatch	LOINC:1975-2	Bilirubin.total [Mass/volume] in Serum or Plasma	semapv:ManualMappingCuration	Assumes lab values expressed as mg/dL as described in dataset summary.
+semmap:Alk_Phosphate	Alk Phosphate	skos:exactMatch	LOINC:6768-6	Alkaline phosphatase [Enzymatic activity/volume] in Serum or Plasma	semapv:ManualMappingCuration	Values interpreted as U/L activity measurements.
+semmap:Sgot	Sgot	skos:exactMatch	LOINC:1920-8	Aspartate aminotransferase [Enzymatic activity/volume] in Serum or Plasma	semapv:ManualMappingCuration	SGOT mapped to AST measurement with U/L units.
+semmap:Albumin	Albumin	skos:exactMatch	LOINC:1751-7	Albumin [Mass/volume] in Serum or Plasma	semapv:ManualMappingCuration	Data assumed to represent g/dL concentration.
+semmap:Protime	Protime	skos:exactMatch	LOINC:5902-2	Prothrombin time (PT)	semapv:ManualMappingCuration	Raw values align with prothrombin time in seconds.
+semmap:Fatigue	Fatigue	skos:closeMatch	SNOMEDCT:84229001	Fatigue (finding)	semapv:ManualMappingCuration	Binary symptom indicator referencing fatigue presence.
+semmap:Malaise	Malaise	skos:closeMatch	SNOMEDCT:367391008	Malaise (finding)	semapv:ManualMappingCuration	Represents patient-reported malaise symptom.
+semmap:Anorexia	Anorexia	skos:closeMatch	SNOMEDCT:79890006	Loss of appetite (finding)	semapv:ManualMappingCuration	Binary observation of anorexia symptomatology.
+semmap:Liver_Big	Liver Big	skos:closeMatch	SNOMEDCT:80515008	Hepatomegaly (disorder)	semapv:ManualMappingCuration	Clinical exam finding indicating enlarged liver.
+semmap:Spleen_Palpable	Spleen Palpable	skos:closeMatch	SNOMEDCT:249572006	Spleen palpable on examination (finding)	semapv:ManualMappingCuration	Clinical examination finding recorded as yes/no.
+semmap:Spiders	Spiders	skos:closeMatch	SNOMEDCT:195382003	Cutaneous spider angioma (disorder)	semapv:ManualMappingCuration	Observational sign associated with chronic liver disease.
+semmap:Ascites	Ascites	skos:closeMatch	SNOMEDCT:389026000	Ascites (finding)	semapv:ManualMappingCuration	Binary indicator for presence of ascites.
+semmap:Varices	Varices	skos:closeMatch	SNOMEDCT:28670008	Oesophageal varices (disorder)	semapv:ManualMappingCuration	Finding interpreted as esophageal varices linked to portal hypertension.

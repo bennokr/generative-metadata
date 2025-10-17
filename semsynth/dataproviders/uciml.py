@@ -51,11 +51,13 @@ def list_uciml(
                 else:
                     raise Exception(f"No content at {r}")
         metadata = json.load(cache.open())
+        json.dump(metadata, cache.open('w'), indent=2)
         if any("type" in v for v in metadata["variables"]):
             vars = pd.DataFrame(metadata["variables"])
             row = {
                 "id": i,
                 "name": name,
+                "has_data_url": bool(metadata["data_url"]),
                 "n_instances": metadata["num_instances"],
                 "n_categorical": vars["type"].isin(["Binary", "Categorical"]).sum(),
                 "n_numeric": vars["type"].isin(["Integer", "Continuous"]).sum(),
@@ -87,7 +89,7 @@ def load_uciml_by_id(
 
     if data_path.exists():
         try:
-            df_all = pd.read_csv(data_path)
+            df_all = pd.read_csv(data_path).convert_dtypes()
             # Drop trivial id/index columns if present
             for col in list(df_all.columns):
                 if str(col).lower() in {"id", "index"}:

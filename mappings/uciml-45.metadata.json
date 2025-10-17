@@ -12,7 +12,7 @@
         "name": "age",
         "titles": "Age",
         "columnProperty": {
-          "statisticalDataType": "dsv:QuantitativeDataType",
+          "summaryStatistics": {"statisticalDataType": "dsv:QuantitativeDataType"},
           "valueType": "xsd:integer",
           "hasUnit": "unit:YR",
           "ucumCode": "a",
@@ -23,7 +23,7 @@
         "name": "sex",
         "titles": "Administrative sex",
         "columnProperty": {
-          "statisticalDataType": "dsv:NominalDataType",
+          "summaryStatistics": {"statisticalDataType": "dsv:NominalDataType"},
           "source": "https://docs.snomed.org/implementation-guides/snomed-ct-guide-for-covid-19/2-coding-covid-19-related-data/2.2-patient-demographics",
           "hasCodeBook": {
             "hasTopConcept": [
@@ -37,7 +37,7 @@
         "name": "cp",
         "titles": "Chest pain type",
         "columnProperty": {
-          "statisticalDataType": "dsv:NominalDataType",
+          "summaryStatistics": {"statisticalDataType": "dsv:NominalDataType"},
           "source": "https://dicom.nema.org/medical/dicom/current/output/chtml/part16/sect_CID_3202.html",
           "hasCodeBook": {
             "source": "https://dicom.nema.org/medical/dicom/current/output/chtml/part16/sect_CID_3202.html",
@@ -54,7 +54,7 @@
         "name": "fbs",
         "titles": "Fasting blood sugar >120 mg/dL (indicator)",
         "columnProperty": {
-          "statisticalDataType": "dsv:NominalDataType",
+          "summaryStatistics": {"statisticalDataType": "dsv:NominalDataType"},
           "source": "https://loinc.org/2345-7",
           "hasCodeBook": {
             "source": "https://loinc.org/2345-7",
@@ -69,7 +69,7 @@
         "name": "trestbps",
         "titles": "Resting systolic blood pressure",
         "columnProperty": {
-          "statisticalDataType": "dsv:QuantitativeDataType",
+          "summaryStatistics": {"statisticalDataType": "dsv:QuantitativeDataType"},
           "valueType": "xsd:integer",
           "hasUnit": "unit:MilliM_HG",
           "ucumCode": "mm[Hg]",
@@ -80,7 +80,7 @@
         "name": "chol",
         "titles": "Total cholesterol",
         "columnProperty": {
-          "statisticalDataType": "dsv:QuantitativeDataType",
+          "summaryStatistics": {"statisticalDataType": "dsv:QuantitativeDataType"},
           "valueType": "xsd:integer",
           "hasUnit": "unit:MilliGM-PER-DeciL",
           "ucumCode": "mg/dL",
@@ -91,7 +91,7 @@
         "name": "restecg",
         "titles": "Resting ECG result",
         "columnProperty": {
-          "statisticalDataType": "dsv:NominalDataType",
+          "summaryStatistics": {"statisticalDataType": "dsv:NominalDataType"},
           "source": "https://cvquality.acc.org/docs/default-source/ncdr/data-collection/epdeviceimplant_v2-3_datadictionarycoders.pdf",
           "hasCodeBook": {
             "hasTopConcept": [
@@ -106,7 +106,7 @@
         "name": "thalach",
         "titles": "Maximum heart rate achieved",
         "columnProperty": {
-          "statisticalDataType": "dsv:QuantitativeDataType",
+          "summaryStatistics": {"statisticalDataType": "dsv:QuantitativeDataType"},
           "valueType": "xsd:integer",
           "source": "https://loinc.org/101692-2"
         }
@@ -115,7 +115,7 @@
         "name": "exang",
         "titles": "Exercise-induced angina",
         "columnProperty": {
-          "statisticalDataType": "dsv:NominalDataType",
+          "summaryStatistics": {"statisticalDataType": "dsv:NominalDataType"},
           "hasCodeBook": {
             "hasTopConcept": [
               { "notation": "0", "prefLabel": "no" },
@@ -129,7 +129,7 @@
         "name": "oldpeak",
         "titles": "ST depression vs rest (max during study)",
         "columnProperty": {
-          "statisticalDataType": "dsv:QuantitativeDataType",
+          "summaryStatistics": {"statisticalDataType": "dsv:QuantitativeDataType"},
           "valueType": "xsd:decimal",
           "source": "https://loinc.org/91546-2"
         }
@@ -138,7 +138,7 @@
         "name": "slope",
         "titles": "Slope of peak exercise ST segment",
         "columnProperty": {
-          "statisticalDataType": "dsv:NominalDataType",
+          "summaryStatistics": {"statisticalDataType": "dsv:NominalDataType"},
           "hasCodeBook": {
             "hasTopConcept": [
               { "notation": "1", "prefLabel": "upsloping" },
@@ -153,7 +153,7 @@
         "name": "ca",
         "titles": "Number of major vessels (colored by fluoroscopy)",
         "columnProperty": {
-          "statisticalDataType": "dsv:QuantitativeDataType",
+          "summaryStatistics": {"statisticalDataType": "dsv:QuantitativeDataType"},
           "valueType": "xsd:integer"
         }
       },
@@ -161,7 +161,7 @@
         "name": "thal",
         "titles": "Thallium perfusion test",
         "columnProperty": {
-          "statisticalDataType": "dsv:NominalDataType",
+          "summaryStatistics": {"statisticalDataType": "dsv:NominalDataType"},
           "hasCodeBook": {
             "hasTopConcept": [
               { "notation": "3", "prefLabel": "normal",            "exactMatch": ["http://snomed.info/id/371801000"] },
@@ -175,7 +175,7 @@
         "name": "num",
         "titles": "Angiographic disease status",
         "columnProperty": {
-          "statisticalDataType": "dsv:NominalDataType",
+          "summaryStatistics": {"statisticalDataType": "dsv:NominalDataType"},
           "hasCodeBook": {
             "hasTopConcept": [
               { "notation": "0", "prefLabel": "<50% narrowing" },

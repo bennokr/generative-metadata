@@ -14,7 +14,7 @@ def test_apply_metadata_and_roundtrip(tmp_path):
     meta_path = data_dir() / "heart.metadata.json"
 
     # Load CSV
-    df = pd.read_csv(csv_path)
+    df = pd.read_csv(csv_path).convert_dtypes()
 
     # Apply metadata from single JSON file
     df.semmap.apply_json_metadata(str(meta_path), convert_pint=True)
@@ -50,7 +50,7 @@ def test_export_metadata_roundtrip(tmp_path):
     meta_path = data_dir() / "heart.metadata.json"
 
     # Load CSV and apply from fixture
-    df = pd.read_csv(csv_path)
+    df = pd.read_csv(csv_path).convert_dtypes()
     df.semmap.apply_json_metadata(str(meta_path), convert_pint=False)
 
     # Export
@@ -62,7 +62,7 @@ def test_export_metadata_roundtrip(tmp_path):
     assert json.dumps(exported, sort_keys=True) == json.dumps(fixture, sort_keys=True)
 
     # Apply exported to a fresh DataFrame and export again (idempotency)
-    df2 = pd.read_csv(csv_path)
+    df2 = pd.read_csv(csv_path).convert_dtypes()
     df2.semmap.apply_json_metadata(exported, convert_pint=False)
     exported2 = df2.semmap.jsonld()
     assert json.dumps(exported2, sort_keys=True) == json.dumps(exported, sort_keys=True)

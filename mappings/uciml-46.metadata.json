@@ -1,0 +1,432 @@
+{
+  "tableSchema": {
+    "columns": [
+      {
+        "name": "Class",
+        "titles": "Patient outcome class (1=die, 2=live)",
+        "columnProperty": {
+          "summaryStatistics": {
+            "statisticalDataType": "dsv:NominalDataType"
+          },
+          "valueType": "xsd:string",
+          "hasCodeBook": {
+            "hasTopConcept": [
+              {
+                "notation": "DIE",
+                "prefLabel": "Outcome recorded as death"
+              },
+              {
+                "notation": "LIVE",
+                "prefLabel": "Outcome recorded as survival"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "name": "Age",
+        "titles": "Age in years",
+        "columnProperty": {
+          "summaryStatistics": {
+            "statisticalDataType": "dsv:ContinuousDataType"
+          },
+          "valueType": "xsd:integer",
+          "hasQuantityKind": "quantitykind:Time",
+          "ucumCode": "a",
+          "unitText": "years",
+          "exactMatch": [
+            "https://loinc.org/30525-0/"
+          ]
+        }
+      },
+      {
+        "name": "Sex",
+        "titles": "Sex recorded for participant",
+        "columnProperty": {
+          "summaryStatistics": {
+            "statisticalDataType": "dsv:NominalDataType"
+          },
+          "valueType": "xsd:string",
+          "exactMatch": [
+            "https://loinc.org/76689-9/"
+          ],
+          "hasCodeBook": {
+            "hasTopConcept": [
+              {
+                "notation": "male",
+                "prefLabel": "Male"
+              },
+              {
+                "notation": "female",
+                "prefLabel": "Female"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "name": "Steroid",
+        "titles": "Systemic corticosteroid therapy indicator",
+        "columnProperty": {
+          "summaryStatistics": {
+            "statisticalDataType": "dsv:NominalDataType"
+          },
+          "valueType": "xsd:string",
+          "hasCodeBook": {
+            "hasTopConcept": [
+              {
+                "notation": "yes",
+                "prefLabel": "Yes"
+              },
+              {
+                "notation": "no",
+                "prefLabel": "No"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "name": "Antivirals",
+        "titles": "Antiviral therapy indicator",
+        "columnProperty": {
+          "summaryStatistics": {
+            "statisticalDataType": "dsv:NominalDataType"
+          },
+          "valueType": "xsd:string",
+          "hasCodeBook": {
+            "hasTopConcept": [
+              {
+                "notation": "yes",
+                "prefLabel": "Yes"
+              },
+              {
+                "notation": "no",
+                "prefLabel": "No"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "name": "Fatigue",
+        "titles": "Reported fatigue",
+        "columnProperty": {
+          "summaryStatistics": {
+            "statisticalDataType": "dsv:NominalDataType"
+          },
+          "valueType": "xsd:string",
+          "closeMatch": [
+            "http://snomed.info/id/84229001"
+          ],
+          "hasCodeBook": {
+            "hasTopConcept": [
+              {
+                "notation": "yes",
+                "prefLabel": "Yes"
+              },
+              {
+                "notation": "no",
+                "prefLabel": "No"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "name": "Malaise",
+        "titles": "Reported malaise",
+        "columnProperty": {
+          "summaryStatistics": {
+            "statisticalDataType": "dsv:NominalDataType"
+          },
+          "valueType": "xsd:string",
+          "closeMatch": [
+            "http://snomed.info/id/367391008"
+          ],
+          "hasCodeBook": {
+            "hasTopConcept": [
+              {
+                "notation": "yes",
+                "prefLabel": "Yes"
+              },
+              {
+                "notation": "no",
+                "prefLabel": "No"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "name": "Anorexia",
+        "titles": "Loss of appetite indicator",
+        "columnProperty": {
+          "summaryStatistics": {
+            "statisticalDataType": "dsv:NominalDataType"
+          },
+          "valueType": "xsd:string",
+          "closeMatch": [
+            "http://snomed.info/id/79890006"
+          ],
+          "hasCodeBook": {
+            "hasTopConcept": [
+              {
+                "notation": "yes",
+                "prefLabel": "Yes"
+              },
+              {
+                "notation": "no",
+                "prefLabel": "No"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "name": "Liver Big",
+        "titles": "Clinically enlarged liver",
+        "columnProperty": {
+          "summaryStatistics": {
+            "statisticalDataType": "dsv:NominalDataType"
+          },
+          "valueType": "xsd:string",
+          "closeMatch": [
+            "http://snomed.info/id/80515008"
+          ],
+          "hasCodeBook": {
+            "hasTopConcept": [
+              {
+                "notation": "yes",
+                "prefLabel": "Yes"
+              },
+              {
+                "notation": "no",
+                "prefLabel": "No"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "name": "Liver Firm",
+        "titles": "Palpable firm liver",
+        "columnProperty": {
+          "summaryStatistics": {
+            "statisticalDataType": "dsv:NominalDataType"
+          },
+          "valueType": "xsd:string",
+          "hasCodeBook": {
+            "hasTopConcept": [
+              {
+                "notation": "yes",
+                "prefLabel": "Yes"
+              },
+              {
+                "notation": "no",
+                "prefLabel": "No"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "name": "Spleen Palpable",
+        "titles": "Palpable spleen",
+        "columnProperty": {
+          "summaryStatistics": {
+            "statisticalDataType": "dsv:NominalDataType"
+          },
+          "valueType": "xsd:string",
+          "closeMatch": [
+            "http://snomed.info/id/249572006"
+          ],
+          "hasCodeBook": {
+            "hasTopConcept": [
+              {
+                "notation": "yes",
+                "prefLabel": "Yes"
+              },
+              {
+                "notation": "no",
+                "prefLabel": "No"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "name": "Spiders",
+        "titles": "Spider angioma observed",
+        "columnProperty": {
+          "summaryStatistics": {
+            "statisticalDataType": "dsv:NominalDataType"
+          },
+          "valueType": "xsd:string",
+          "closeMatch": [
+            "http://snomed.info/id/195382003"
+          ],
+          "hasCodeBook": {
+            "hasTopConcept": [
+              {
+                "notation": "yes",
+                "prefLabel": "Yes"
+              },
+              {
+                "notation": "no",
+                "prefLabel": "No"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "name": "Ascites",
+        "titles": "Ascites observed",
+        "columnProperty": {
+          "summaryStatistics": {
+            "statisticalDataType": "dsv:NominalDataType"
+          },
+          "valueType": "xsd:string",
+          "closeMatch": [
+            "http://snomed.info/id/389026000"
+          ],
+          "hasCodeBook": {
+            "hasTopConcept": [
+              {
+                "notation": "yes",
+                "prefLabel": "Yes"
+              },
+              {
+                "notation": "no",
+                "prefLabel": "No"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "name": "Varices",
+        "titles": "Esophageal varices observed",
+        "columnProperty": {
+          "summaryStatistics": {
+            "statisticalDataType": "dsv:NominalDataType"
+          },
+          "valueType": "xsd:string",
+          "closeMatch": [
+            "http://snomed.info/id/28670008"
+          ],
+          "hasCodeBook": {
+            "hasTopConcept": [
+              {
+                "notation": "yes",
+                "prefLabel": "Yes"
+              },
+              {
+                "notation": "no",
+                "prefLabel": "No"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "name": "Bilirubin",
+        "titles": "Total bilirubin concentration",
+        "columnProperty": {
+          "summaryStatistics": {
+            "statisticalDataType": "dsv:ContinuousDataType"
+          },
+          "valueType": "xsd:float",
+          "ucumCode": "mg/dL",
+          "unitText": "mg/dL",
+          "exactMatch": [
+            "https://loinc.org/1975-2/"
+          ]
+        }
+      },
+      {
+        "name": "Alk Phosphate",
+        "titles": "Alkaline phosphatase activity",
+        "columnProperty": {
+          "summaryStatistics": {
+            "statisticalDataType": "dsv:ContinuousDataType"
+          },
+          "valueType": "xsd:float",
+          "ucumCode": "U/L",
+          "unitText": "U/L",
+          "exactMatch": [
+            "https://loinc.org/6768-6/"
+          ]
+        }
+      },
+      {
+        "name": "Sgot",
+        "titles": "Aspartate aminotransferase activity",
+        "columnProperty": {
+          "summaryStatistics": {
+            "statisticalDataType": "dsv:ContinuousDataType"
+          },
+          "valueType": "xsd:float",
+          "ucumCode": "U/L",
+          "unitText": "U/L",
+          "exactMatch": [
+            "https://loinc.org/1920-8/"
+          ]
+        }
+      },
+      {
+        "name": "Albumin",
+        "titles": "Serum albumin concentration",
+        "columnProperty": {
+          "summaryStatistics": {
+            "statisticalDataType": "dsv:ContinuousDataType"
+          },
+          "valueType": "xsd:float",
+          "ucumCode": "g/dL",
+          "unitText": "g/dL",
+          "exactMatch": [
+            "https://loinc.org/1751-7/"
+          ]
+        }
+      },
+      {
+        "name": "Protime",
+        "titles": "Prothrombin time",
+        "columnProperty": {
+          "summaryStatistics": {
+            "statisticalDataType": "dsv:ContinuousDataType"
+          },
+          "valueType": "xsd:float",
+          "ucumCode": "s",
+          "unitText": "seconds",
+          "exactMatch": [
+            "https://loinc.org/5902-2/"
+          ]
+        }
+      },
+      {
+        "name": "Histology",
+        "titles": "Histology result available",
+        "columnProperty": {
+          "summaryStatistics": {
+            "statisticalDataType": "dsv:NominalDataType"
+          },
+          "valueType": "xsd:string",
+          "hasCodeBook": {
+            "hasTopConcept": [
+              {
+                "notation": "yes",
+                "prefLabel": "Yes"
+              },
+              {
+                "notation": "no",
+                "prefLabel": "No"
+              }
+            ]
+          }
+        }
+      }
+    ]
+  }
+}

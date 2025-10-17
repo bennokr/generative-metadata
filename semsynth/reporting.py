@@ -207,7 +207,7 @@ def write_report_md(
                 structure_png = run.run_dir / "structure.png"
                 if structure_png.exists():
                     rel_png = os.path.relpath(structure_png, start=md_path.parent)
-                    f.write(f"<img src='{rel_png}' width='280'/>\n")
+                    f.write(f"<a href='{rel_png}'><img src='{rel_png}' width='280'/></a>\n")
                 f.write("</td></tr>\n\n")
                 f.write("\n")
 

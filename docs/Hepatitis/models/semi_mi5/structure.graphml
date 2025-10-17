@@ -1,0 +1,88 @@
+<?xml version='1.0' encoding='utf-8'?>
+<graphml xmlns="http://graphml.graphdrawing.org/xmlns" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd">
+  <key id="d0" for="node" attr.name="bn_type" attr.type="string" />
+  <graph edgedefault="directed">
+    <node id="Age">
+      <data key="d0">LinearGaussianCPDType</data>
+    </node>
+    <node id="Sex">
+      <data key="d0">DiscreteFactorType</data>
+    </node>
+    <node id="Steroid">
+      <data key="d0">DiscreteFactorType</data>
+    </node>
+    <node id="Antivirals">
+      <data key="d0">DiscreteFactorType</data>
+    </node>
+    <node id="Fatigue">
+      <data key="d0">DiscreteFactorType</data>
+    </node>
+    <node id="Malaise">
+      <data key="d0">DiscreteFactorType</data>
+    </node>
+    <node id="Anorexia">
+      <data key="d0">DiscreteFactorType</data>
+    </node>
+    <node id="Liver Big">
+      <data key="d0">DiscreteFactorType</data>
+    </node>
+    <node id="Liver Firm">
+      <data key="d0">DiscreteFactorType</data>
+    </node>
+    <node id="Spleen Palpable">
+      <data key="d0">DiscreteFactorType</data>
+    </node>
+    <node id="Spiders">
+      <data key="d0">DiscreteFactorType</data>
+    </node>
+    <node id="Ascites">
+      <data key="d0">DiscreteFactorType</data>
+    </node>
+    <node id="Varices">
+      <data key="d0">DiscreteFactorType</data>
+    </node>
+    <node id="Bilirubin">
+      <data key="d0">LinearGaussianCPDType</data>
+    </node>
+    <node id="Alk Phosphate">
+      <data key="d0">LinearGaussianCPDType</data>
+    </node>
+    <node id="Sgot">
+      <data key="d0">LinearGaussianCPDType</data>
+    </node>
+    <node id="Albumin">
+      <data key="d0">LinearGaussianCPDType</data>
+    </node>
+    <node id="Protime">
+      <data key="d0">LinearGaussianCPDType</data>
+    </node>
+    <node id="Histology">
+      <data key="d0">DiscreteFactorType</data>
+    </node>
+    <node id="Class">
+      <data key="d0">DiscreteFactorType</data>
+    </node>
+    <edge source="Age" target="Alk Phosphate" />
+    <edge source="Antivirals" target="Alk Phosphate" />
+    <edge source="Fatigue" target="Spiders" />
+    <edge source="Fatigue" target="Malaise" />
+    <edge source="Malaise" target="Anorexia" />
+    <edge source="Liver Big" target="Liver Firm" />
+    <edge source="Liver Firm" target="Alk Phosphate" />
+    <edge source="Liver Firm" target="Sgot" />
+    <edge source="Spiders" target="Varices" />
+    <edge source="Spiders" target="Spleen Palpable" />
+    <edge source="Ascites" target="Varices" />
+    <edge source="Ascites" target="Fatigue" />
+    <edge source="Ascites" target="Albumin" />
+    <edge source="Varices" target="Antivirals" />
+    <edge source="Varices" target="Bilirubin" />
+    <edge source="Bilirubin" target="Alk Phosphate" />
+    <edge source="Alk Phosphate" target="Albumin" />
+    <edge source="Sgot" target="Bilirubin" />
+    <edge source="Albumin" target="Protime" />
+    <edge source="Histology" target="Spiders" />
+    <edge source="Histology" target="Class" />
+    <edge source="Class" target="Ascites" />
+  </graph>
+</graphml>

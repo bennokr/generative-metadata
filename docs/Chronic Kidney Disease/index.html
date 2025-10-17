@@ -34,209 +34,220 @@ table.per-var-dist thead th { text-align: center; }
       <h1>Data Report — Chronic Kidney Disease</h1>
     <p><strong>Source</strong>: <a href="https://archive.ics.uci.edu/dataset/336">UCI dataset 336</a></p>
     <ul>
-    <li>Metadata file: <a href="metadata.json">metadata.json</a></li>
-    <li>JSON-LD (schema.org/Dataset): <a href="dataset.json">dataset.json</a></li>
     <li>SemMap JSON-LD: <a href="dataset.semmap.json">dataset.semmap.json</a></li>
     <li>SemMap HTML: <a href="dataset.semmap.html">dataset.semmap.html</a></li>
     <li>Rows: 158</li>
     <li>Columns: 25</li>
-    <li>Discrete: 11  |  Continuous: 14</li>
-    </ul>
-    <h2>Dataset metadata</h2>
-    <ul>
-    <li>Name: Chronic Kidney Disease (UCI id 336)</li>
-    </ul>
-    <h3>Description</h3>
-    <p>Clinical records for early detection of CKD (subset of variables mapped).</p>
-    <ul>
-    <li>Links:</li>
-    <li>URL: https://archive.ics.uci.edu/dataset/336</li>
+    <li>Discrete: 14  |  Continuous: 11</li>
     </ul>
     <h2>Variables and summary</h2>
     <table>
     <thead>
     <tr>
     <th style="text-align: left;">variable</th>
-    <th style="text-align: left;">description</th>
     <th style="text-align: left;">inferred</th>
-    <th style="text-align: left;">declared</th>
     <th style="text-align: left;">dist</th>
     </tr>
     </thead>
     <tbody>
     <tr>
     <td style="text-align: left;">age</td>
-    <td style="text-align: left;"></td>
     <td style="text-align: left;">continuous</td>
-    <td style="text-align: left;">Integer</td>
     <td style="text-align: left;">49.5633 ± 15.5122 [6, 39.25, 50.5, 60, 83]</td>
     </tr>
     <tr>
     <td style="text-align: left;">bp</td>
-    <td style="text-align: left;">blood pressure</td>
-    <td style="text-align: left;">continuous</td>
-    <td style="text-align: left;">Integer</td>
-    <td style="text-align: left;">74.0506 ± 11.1754 [50, 60, 80, 80, 110]</td>
+    <td style="text-align: left;">discrete</td>
+    <td style="text-align: left;">80: 63 (39.87%)</td>
+    </tr>
+    <tr>
+    <td style="text-align: left;"></td>
+    <td style="text-align: left;"></td>
+    <td style="text-align: left;">60: 40 (25.32%)</td>
+    </tr>
+    <tr>
+    <td style="text-align: left;"></td>
+    <td style="text-align: left;"></td>
+    <td style="text-align: left;">70: 37 (23.42%)</td>
+    </tr>
+    <tr>
+    <td style="text-align: left;"></td>
+    <td style="text-align: left;"></td>
+    <td style="text-align: left;">90: 9 (5.70%)</td>
+    </tr>
+    <tr>
+    <td style="text-align: left;"></td>
+    <td style="text-align: left;"></td>
+    <td style="text-align: left;">100: 7 (4.43%)</td>
+    </tr>
+    <tr>
+    <td style="text-align: left;"></td>
+    <td style="text-align: left;"></td>
+    <td style="text-align: left;">50: 1 (0.63%)</td>
+    </tr>
+    <tr>
+    <td style="text-align: left;"></td>
+    <td style="text-align: left;"></td>
+    <td style="text-align: left;">110: 1 (0.63%)</td>
     </tr>
     <tr>
     <td style="text-align: left;">sg</td>
-    <td style="text-align: left;">specific gravity</td>
     <td style="text-align: left;">continuous</td>
-    <td style="text-align: left;">Categorical</td>
     <td style="text-align: left;">1.0199 ± 0.0055 [1.005, 1.02, 1.02, 1.025, 1.025]</td>
     </tr>
     <tr>
     <td style="text-align: left;">al</td>
-    <td style="text-align: left;">albumin</td>
-    <td style="text-align: left;">continuous</td>
-    <td style="text-align: left;">Categorical</td>
-    <td style="text-align: left;">0.7975 ± 1.4131 [0, 0, 0, 1, 4]</td>
+    <td style="text-align: left;">discrete</td>
+    <td style="text-align: left;">0: 116 (73.42%)</td>
+    </tr>
+    <tr>
+    <td style="text-align: left;"></td>
+    <td style="text-align: left;"></td>
+    <td style="text-align: left;">4: 15 (9.49%)</td>
+    </tr>
+    <tr>
+    <td style="text-align: left;"></td>
+    <td style="text-align: left;"></td>
+    <td style="text-align: left;">3: 15 (9.49%)</td>
+    </tr>
+    <tr>
+    <td style="text-align: left;"></td>
+    <td style="text-align: left;"></td>
+    <td style="text-align: left;">2: 9 (5.70%)</td>
+    </tr>
+    <tr>
+    <td style="text-align: left;"></td>
+    <td style="text-align: left;"></td>
+    <td style="text-align: left;">1: 3 (1.90%)</td>
     </tr>
     <tr>
     <td style="text-align: left;">su</td>
-    <td style="text-align: left;">sugar</td>
-    <td style="text-align: left;">continuous</td>
-    <td style="text-align: left;">Categorical</td>
-    <td style="text-align: left;">0.2532 ± 0.8134 [0, 0, 0, 0, 5]</td>
+    <td style="text-align: left;">discrete</td>
+    <td style="text-align: left;">0: 140 (88.61%)</td>
+    </tr>
+    <tr>
+    <td style="text-align: left;"></td>
+    <td style="text-align: left;"></td>
+    <td style="text-align: left;">2: 6 (3.80%)</td>
+    </tr>
+    <tr>
+    <td style="text-align: left;"></td>
+    <td style="text-align: left;"></td>
+    <td style="text-align: left;">1: 6 (3.80%)</td>
+    </tr>
+    <tr>
+    <td style="text-align: left;"></td>
+    <td style="text-align: left;"></td>
+    <td style="text-align: left;">3: 3 (1.90%)</td>
+    </tr>
+    <tr>
+    <td style="text-align: left;"></td>
+    <td style="text-align: left;"></td>
+    <td style="text-align: left;">4: 2 (1.27%)</td>
+    </tr>
+    <tr>
+    <td style="text-align: left;"></td>
+    <td style="text-align: left;"></td>
+    <td style="text-align: left;">5: 1 (0.63%)</td>
     </tr>
     <tr>
     <td style="text-align: left;">rbc</td>
-    <td style="text-align: left;">red blood cells</td>
     <td style="text-align: left;">discrete</td>
-    <td style="text-align: left;">Binary</td>
     <td style="text-align: left;">140 (88.61%)</td>
     </tr>
     <tr>
     <td style="text-align: left;">pc</td>
-    <td style="text-align: left;">pus cell</td>
     <td style="text-align: left;">discrete</td>
-    <td style="text-align: left;">Binary</td>
     <td style="text-align: left;">129 (81.65%)</td>
     </tr>
     <tr>
     <td style="text-align: left;">pcc</td>
-    <td style="text-align: left;">pus cell clumps</td>
     <td style="text-align: left;">discrete</td>
-    <td style="text-align: left;">Binary</td>
     <td style="text-align: left;">144 (91.14%)</td>
     </tr>
     <tr>
     <td style="text-align: left;">ba</td>
-    <td style="text-align: left;">bacteria</td>
     <td style="text-align: left;">discrete</td>
-    <td style="text-align: left;">Binary</td>
     <td style="text-align: left;">146 (92.41%)</td>
     </tr>
     <tr>
     <td style="text-align: left;">bgr</td>
-    <td style="text-align: left;">blood glucose random</td>
     <td style="text-align: left;">continuous</td>
-    <td style="text-align: left;">Integer</td>
     <td style="text-align: left;">131.3418 ± 64.9398 [70, 97, 115.5, 131.75, 490]</td>
     </tr>
     <tr>
     <td style="text-align: left;">bu</td>
-    <td style="text-align: left;">blood urea</td>
     <td style="text-align: left;">continuous</td>
-    <td style="text-align: left;">Integer</td>
     <td style="text-align: left;">52.5759 ± 47.3954 [10, 26, 39.5, 49.75, 309]</td>
     </tr>
     <tr>
     <td style="text-align: left;">sc</td>
-    <td style="text-align: left;">serum creatinine</td>
     <td style="text-align: left;">continuous</td>
-    <td style="text-align: left;">Continuous</td>
     <td style="text-align: left;">2.1886 ± 3.0776 [0.4, 0.7, 1.1, 1.6, 15.2]</td>
     </tr>
     <tr>
     <td style="text-align: left;">sod</td>
-    <td style="text-align: left;">sodium</td>
     <td style="text-align: left;">continuous</td>
-    <td style="text-align: left;">Integer</td>
     <td style="text-align: left;">138.8481 ± 7.4894 [111, 135, 139, 144, 150]</td>
     </tr>
     <tr>
     <td style="text-align: left;">pot</td>
-    <td style="text-align: left;">potassium</td>
     <td style="text-align: left;">continuous</td>
-    <td style="text-align: left;">Continuous</td>
     <td style="text-align: left;">4.6367 ± 3.4764 [2.5, 3.7, 4.5, 4.9, 47]</td>
     </tr>
     <tr>
     <td style="text-align: left;">hemo</td>
-    <td style="text-align: left;">hemoglobin</td>
     <td style="text-align: left;">continuous</td>
-    <td style="text-align: left;">Continuous</td>
     <td style="text-align: left;">13.6873 ± 2.8822 [3.1, 12.6, 14.25, 15.775, 17.8]</td>
     </tr>
     <tr>
     <td style="text-align: left;">pcv</td>
-    <td style="text-align: left;">packed cell volume</td>
     <td style="text-align: left;">continuous</td>
-    <td style="text-align: left;">Integer</td>
     <td style="text-align: left;">41.9177 ± 9.1052 [9, 37.5, 44, 48, 54]</td>
     </tr>
     <tr>
     <td style="text-align: left;">wbcc</td>
-    <td style="text-align: left;">white blood cell count</td>
     <td style="text-align: left;">continuous</td>
-    <td style="text-align: left;">Integer</td>
     <td style="text-align: left;">8475.9494 ± 3126.8802 [3800, 6525, 7800, 9775, 26400]</td>
     </tr>
     <tr>
     <td style="text-align: left;">rbcc</td>
-    <td style="text-align: left;">red blood cell count</td>
     <td style="text-align: left;">continuous</td>
-    <td style="text-align: left;">Continuous</td>
     <td style="text-align: left;">4.8918 ± 1.0194 [2.1, 4.5, 4.95, 5.6, 8]</td>
     </tr>
     <tr>
     <td style="text-align: left;">htn</td>
-    <td style="text-align: left;">hypertension</td>
     <td style="text-align: left;">discrete</td>
-    <td style="text-align: left;">Binary</td>
     <td style="text-align: left;">34 (21.52%)</td>
     </tr>
     <tr>
     <td style="text-align: left;">dm</td>
-    <td style="text-align: left;">diabetes mellitus</td>
     <td style="text-align: left;">discrete</td>
-    <td style="text-align: left;">Binary</td>
     <td style="text-align: left;">28 (17.72%)</td>
     </tr>
     <tr>
     <td style="text-align: left;">cad</td>
-    <td style="text-align: left;">coronary artery disease</td>
     <td style="text-align: left;">discrete</td>
-    <td style="text-align: left;">Binary</td>
     <td style="text-align: left;">11 (6.96%)</td>
     </tr>
     <tr>
     <td style="text-align: left;">appet</td>
-    <td style="text-align: left;">appetite</td>
     <td style="text-align: left;">discrete</td>
-    <td style="text-align: left;">Binary</td>
     <td style="text-align: left;">139 (87.97%)</td>
     </tr>
     <tr>
     <td style="text-align: left;">pe</td>
-    <td style="text-align: left;">pedal edema</td>
     <td style="text-align: left;">discrete</td>
-    <td style="text-align: left;">Binary</td>
     <td style="text-align: left;">20 (12.66%)</td>
     </tr>
     <tr>
     <td style="text-align: left;">ane</td>
-    <td style="text-align: left;">anemia</td>
     <td style="text-align: left;">discrete</td>
-    <td style="text-align: left;">Binary</td>
     <td style="text-align: left;">16 (10.13%)</td>
     </tr>
     <tr>
     <td style="text-align: left;">class</td>
-    <td style="text-align: left;">ckd or not ckd</td>
     <td style="text-align: left;">discrete</td>
-    <td style="text-align: left;">Binary</td>
     <td style="text-align: left;">115 (72.78%)</td>
     </tr>
     </tbody>
@@ -254,14 +265,6 @@ table.per-var-dist thead th { text-align: center; }
     </tr>
     </thead>
     <tbody>
-    <tr>
-    <td style="text-align: left;">MetaSyn</td>
-    <td style="text-align: left;">metasyn</td>
-    <td style="text-align: right;">0.0398</td>
-    <td style="text-align: right;">0.035</td>
-    <td style="text-align: right;">0.301</td>
-    <td style="text-align: right;">43.6132</td>
-    </tr>
     <tr>
     <td style="text-align: left;">clg_mi2</td>
     <td style="text-align: left;">pybnesian</td>
@@ -300,13 +303,6 @@ table.per-var-dist thead th { text-align: center; }
     <table>
     <tr><th>UMAP</th><th>Details</th><th>Structure</th></tr>
     <tr><td><img src='umap_real.png' width='280'/></td><td><h3>Real data</h3></td><td></td></tr>
-    <tr><td><img src='umap_metasyn.png' width='280'/></td><td>
-
-    <h3>MetaSyn</h3>
-    <ul>
-    <li>GMF: <a href="metasyn_gmf.json">metasyn_gmf.json</a></li>
-    <li>Synthetic sample (SemMap Parquet): <a href="synthetic_metasyn.semmap.parquet">synthetic_metasyn.semmap.parquet</a></li>
-    </ul></td><td></td></tr>
     <tr><td>
     <img src='models/clg_mi2/umap.png' width='280'/></td><td>
 
@@ -319,7 +315,7 @@ table.per-var-dist thead th { text-align: center; }
     <li><a href="models/clg_mi2/metrics.json">Metrics JSON</a></li>
     </ul></td><td>
 
-    <img src='models/clg_mi2/structure.png' width='280'/>
+    <a href='models/clg_mi2/structure.png'><img src='models/clg_mi2/structure.png' width='280'/></a>
     </td></tr>
 
 
@@ -335,7 +331,7 @@ table.per-var-dist thead th { text-align: center; }
     <li><a href="models/semi_mi5/metrics.json">Metrics JSON</a></li>
     </ul></td><td>
 
-    <img src='models/semi_mi5/structure.png' width='280'/>
+    <a href='models/semi_mi5/structure.png'><img src='models/semi_mi5/structure.png' width='280'/></a>
     </td></tr>
 
 

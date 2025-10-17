@@ -1,0 +1,21 @@
+{
+  "backend": "pybnesian",
+  "summary": {
+    "disc_jsd_mean": 0.12868241430367094,
+    "disc_jsd_median": 0.14147543380355349,
+    "cont_ks_mean": 0.21465053763440858,
+    "cont_w1_mean": 9.540171070224174
+  },
+  "train_rows": 64,
+  "test_rows": 16,
+  "synth_rows": 155,
+  "discrete_cols": 14,
+  "continuous_cols": 6,
+  "heldout_loglik": {
+    "mean_loglik": -31.83286321682631,
+    "std_loglik": 13.833784213974386,
+    "sum_loglik": -477.4929482523947,
+    "n_rows": 15
+  },
+  "umap_png": null
+}

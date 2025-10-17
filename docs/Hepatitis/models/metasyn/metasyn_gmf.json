@@ -1,0 +1,501 @@
+{
+    "n_rows": 64,
+    "n_columns": 20,
+    "provenance": {
+        "created by": {
+            "name": "metasyn",
+            "version": "1.1.0"
+        },
+        "creation time": "2025-10-17T13:36:51.634021"
+    },
+    "vars": [
+        {
+            "name": "Age",
+            "type": "continuous",
+            "dtype": "Float64",
+            "prop_missing": 0.0,
+            "distribution": {
+                "implements": "core.lognormal",
+                "version": "1.0",
+                "provenance": "builtin",
+                "class_name": "LogNormalDistribution",
+                "unique": false,
+                "parameters": {
+                    "mean": 3.6686048341795825,
+                    "sd": 0.2662996267485118
+                }
+            },
+            "creation_method": {
+                "created_by": "metasyn"
+            }
+        },
+        {
+            "name": "Sex",
+            "type": "categorical",
+            "dtype": "Categorical",
+            "prop_missing": 0.0,
+            "distribution": {
+                "implements": "core.multinoulli",
+                "version": "1.0",
+                "provenance": "builtin",
+                "class_name": "MultinoulliDistribution",
+                "unique": false,
+                "parameters": {
+                    "labels": [
+                        "1",
+                        "2"
+                    ],
+                    "probs": [
+                        0.84375,
+                        0.15625
+                    ]
+                }
+            },
+            "creation_method": {
+                "created_by": "metasyn"
+            }
+        },
+        {
+            "name": "Steroid",
+            "type": "categorical",
+            "dtype": "Categorical",
+            "prop_missing": 0.0,
+            "distribution": {
+                "implements": "core.multinoulli",
+                "version": "1.0",
+                "provenance": "builtin",
+                "class_name": "MultinoulliDistribution",
+                "unique": false,
+                "parameters": {
+                    "labels": [
+                        "1",
+                        "2"
+                    ],
+                    "probs": [
+                        0.53125,
+                        0.46875
+                    ]
+                }
+            },
+            "creation_method": {
+                "created_by": "metasyn"
+            }
+        },
+        {
+            "name": "Antivirals",
+            "type": "categorical",
+            "dtype": "Categorical",
+            "prop_missing": 0.0,
+            "distribution": {
+                "implements": "core.multinoulli",
+                "version": "1.0",
+                "provenance": "builtin",
+                "class_name": "MultinoulliDistribution",
+                "unique": false,
+                "parameters": {
+                    "labels": [
+                        "1",
+                        "2"
+                    ],
+                    "probs": [
+                        0.265625,
+                        0.734375
+                    ]
+                }
+            },
+            "creation_method": {
+                "created_by": "metasyn"
+            }
+        },
+        {
+            "name": "Fatigue",
+            "type": "categorical",
+            "dtype": "Categorical",
+            "prop_missing": 0.0,
+            "distribution": {
+                "implements": "core.multinoulli",
+                "version": "1.0",
+                "provenance": "builtin",
+                "class_name": "MultinoulliDistribution",
+                "unique": false,
+                "parameters": {
+                    "labels": [
+                        "1",
+                        "2"
+                    ],
+                    "probs": [
+                        0.625,
+                        0.375
+                    ]
+                }
+            },
+            "creation_method": {
+                "created_by": "metasyn"
+            }
+        },
+        {
+            "name": "Malaise",
+            "type": "categorical",
+            "dtype": "Categorical",
+            "prop_missing": 0.0,
+            "distribution": {
+                "implements": "core.multinoulli",
+                "version": "1.0",
+                "provenance": "builtin",
+                "class_name": "MultinoulliDistribution",
+                "unique": false,
+                "parameters": {
+                    "labels": [
+                        "1",
+                        "2"
+                    ],
+                    "probs": [
+                        0.34375,
+                        0.65625
+                    ]
+                }
+            },
+            "creation_method": {
+                "created_by": "metasyn"
+            }
+        },
+        {
+            "name": "Anorexia",
+            "type": "categorical",
+            "dtype": "Categorical",
+            "prop_missing": 0.0,
+            "distribution": {
+                "implements": "core.multinoulli",
+                "version": "1.0",
+                "provenance": "builtin",
+                "class_name": "MultinoulliDistribution",
+                "unique": false,
+                "parameters": {
+                    "labels": [
+                        "1",
+                        "2"
+                    ],
+                    "probs": [
+                        0.125,
+                        0.875
+                    ]
+                }
+            },
+            "creation_method": {
+                "created_by": "metasyn"
+            }
+        },
+        {
+            "name": "Liver Big",
+            "type": "categorical",
+            "dtype": "Categorical",
+            "prop_missing": 0.0,
+            "distribution": {
+                "implements": "core.multinoulli",
+                "version": "1.0",
+                "provenance": "builtin",
+                "class_name": "MultinoulliDistribution",
+                "unique": false,
+                "parameters": {
+                    "labels": [
+                        "1",
+                        "2"
+                    ],
+                    "probs": [
+                        0.15625,
+                        0.84375
+                    ]
+                }
+            },
+            "creation_method": {
+                "created_by": "metasyn"
+            }
+        },
+        {
+            "name": "Liver Firm",
+            "type": "categorical",
+            "dtype": "Categorical",
+            "prop_missing": 0.0,
+            "distribution": {
+                "implements": "core.multinoulli",
+                "version": "1.0",
+                "provenance": "builtin",
+                "class_name": "MultinoulliDistribution",
+                "unique": false,
+                "parameters": {
+                    "labels": [
+                        "1",
+                        "2"
+                    ],
+                    "probs": [
+                        0.484375,
+                        0.515625
+                    ]
+                }
+            },
+            "creation_method": {
+                "created_by": "metasyn"
+            }
+        },
+        {
+            "name": "Spleen Palpable",
+            "type": "categorical",
+            "dtype": "Categorical",
+            "prop_missing": 0.0,
+            "distribution": {
+                "implements": "core.multinoulli",
+                "version": "1.0",
+                "provenance": "builtin",
+                "class_name": "MultinoulliDistribution",
+                "unique": false,
+                "parameters": {
+                    "labels": [
+                        "1",
+                        "2"
+                    ],
+                    "probs": [
+                        0.203125,
+                        0.796875
+                    ]
+                }
+            },
+            "creation_method": {
+                "created_by": "metasyn"
+            }
+        },
+        {
+            "name": "Spiders",
+            "type": "categorical",
+            "dtype": "Categorical",
+            "prop_missing": 0.0,
+            "distribution": {
+                "implements": "core.multinoulli",
+                "version": "1.0",
+                "provenance": "builtin",
+                "class_name": "MultinoulliDistribution",
+                "unique": false,
+                "parameters": {
+                    "labels": [
+                        "1",
+                        "2"
+                    ],
+                    "probs": [
+                        0.34375,
+                        0.65625
+                    ]
+                }
+            },
+            "creation_method": {
+                "created_by": "metasyn"
+            }
+        },
+        {
+            "name": "Ascites",
+            "type": "categorical",
+            "dtype": "Categorical",
+            "prop_missing": 0.0,
+            "distribution": {
+                "implements": "core.multinoulli",
+                "version": "1.0",
+                "provenance": "builtin",
+                "class_name": "MultinoulliDistribution",
+                "unique": false,
+                "parameters": {
+                    "labels": [
+                        "1",
+                        "2"
+                    ],
+                    "probs": [
+                        0.15625,
+                        0.84375
+                    ]
+                }
+            },
+            "creation_method": {
+                "created_by": "metasyn"
+            }
+        },
+        {
+            "name": "Varices",
+            "type": "categorical",
+            "dtype": "Categorical",
+            "prop_missing": 0.0,
+            "distribution": {
+                "implements": "core.multinoulli",
+                "version": "1.0",
+                "provenance": "builtin",
+                "class_name": "MultinoulliDistribution",
+                "unique": false,
+                "parameters": {
+                    "labels": [
+                        "1",
+                        "2"
+                    ],
+                    "probs": [
+                        0.15625,
+                        0.84375
+                    ]
+                }
+            },
+            "creation_method": {
+                "created_by": "metasyn"
+            }
+        },
+        {
+            "name": "Bilirubin",
+            "type": "continuous",
+            "dtype": "Float64",
+            "prop_missing": 0.0,
+            "distribution": {
+                "implements": "core.lognormal",
+                "version": "1.0",
+                "provenance": "builtin",
+                "class_name": "LogNormalDistribution",
+                "unique": false,
+                "parameters": {
+                    "mean": 0.014104262525716888,
+                    "sd": 0.522893090129639
+                }
+            },
+            "creation_method": {
+                "created_by": "metasyn"
+            }
+        },
+        {
+            "name": "Alk Phosphate",
+            "type": "continuous",
+            "dtype": "Float64",
+            "prop_missing": 0.0,
+            "distribution": {
+                "implements": "core.lognormal",
+                "version": "1.0",
+                "provenance": "builtin",
+                "class_name": "LogNormalDistribution",
+                "unique": false,
+                "parameters": {
+                    "mean": 4.486550233101733,
+                    "sd": 0.5033583152638264
+                }
+            },
+            "creation_method": {
+                "created_by": "metasyn"
+            }
+        },
+        {
+            "name": "Sgot",
+            "type": "continuous",
+            "dtype": "Float64",
+            "prop_missing": 0.0,
+            "distribution": {
+                "implements": "core.truncated_normal",
+                "version": "1.0",
+                "provenance": "builtin",
+                "class_name": "TruncatedNormalDistribution",
+                "unique": false,
+                "parameters": {
+                    "lower": 13.99999999,
+                    "upper": 269.00000001,
+                    "mean": -4556.224369234658,
+                    "sd": 555.9386829090398
+                }
+            },
+            "creation_method": {
+                "created_by": "metasyn"
+            }
+        },
+        {
+            "name": "Albumin",
+            "type": "continuous",
+            "dtype": "Float64",
+            "prop_missing": 0.0,
+            "distribution": {
+                "implements": "core.normal",
+                "version": "1.0",
+                "provenance": "builtin",
+                "class_name": "NormalDistribution",
+                "unique": false,
+                "parameters": {
+                    "mean": 3.7984375000000004,
+                    "sd": 0.5802726157537937
+                }
+            },
+            "creation_method": {
+                "created_by": "metasyn"
+            }
+        },
+        {
+            "name": "Protime",
+            "type": "continuous",
+            "dtype": "Float64",
+            "prop_missing": 0.0,
+            "distribution": {
+                "implements": "core.truncated_normal",
+                "version": "1.0",
+                "provenance": "builtin",
+                "class_name": "TruncatedNormalDistribution",
+                "unique": false,
+                "parameters": {
+                    "lower": -1e-08,
+                    "upper": 100.00000001,
+                    "mean": 75.12713213932379,
+                    "sd": 36.200075439440916
+                }
+            },
+            "creation_method": {
+                "created_by": "metasyn"
+            }
+        },
+        {
+            "name": "Histology",
+            "type": "categorical",
+            "dtype": "Categorical",
+            "prop_missing": 0.0,
+            "distribution": {
+                "implements": "core.multinoulli",
+                "version": "1.0",
+                "provenance": "builtin",
+                "class_name": "MultinoulliDistribution",
+                "unique": false,
+                "parameters": {
+                    "labels": [
+                        "1",
+                        "2"
+                    ],
+                    "probs": [
+                        0.546875,
+                        0.453125
+                    ]
+                }
+            },
+            "creation_method": {
+                "created_by": "metasyn"
+            }
+        },
+        {
+            "name": "Class",
+            "type": "categorical",
+            "dtype": "Categorical",
+            "prop_missing": 0.0,
+            "distribution": {
+                "implements": "core.multinoulli",
+                "version": "1.0",
+                "provenance": "builtin",
+                "class_name": "MultinoulliDistribution",
+                "unique": false,
+                "parameters": {
+                    "labels": [
+                        "1",
+                        "2"
+                    ],
+                    "probs": [
+                        0.171875,
+                        0.828125
+                    ]
+                }
+            },
+            "creation_method": {
+                "created_by": "metasyn"
+            }
+        }
+    ]
+}

@@ -1,0 +1,34 @@
+# curie_map: semmap=https://w3id.org/semsynth/uciml-336/variable/
+# curie_map: LOINC=https://loinc.org/
+# curie_map: SNOMEDCT=http://snomed.info/id/
+# curie_map: skos=http://www.w3.org/2004/02/skos/core#
+# curie_map: semapv=http://purl.org/semapv/vocab/
+# generated_by: codex-agent
+# mapping_set_id: https://w3id.org/semsynth/uciml-336/mappings
+# mapping_set_version: 2025-10-17
+subject_id	subject_label	predicate_id	object_id	object_label	mapping_justification	comment
+semmap:age	Age	skos:exactMatch	LOINC:30525-0	Age	semapv:ManualMappingCuration	Value recorded in years per dataset documentation.
+semmap:bp	Blood pressure	skos:closeMatch	LOINC:8462-4	Blood pressure diastolic	semapv:ManualMappingCuration	Dataset captures a single mmHg reading; treated as diastolic pending clarification.
+semmap:sg	Specific gravity	skos:exactMatch	LOINC:2965-2	Specific gravity of Urine	semapv:ManualMappingCuration	Dipstick-derived ordinal values (1.005–1.025).
+semmap:al	Albumin dipstick	skos:closeMatch	SNOMEDCT:274769005	Albuminuria (finding)	semapv:ManualMappingCuration	Ordinal grading reflects degree of albuminuria on urine strip.
+semmap:su	Sugar dipstick	skos:closeMatch	SNOMEDCT:45154002	Glycosuria (disorder)	semapv:ManualMappingCuration	Ordinal grading reflects presence of urinary glucose.
+semmap:rbc	Urine red blood cells	skos:closeMatch	SNOMEDCT:34436003	Hematuria (finding)	semapv:ManualMappingCuration	Binary normal/abnormal microscopy assessment.
+semmap:pc	Pus cells	skos:closeMatch	SNOMEDCT:275741008	Leukocytes present in urine (finding)	semapv:ManualMappingCuration	Binary leukocyte presence call.
+semmap:pcc	Pus cell clumps	skos:exactMatch	LOINC:67848-2	Leukocyte clumps [Presence] in Urine sediment by Light microscopy	semapv:ManualMappingCuration	Binary indicator for leukocyte clumps noted on microscopy.
+semmap:ba	Bacteria in urine	skos:closeMatch	SNOMEDCT:61373006	Bacteriuria (finding)	semapv:ManualMappingCuration	Binary indicator for bacteriuria.
+semmap:bgr	Blood glucose random	skos:exactMatch	LOINC:2345-7	Glucose [Mass/volume] in Serum or Plasma	semapv:ManualMappingCuration	Values interpreted as mg/dL random serum glucose.
+semmap:bu	Blood urea nitrogen	skos:exactMatch	LOINC:6299-2	Urea nitrogen [Mass/volume] in Serum or Plasma	semapv:ManualMappingCuration	Assumes mg/dL BUN measurement.
+semmap:sc	Serum creatinine	skos:exactMatch	LOINC:2160-0	Creatinine [Mass/volume] in Serum or Plasma	semapv:ManualMappingCuration	Mg/dL chemistry result.
+semmap:sod	Serum sodium	skos:exactMatch	LOINC:2951-2	Sodium [Moles/volume] in Serum or Plasma	semapv:ManualMappingCuration	Reported in mmol/L.
+semmap:pot	Serum potassium	skos:exactMatch	LOINC:2823-3	Potassium [Moles/volume] in Serum or Plasma	semapv:ManualMappingCuration	Reported in mmol/L.
+semmap:hemo	Hemoglobin	skos:exactMatch	LOINC:718-7	Hemoglobin [Mass/volume] in Blood	semapv:ManualMappingCuration	Reported in g/dL.
+semmap:pcv	Packed cell volume	skos:exactMatch	LOINC:20570-8	Hematocrit [Volume Fraction] of Blood	semapv:ManualMappingCuration	Reported as percent.
+semmap:wbcc	White blood cell count	skos:exactMatch	LOINC:6690-2	Leukocytes [#/volume] in Blood	semapv:ManualMappingCuration	Values interpreted as 10^3 cells per µL.
+semmap:rbcc	Red blood cell count	skos:exactMatch	LOINC:789-8	Erythrocytes [#/volume] in Blood	semapv:ManualMappingCuration	Values interpreted as 10^6 cells per µL.
+semmap:htn	Hypertension history	skos:closeMatch	SNOMEDCT:38341003	Hypertensive disorder, systemic arterial (disorder)	semapv:ManualMappingCuration	Binary self-reported condition indicator.
+semmap:dm	Diabetes history	skos:closeMatch	SNOMEDCT:73211009	Diabetes mellitus (disorder)	semapv:ManualMappingCuration	Binary self-reported condition indicator.
+semmap:cad	Coronary artery disease history	skos:closeMatch	SNOMEDCT:53741008	Coronary arteriosclerosis (disorder)	semapv:ManualMappingCuration	Binary self-reported condition indicator.
+semmap:appet	Appetite	skos:closeMatch	SNOMEDCT:2492004	Appetite finding	semapv:ManualMappingCuration	Good/poor appetite status from clinical interview.
+semmap:pe	Pedal edema	skos:closeMatch	SNOMEDCT:102572006	Edema of foot	semapv:ManualMappingCuration	Binary presence of pedal edema.
+semmap:ane	Anemia	skos:closeMatch	SNOMEDCT:271737000	Anemia (disorder)	semapv:ManualMappingCuration	Binary presence of anemia.
+semmap:class	CKD class label	skos:closeMatch	SNOMEDCT:709044004	Chronic kidney disease (disorder)	semapv:ManualMappingCuration	Label indicates CKD versus not CKD; non-CKD category unmapped.

@@ -1,0 +1,7 @@
+{
+  "backend": "metasyn",
+  "name": "metasyn",
+  "provider": "uciml",
+  "dataset_name": "Heart Disease",
+  "provider_id": 45,
+}

@@ -1,32 +1,115 @@
 {
-  "dataset": {
-    "@type": [
-      "disco:LogicalDataSet",
-      "dsv:Dataset",
-      "dcat:Dataset"
-    ],
-    "dct:title": "Heart Disease (UCI id 45)",
-    "dct:description": "4 databases: Cleveland, Hungary, Switzerland, and the VA Long Beach",
-    "dct:license": "https://creativecommons.org/publicdomain/zero/1.0/"
+  "@context": {
+    "@context": {
+      "csvw": "http://www.w3.org/ns/csvw#",
+      "dsv": "https://w3id.org/dsv-ontology#",
+      "skos": "http://www.w3.org/2004/02/skos/core#",
+      "qudt": "http://qudt.org/schema/qudt/",
+      "unit": "http://qudt.org/vocab/unit/",
+      "quantitykind": "http://qudt.org/vocab/quantitykind/",
+      "sdmx-dimension": "http://purl.org/linked-data/sdmx/2009/dimension#",
+      "schema": "https://schema.org/",
+      "wd": "http://www.wikidata.org/entity/",
+      "dct": "http://purl.org/dc/terms/",
+      "url": "csvw:url",
+      "datasetSchema": "dsv:datasetSchema",
+      "columns": {
+        "@id": "dsv:column",
+        "@container": "@set"
+      },
+      "name": "csvw:name",
+      "titles": "csvw:titles",
+      "columnProperty": "dsv:columnProperty",
+      "columnCompleteness": "dsv:columnCompleteness",
+      "SummaryStatistics": "dsv:summaryStatistics",
+      "statisticalDataType": {
+        "@id": "dsv:statisticalDataType",
+        "@type": "@id"
+      },
+      "hasCodeBook": {
+        "@id": "dsv:hasCodeBook",
+        "@type": "@id"
+      },
+      "hasVariable": {
+        "@id": "dsv:hasVariable",
+        "@type": "@id"
+      },
+      "datasetCompleteness": "dsv:datasetCompleteness",
+      "numberOfRows": "dsv:numberOfRows",
+      "numberOfColumns": "dsv:numberOfColumns",
+      "missingValueFormat": "dsv:missingValueFormat",
+      "notation": "skos:notation",
+      "prefLabel": "skos:prefLabel",
+      "exactMatch": {
+        "@id": "skos:exactMatch",
+        "@type": "@id",
+        "@container": "@set"
+      },
+      "closeMatch": {
+        "@id": "skos:closeMatch",
+        "@type": "@id",
+        "@container": "@set"
+      },
+      "broadMatch": {
+        "@id": "skos:broadMatch",
+        "@type": "@id",
+        "@container": "@set"
+      },
+      "narrowMatch": {
+        "@id": "skos:narrowMatch",
+        "@type": "@id",
+        "@container": "@set"
+      },
+      "relatedMatch": {
+        "@id": "skos:relatedMatch",
+        "@type": "@id",
+        "@container": "@set"
+      },
+      "hasTopConcept": {
+        "@id": "skos:hasTopConcept",
+        "@type": "@id",
+        "@container": "@set"
+      },
+      "unitText": "schema:unitText",
+      "ucumCode": "qudt:ucumCode",
+      "hasUnit": "qudt:hasUnit",
+      "source": {
+        "@id": "dct:source",
+        "@type": "@id"
+      }
+    }
   },
-  "tableSchema": {
+  "datasetSchema": {
     "columns": [
       {
         "name": "age",
         "titles": "Age",
         "columnProperty": {
-          "statisticalDataType": "dsv:QuantitativeDataType",
-          "valueType": "xsd:integer",
-          "hasUnit": "unit:YR",
-          "ucumCode": "a",
+          "summaryStatistics": {
+            "statisticalDataType": "dsv:QuantitativeDataType"
+          },
+          "unitText": "year",
+          "hasUnit": {
+            "ucumCode": "a",
+            "exactMatch": [
+              "unit:YR"
+            ]
+          },
           "source": "https://loinc.org/30525-0"
+        },
+        "summaryStatistics": {
+          "statisticalDataType": "dsv:NumericalDataType",
+          "columnCompleteness": 1.0,
+          "numberOfRows": 303
         }
       },
       {
         "name": "sex",
         "titles": "Administrative sex",
         "columnProperty": {
-          "statisticalDataType": "dsv:NominalDataType",
+          "summaryStatistics": {
+            "statisticalDataType": "dsv:NominalDataType"
+          },
           "source": "https://docs.snomed.org/implementation-guides/snomed-ct-guide-for-covid-19/2-coding-covid-19-related-data/2.2-patient-demographics",
           "hasCodeBook": {
             "hasTopConcept": [
@@ -46,13 +129,20 @@
               }
             ]
           }
+        },
+        "summaryStatistics": {
+          "statisticalDataType": "dsv:NumericalDataType",
+          "columnCompleteness": 1.0,
+          "numberOfRows": 303
         }
       },
       {
         "name": "cp",
         "titles": "Chest pain type",
         "columnProperty": {
-          "statisticalDataType": "dsv:NominalDataType",
+          "summaryStatistics": {
+            "statisticalDataType": "dsv:NominalDataType"
+          },
           "source": "https://dicom.nema.org/medical/dicom/current/output/chtml/part16/sect_CID_3202.html",
           "hasCodeBook": {
             "hasTopConcept": [
@@ -87,35 +177,64 @@
             ],
             "source": "https://dicom.nema.org/medical/dicom/current/output/chtml/part16/sect_CID_3202.html"
           }
+        },
+        "summaryStatistics": {
+          "statisticalDataType": "dsv:NumericalDataType",
+          "columnCompleteness": 1.0,
+          "numberOfRows": 303
         }
       },
       {
         "name": "trestbps",
         "titles": "Resting systolic blood pressure",
         "columnProperty": {
-          "statisticalDataType": "dsv:QuantitativeDataType",
-          "valueType": "xsd:integer",
-          "hasUnit": "unit:MilliM_HG",
-          "ucumCode": "mm[Hg]",
+          "summaryStatistics": {
+            "statisticalDataType": "dsv:QuantitativeDataType"
+          },
+          "unitText": "millimeter_Hg",
+          "hasUnit": {
+            "ucumCode": "mm[Hg]",
+            "exactMatch": [
+              "unit:MilliM_HG"
+            ]
+          },
           "source": "https://loinc.org/8480-6"
+        },
+        "summaryStatistics": {
+          "statisticalDataType": "dsv:NumericalDataType",
+          "columnCompleteness": 1.0,
+          "numberOfRows": 303
         }
       },
       {
         "name": "chol",
         "titles": "Total cholesterol",
         "columnProperty": {
-          "statisticalDataType": "dsv:QuantitativeDataType",
-          "valueType": "xsd:integer",
-          "hasUnit": "unit:MilliGM-PER-DeciL",
-          "ucumCode": "mg/dL",
+          "summaryStatistics": {
+            "statisticalDataType": "dsv:QuantitativeDataType"
+          },
+          "unitText": "milligram / deciliter",
+          "hasUnit": {
+            "ucumCode": "mg/dL",
+            "exactMatch": [
+              "unit:MilliGM-PER-DeciL"
+            ]
+          },
           "source": "https://loinc.org/2093-3"
+        },
+        "summaryStatistics": {
+          "statisticalDataType": "dsv:NumericalDataType",
+          "columnCompleteness": 1.0,
+          "numberOfRows": 303
         }
       },
       {
         "name": "fbs",
         "titles": "Fasting blood sugar >120 mg/dL (indicator)",
         "columnProperty": {
-          "statisticalDataType": "dsv:NominalDataType",
+          "summaryStatistics": {
+            "statisticalDataType": "dsv:NominalDataType"
+          },
           "source": "https://loinc.org/2345-7",
           "hasCodeBook": {
             "hasTopConcept": [
@@ -130,13 +249,20 @@
             ],
             "source": "https://loinc.org/2345-7"
           }
+        },
+        "summaryStatistics": {
+          "statisticalDataType": "dsv:NumericalDataType",
+          "columnCompleteness": 1.0,
+          "numberOfRows": 303
         }
       },
       {
         "name": "restecg",
         "titles": "Resting ECG result",
         "columnProperty": {
-          "statisticalDataType": "dsv:NominalDataType",
+          "summaryStatistics": {
+            "statisticalDataType": "dsv:NominalDataType"
+          },
           "source": "https://cvquality.acc.org/docs/default-source/ncdr/data-collection/epdeviceimplant_v2-3_datadictionarycoders.pdf",
           "hasCodeBook": {
             "hasTopConcept": [
@@ -163,22 +289,35 @@
               }
             ]
           }
+        },
+        "summaryStatistics": {
+          "statisticalDataType": "dsv:NumericalDataType",
+          "columnCompleteness": 1.0,
+          "numberOfRows": 303
         }
       },
       {
         "name": "thalach",
         "titles": "Maximum heart rate achieved",
         "columnProperty": {
-          "statisticalDataType": "dsv:QuantitativeDataType",
-          "valueType": "xsd:integer",
+          "summaryStatistics": {
+            "statisticalDataType": "dsv:QuantitativeDataType"
+          },
           "source": "https://loinc.org/101692-2"
+        },
+        "summaryStatistics": {
+          "statisticalDataType": "dsv:NumericalDataType",
+          "columnCompleteness": 1.0,
+          "numberOfRows": 303
         }
       },
       {
         "name": "exang",
         "titles": "Exercise-induced angina",
         "columnProperty": {
-          "statisticalDataType": "dsv:NominalDataType",
+          "summaryStatistics": {
+            "statisticalDataType": "dsv:NominalDataType"
+          },
           "source": "https://archive.datadictionary.nhs.uk/DD%20Release%20June%202021/Covid19PRA/Coronary_Heart.html",
           "hasCodeBook": {
             "hasTopConcept": [
@@ -192,22 +331,35 @@
               }
             ]
           }
+        },
+        "summaryStatistics": {
+          "statisticalDataType": "dsv:NumericalDataType",
+          "columnCompleteness": 1.0,
+          "numberOfRows": 303
         }
       },
       {
         "name": "oldpeak",
         "titles": "ST depression vs rest (max during study)",
         "columnProperty": {
-          "statisticalDataType": "dsv:QuantitativeDataType",
-          "valueType": "xsd:decimal",
+          "summaryStatistics": {
+            "statisticalDataType": "dsv:QuantitativeDataType"
+          },
           "source": "https://loinc.org/91546-2"
+        },
+        "summaryStatistics": {
+          "statisticalDataType": "dsv:NumericalDataType",
+          "columnCompleteness": 1.0,
+          "numberOfRows": 303
         }
       },
       {
         "name": "slope",
         "titles": "Slope of peak exercise ST segment",
         "columnProperty": {
-          "statisticalDataType": "dsv:NominalDataType",
+          "summaryStatistics": {
+            "statisticalDataType": "dsv:NominalDataType"
+          },
           "source": "https://dicom.nema.org/medical/dicom/current/output/chtml/part16/sect_CID_3233.html",
           "hasCodeBook": {
             "hasTopConcept": [
@@ -225,21 +377,34 @@
               }
             ]
           }
+        },
+        "summaryStatistics": {
+          "statisticalDataType": "dsv:NumericalDataType",
+          "columnCompleteness": 1.0,
+          "numberOfRows": 303
         }
       },
       {
         "name": "ca",
         "titles": "Number of major vessels (colored by fluoroscopy)",
         "columnProperty": {
-          "statisticalDataType": "dsv:QuantitativeDataType",
-          "valueType": "xsd:integer"
+          "summaryStatistics": {
+            "statisticalDataType": "dsv:QuantitativeDataType"
+          }
+        },
+        "summaryStatistics": {
+          "statisticalDataType": "dsv:NumericalDataType",
+          "columnCompleteness": 0.9867986798679867,
+          "numberOfRows": 303
         }
       },
       {
         "name": "thal",
         "titles": "Thallium perfusion test",
         "columnProperty": {
-          "statisticalDataType": "dsv:NominalDataType",
+          "summaryStatistics": {
+            "statisticalDataType": "dsv:NominalDataType"
+          },
           "hasCodeBook": {
             "hasTopConcept": [
               {
@@ -265,13 +430,20 @@
               }
             ]
           }
+        },
+        "summaryStatistics": {
+          "statisticalDataType": "dsv:NumericalDataType",
+          "columnCompleteness": 0.9933993399339934,
+          "numberOfRows": 303
         }
       },
       {
         "name": "num",
         "titles": "Angiographic disease status",
         "columnProperty": {
-          "statisticalDataType": "dsv:NominalDataType",
+          "summaryStatistics": {
+            "statisticalDataType": "dsv:NominalDataType"
+          },
           "source": "https://purl.bioontology.org/ontology/SNOMEDCT/233970002",
           "hasCodeBook": {
             "hasTopConcept": [
@@ -285,9 +457,18 @@
               }
             ]
           }
+        },
+        "summaryStatistics": {
+          "statisticalDataType": "dsv:NumericalDataType",
+          "columnCompleteness": 1.0,
+          "numberOfRows": 303
         }
       }
     ]
   },
-  "@context": "https://w3id.org/semmap/context/v1"
+  "summaryStatistics": {
+    "datasetCompleteness": 0.9985855728429985,
+    "numberOfRows": 303,
+    "numberOfColumns": 14
+  }
 }

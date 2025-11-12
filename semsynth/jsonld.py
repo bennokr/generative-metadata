@@ -1,5 +1,6 @@
 from dataclasses import fields, is_dataclass
-
+from typing import get_origin, get_args, Union, get_type_hints
+import logging
 
 class Namespace(str):
     """Easy IRI Namespace trick"""
@@ -93,17 +94,40 @@ class JSONLDMixin:
 
     @classmethod
     def from_jsonld(cls, data: dict):
+        hints = get_type_hints(cls)
         def dec(value, ftype):
-            if is_dataclass(ftype) and issubclass(ftype, JSONLDMixin):
-                return ftype.from_jsonld(value)
-            # If it's a list type, recurse on its args
-            if getattr(ftype, "__origin__", None) in (list, tuple):
-                subtype = ftype.__args__[0]
+            origin = get_origin(ftype)
+
+            # Handle Optional[T] / Union[T, None]
+            if origin is Union:
+                args = get_args(ftype)
+                non_none = [a for a in args if a is not type(None)]
+                # Optional[T]
+                if len(non_none) == 1:
+                    if value is None:
+                        return None
+                    return dec(value, non_none[0])
+                # more complex unions could be handled here as needed
+                return value  # fallback
+
+            # Handle list/tuple[T]
+            if origin in (list, tuple):
+                (subtype,) = get_args(ftype)
                 return [dec(v, subtype) for v in value]
+
+            # Handle nested dataclasses that also use JSONMixin
+            if isinstance(value, dict) and is_dataclass(ftype) and issubclass(ftype, JSONLDMixin):
+                return ftype.from_jsonld(value)
+
             return value
 
         kwargs = {}
         for f in fields(cls):
             if f.name in data:
-                kwargs[f.name] = dec(data[f.name], f.type)
-        return cls(**kwargs)
+                kwargs[f.name] = dec(data[f.name], hints[f.name])
+
+        try:
+            return cls(**kwargs)
+        except Exception as e:
+            logging.error(f"Invalid data with keys {list(data)}")
+            raise e

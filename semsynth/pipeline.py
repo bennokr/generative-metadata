@@ -57,8 +57,8 @@ def process_dataset(
         logging.info(f"Applying curated SemMap metadata from {mapping_path}")
         try:
             curated_mapping = load_mapping_json(mapping_path)
-            df.semmap.apply_json_metadata(curated_mapping, convert_pint=True)
-            semmap_export = df.semmap.jsonld()
+            df.semmap.from_jsonld(curated_mapping, convert_pint=True)
+            semmap_export = df.semmap.to_jsonld()
         except Exception:
             logging.exception("Failed to apply SemMap metadata", exc_info=True)
             semmap_export = None

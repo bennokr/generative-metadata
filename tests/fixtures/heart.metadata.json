@@ -1,17 +1,14 @@
 {
   "@context": "https://w3id.org/semmap/context/v1",
-  "dataset": {
-    "@context": "https://w3id.org/semmap/context/v1",
-    "@type": [
-      "disco:LogicalDataSet",
-      "dsv:Dataset",
-      "dcat:Dataset"
-    ],
-    "dct:title": "Heart dataset (example)",
-    "dct:description": "Example with variable/column JSON-LD and UCUM units.",
-    "dct:license": "https://creativecommons.org/publicdomain/zero/1.0/"
-  },
-  "tableSchema": {
+  "@type": [
+    "disco:LogicalDataSet",
+    "dsv:Dataset",
+    "dcat:Dataset"
+  ],
+  "dct:title": "Heart dataset (example)",
+  "dct:description": "Example dataset with variable/column JSON-LD and UCUM units.",
+  "dct:license": "https://creativecommons.org/publicdomain/zero/1.0/",
+  "datasetSchema": {
     "columns": [
       {
         "name": "cp",
@@ -20,7 +17,6 @@
           "statisticalDataType": "dsv:NominalDataType",
           "source": "https://dicom.nema.org/medical/dicom/current/output/chtml/part16/sect_CID_3202.html",
           "hasCodeBook": {
-            "source": "https://dicom.nema.org/medical/dicom/current/output/chtml/part16/sect_CID_3202.html",
             "hasTopConcept": [
               {
                 "notation": "1",
@@ -59,9 +55,8 @@
         "titles": "Fasting blood sugar >120 mg/dL (indicator)",
         "columnProperty": {
           "statisticalDataType": "dsv:NominalDataType",
-          "source": "https://loinc.org/2345-7",
+          "hasVariable": "https://loinc.org/2345-7",
           "hasCodeBook": {
-            "source": "https://loinc.org/2345-7",
             "hasTopConcept": [
               {
                 "notation": "0",
@@ -80,10 +75,8 @@
         "titles": "Resting systolic blood pressure",
         "columnProperty": {
           "statisticalDataType": "dsv:QuantitativeDataType",
-          "valueType": "xsd:integer",
-          "hasUnit": "unit:MilliM_HG",
-          "ucumCode": "mm[Hg]",
-          "source": "https://loinc.org/8480-6"
+          "hasUnit": {"exactMatch": "unit:MilliM_HG", "ucumCode": "mm[Hg]"},
+          "hasVariable": "https://loinc.org/8480-6"
         }
       },
       {
@@ -91,10 +84,8 @@
         "titles": "Total cholesterol",
         "columnProperty": {
           "statisticalDataType": "dsv:QuantitativeDataType",
-          "valueType": "xsd:integer",
-          "hasUnit": "unit:MilliGM-PER-DeciL",
-          "ucumCode": "mg/dL",
-          "source": "https://loinc.org/2093-3"
+          "hasUnit": {"exactMatch": "unit:MilliGM-PER-DeciL", "ucumCode": "mg/dL"},
+          "hasVariable": "https://loinc.org/2093-3"
         }
       }
     ]

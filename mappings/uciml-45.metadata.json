@@ -1,12 +1,10 @@
 {
   "@context": "https://w3id.org/semmap/context/v1",
-  "dataset": {
-    "@type": ["disco:LogicalDataSet", "dsv:Dataset", "dcat:Dataset"],
-    "dct:title": "Heart Disease (UCI id 45)",
-    "dct:description": "4 databases: Cleveland, Hungary, Switzerland, and the VA Long Beach",
-    "dct:license": "https://creativecommons.org/publicdomain/zero/1.0/"
-  },
-  "tableSchema": {
+  "@type": ["disco:LogicalDataSet", "dsv:Dataset", "dcat:Dataset"],
+  "dct:title": "Heart Disease (UCI id 45)",
+  "dct:description": "4 databases: Cleveland, Hungary, Switzerland, and the VA Long Beach",
+  "dct:license": "https://creativecommons.org/publicdomain/zero/1.0/",
+  "datasetSchema": {
     "columns": [
       {
         "name": "age",
@@ -14,8 +12,7 @@
         "columnProperty": {
           "summaryStatistics": {"statisticalDataType": "dsv:QuantitativeDataType"},
           "valueType": "xsd:integer",
-          "hasUnit": "unit:YR",
-          "ucumCode": "a",
+          "hasUnit": {"exactMatch": ["unit:YR"], "ucumCode": "a"},
           "source": "https://loinc.org/30525-0"
         }
       },
@@ -71,8 +68,7 @@
         "columnProperty": {
           "summaryStatistics": {"statisticalDataType": "dsv:QuantitativeDataType"},
           "valueType": "xsd:integer",
-          "hasUnit": "unit:MilliM_HG",
-          "ucumCode": "mm[Hg]",
+          "hasUnit": {"exactMatch": ["unit:MilliM_HG"], "ucumCode": "mm[Hg]"},
           "source": "https://loinc.org/8480-6"
         }
       },
@@ -82,8 +78,7 @@
         "columnProperty": {
           "summaryStatistics": {"statisticalDataType": "dsv:QuantitativeDataType"},
           "valueType": "xsd:integer",
-          "hasUnit": "unit:MilliGM-PER-DeciL",
-          "ucumCode": "mg/dL",
+          "hasUnit": {"exactMatch": ["unit:MilliGM-PER-DeciL"], "ucumCode": "mg/dL"},
           "source": "https://loinc.org/2093-3"
         }
       },

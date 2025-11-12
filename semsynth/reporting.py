@@ -83,13 +83,10 @@ def write_report_md(
 
         # Overview
         
-        # mf_name = Path(metadata_file).name
-        # f.write(f"- Metadata file: [{mf_name}]({mf_name})\n")
-        # if dataset_jsonld_file:
-        #     jd_name = Path(dataset_jsonld_file).name
-        #     f.write(f"- JSON-LD (schema.org/Dataset): [{jd_name}]({jd_name})\n")
         if semmap_jsonld:
             semmap_json_name = "dataset.semmap.json"
+            with open(Path(outdir) / semmap_json_name, 'w') as fw:
+                json.dump(semmap_jsonld, fw, indent=2)
             f.write(f"- SemMap JSON-LD: [{semmap_json_name}]({semmap_json_name})\n")
         if semmap_html_name:
             f.write(f"- SemMap HTML: [{semmap_html_name}]({semmap_html_name})\n")

@@ -1,4 +1,6 @@
 configs:
+  - name: metasyn
+    backend: metasyn
   - name: clg_mi2
     backend: pybnesian
     model:

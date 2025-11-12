@@ -57,11 +57,10 @@ def report(
     datasets: List[str] = [],
     outdir: str = "docs",
     configs_yaml: str = "",
-    metasyn: bool = True,
     area: str = "Health and Medicine",
     verbose: bool = False,
 ) -> None:
-    """Run the BN report pipeline on a collection of datasets.
+    """Run the report pipeline on a collection of datasets.
 
     Parameters:
         provider: 'openml' or 'uciml'.
@@ -81,15 +80,14 @@ def report(
     dataset_specs: List[DatasetSpec] = specs_from_input(
         provider=provider, datasets=ds, area=area
     )
-    # Load unified model configs. If not provided, load default_config.yaml
-    cfg_path = configs_yaml.strip() or None
-    try:
-        model_specs = load_model_configs(cfg_path)
-    except Exception as exc:
-        raise SystemExit(str(exc))
-
-    if metasyn:
-        model_specs.insert(0, ModelSpec(name="metasyn", backend="metasyn"))
+    # Load unified model configs.
+    if configs_yaml:
+        try:
+            model_specs = load_model_configs(configs_yaml.strip())
+        except Exception as exc:
+            raise SystemExit(str(exc))
+    else:
+        model_specs = []
 
     for dataset_spec in dataset_specs:
         logging.info(f"Loading {dataset_spec}")

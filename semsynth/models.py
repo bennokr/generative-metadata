@@ -8,9 +8,6 @@ import json
 import logging
 
 
-DEFAULT_CONFIG_PATH = Path("configs/default_config.yaml")
-
-
 @dataclass
 class ModelSpec:
     name: str
@@ -47,18 +44,14 @@ def _as_list(data: Any) -> List[Dict[str, Any]]:
     raise ValueError("Model config YAML must be a list or an object with 'configs'.")
 
 
-def load_model_configs(yaml_path: Optional[str]) -> List[ModelSpec]:
-    """Load unified model configs from YAML; fall back to default_config.yaml."""
+def load_model_configs(yaml_path: str) -> List[ModelSpec]:
+    """Load unified model configs from YAML"""
     try:
         import yaml  # type: ignore
     except Exception as exc:  # pragma: no cover - optional dep
         raise RuntimeError("PyYAML is required to load configuration files") from exc
 
-    path = None
-    if yaml_path and str(yaml_path).strip():
-        path = Path(str(yaml_path))
-    else:
-        path = DEFAULT_CONFIG_PATH
+    path = Path(str(yaml_path))
     if not path.exists():
         raise FileNotFoundError(f"Config file not found: {path}")
 

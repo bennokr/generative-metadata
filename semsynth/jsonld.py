@@ -76,15 +76,15 @@ class JSONLDMixin:
                     out.append(fby[n])
         return tuple(out)
 
-    def to_jsonld(self, context=True):
+    def to_jsonld(self, with_context=True):
         def enc(v):
             if isinstance(v, JSONLDMixin):
-                return v.to_jsonld(context=False)
+                return v.to_jsonld(with_context=False)
             if isinstance(v, (list, tuple)):
                 return [enc(x) for x in v]
             return v
 
-        doc = {"@context": getattr(self, "__context__", {})} if context else {}
+        doc = {"@context": getattr(self, "__context__", {})} if with_context else {}
         for f in self.fields_subclass_first():
             v = getattr(self, f.name)
             if v is not None:

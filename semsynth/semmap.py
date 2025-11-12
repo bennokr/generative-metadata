@@ -2,30 +2,163 @@
 from __future__ import annotations
 import json
 from typing import Any, Dict, List, Optional, Union
+from enum import Enum
+from dataclasses import dataclass
+
+from .jsonld import JSONLDMixin
 
 import pandas as pd
 import pyarrow as pa
 import pyarrow.parquet as pq
+from pint_pandas import PintType
 
-try:
-    from pint_pandas import PintType
-except ImportError:  # pragma: no cover - optional dependency
+# CONTEXT = json.load(pathlib.Path(__file__).with_name('semmap_context.jsonld'))
+CONTEXT = {
+    "@context": {
+        "csvw": "http://www.w3.org/ns/csvw#",
+        "dsv": "https://w3id.org/dsv-ontology#",
+        "skos": "http://www.w3.org/2004/02/skos/core#",
+        "qudt": "http://qudt.org/schema/qudt/",
+        "unit": "http://qudt.org/vocab/unit/",
+        "quantitykind": "http://qudt.org/vocab/quantitykind/",
+        "sdmx-dimension": "http://purl.org/linked-data/sdmx/2009/dimension#",
+        "schema": "https://schema.org/",
+        "wd": "http://www.wikidata.org/entity/",
+        "dct": "http://purl.org/dc/terms/",
+        "url": "csvw:url",
+        "datasetSchema": "dsv:datasetSchema",
+        "columns": {"@id": "dsv:column", "@container": "@set"},
+        "name": "csvw:name",
+        "titles": "csvw:titles",
+        "columnProperty": "dsv:columnProperty",
+        "columnCompleteness": "dsv:columnCompleteness",
+        "summaryStatistics": "dsv:summaryStatistics",
+        "statisticalDataType": {"@id": "dsv:statisticalDataType", "@type": "@id"},
+        "valueType": {"@id": "dsv:valueType", "@type": "@id"},
+        "hasCodeBook": {"@id": "dsv:hasCodeBook", "@type": "@id"},
+        "hasVariable": {"@id": "dsv:hasVariable", "@type": "@id"},
+        "datasetCompleteness": "dsv:datasetCompleteness",
+        "numberOfRows": "dsv:numberOfRows",
+        "numberOfColumns": "dsv:numberOfColumns",
+        "missingValueFormat": "dsv:missingValueFormat",
+        "notation": "skos:notation",
+        "prefLabel": "skos:prefLabel",
+        "exactMatch": {"@id": "skos:exactMatch", "@type": "@id", "@container": "@set"},
+        "closeMatch": {"@id": "skos:closeMatch", "@type": "@id", "@container": "@set"},
+        "broadMatch": {"@id": "skos:broadMatch", "@type": "@id", "@container": "@set"},
+        "narrowMatch": {
+            "@id": "skos:narrowMatch",
+            "@type": "@id",
+            "@container": "@set",
+        },
+        "relatedMatch": {
+            "@id": "skos:relatedMatch",
+            "@type": "@id",
+            "@container": "@set",
+        },
+        "hasTopConcept": {
+            "@id": "skos:hasTopConcept",
+            "@type": "@id",
+            "@container": "@set",
+        },
+        "hasQuantityKind": {"@id": "qudt:hasQuantityKind", "@type": "@id"},
+        "unitText": "schema:unitText",
+        "ucumCode": "qudt:ucumCode",
+        "hasUnit": "qudt:hasUnit",
+        "source": {"@id": "dct:source", "@type": "@id"},
+    }
+}
 
-    class PintType:  # type: ignore[too-many-ancestors]
-        """Placeholder type when pint-pandas is unavailable."""
 
-        pass
+# --- SKOS mapping mixin -------------------------------------------------------
+@dataclass(kw_only=True)
+class SkosMappings(JSONLDMixin):
+    exactMatch: Optional[List[str]] = None
+    closeMatch: Optional[List[str]] = None
+    broadMatch: Optional[List[str]] = None
+    narrowMatch: Optional[List[str]] = None
+    relatedMatch: Optional[List[str]] = None
 
-    _HAVE_PINT = False
-else:
-    _HAVE_PINT = True
+
+# --- Code book (SKOS) ---------------------------------------------------------
+@dataclass
+class CodeConcept(SkosMappings):
+    notation: Optional[str] = None
+    prefLabel: Optional[str] = None
+
+
+@dataclass
+class CodeBook(JSONLDMixin):
+    hasTopConcept: Optional[List[CodeConcept]] = None
+    source: Optional[str] = None # if different from ColumnProperty source
+
+
+# --- Column property (DSV + QUDT/UCUM) ---------------------------------------
+class StatisticalDataType(Enum):
+    Interval = "dsv:IntervalDataType"
+    Nominal = "dsv:NominalDataType"
+    Numerical = "dsv:NumericalDataType"
+    Ordinal = "dsv:OrdinalDataType"
+    Ratio = "dsv:RatioDataType"
+
+
+@dataclass
+class SummaryStatistics(JSONLDMixin):
+    # Can be used for column- and dataset-level stats
+    statisticalDataType: Optional[StatisticalDataType] = None
+    columnCompleteness: Optional[float] = None
+    datasetCompleteness: Optional[float] = None
+    numberOfRows: Optional[int] = None
+    numberOfColumns: Optional[int] = None
+    missingValueFormat: Optional[str] = None
+
+
+@dataclass
+class Unit(SkosMappings):
+    ucumCode: Optional[str] = None  # e.g., "a"
+
+
+@dataclass
+class ColumnProperty(JSONLDMixin):
+    summaryStatistics: Optional[SummaryStatistics] = None
+    valueType: Optional[str] = None  # e.g., "xsd:integer"
+    hasQuantityKind: Optional[str] = None  # e.g., "quantitykind:Time"
+    unitText: Optional[str] = None  # e.g., "unit:YR"
+    hasUnit: Optional[str | Unit] = None
+    source: Optional[str] = None  # web page with documentation
+    hasCodeBook: Optional[CodeBook] = None
+    # Link to a variable definition (SKOS Concept) for the column
+    hasVariable: Optional[Union[str, CodeConcept]] = None
+
+
+# --- CSVW/DSV column and schema ----------------------------------------------
+@dataclass
+class Column(JSONLDMixin):
+    name: str  # required
+    titles: Optional[Union[str, List[str]]] = None
+    columnProperty: Optional[ColumnProperty] = None
+    # DSV allows summary statistics on components (columns)
+    summaryStatistics: Optional[SummaryStatistics] = None
+
+
+@dataclass
+class DatasetSchema(JSONLDMixin):
+    __context__ = CONTEXT
+    columns: List[Column]  # required
+
+
+# --- Root document / Dataset --------------------------------------------------
+@dataclass
+class Metadata(JSONLDMixin):
+    __context__ = CONTEXT
+    # This acts as the dsv:Dataset and links to its dsv:DatasetSchema
+    datasetSchema: DatasetSchema  # required
+    # Dataset-level summary statistics
+    summaryStatistics: Optional[SummaryStatistics] = None
 
 # Arrow metadata keys (bytes per Arrow requirements)
 _DATASET_JSONLD_KEY = b"jsonld.dataset"
 _COLUMN_JSONLD_KEY = b"jsonld.column"
-
-DSV_NOMINAL = "dsv:NominalDataType"
-DSV_QUANTITATIVE = "dsv:QuantitativeDataType"
 
 
 @pd.api.extensions.register_series_accessor("semmap")
@@ -41,7 +174,7 @@ class SemMapSeriesAccessor:
 
     def _try_convert_to_pint(self, unit_text: Optional[str]) -> None:
         """Best-effort conversion of the Series to a pint dtype using unit_text."""
-        if unit_text is None or not _HAVE_PINT:
+        if unit_text is None:
             return
         try:
             # pint-pandas supports "pint[<unit>]" dtype strings when pint is available
@@ -59,7 +192,7 @@ class SemMapSeriesAccessor:
         *,
         unit_text: Optional[str] = None,  # unit string ("mmHg", "mg/dL", "year")
         ucum_code: Optional[str] = None,  # UCUM code ("mm[Hg]", "mg/dL", "a")
-        qudt_unit_iri: Optional[str] = None,  # QUDT IRI; auto-filled when possible
+        qudt_unit_iri: Optional[str] = None,  # QUDT IRI
         value_type_iri: str = "http://www.w3.org/2001/XMLSchema#decimal",
         statistical_data_type: Optional[str] = "dsv:QuantitativeDataType",
         quantity_kind_iri: Optional[str] = None,
@@ -74,17 +207,24 @@ class SemMapSeriesAccessor:
             col_prop["valueType"] = value_type_iri
         if quantity_kind_iri is not None:
             col_prop["hasQuantityKind"] = quantity_kind_iri
-        if unit_text is not None:
-            col_prop["unitText"] = unit_text
-        if ucum_code is not None:
-            col_prop["ucumCode"] = ucum_code
         if source_iri is not None:
             col_prop["source"] = source_iri
+        
+        # Units
+        if unit_text is not None:
+            col_prop["unitText"] = unit_text
+        elif ucum_code is not None:
+            try:
+                from ucumvert import PintUcumRegistry
+
+                ureg = PintUcumRegistry()
+                col_prop["unitText"] = unit_text = str(ureg.from_ucum(ucum_code).units)
+            except:
+                pass
         if qudt_unit_iri is not None:
-            # Include as an exactMatch to the QUDT unit IRI if provided
-            col_prop.setdefault("exactMatch", [])
-            if isinstance(col_prop["exactMatch"], list):
-                col_prop["exactMatch"].append(qudt_unit_iri)
+            col_prop["hasUnit"] = {"exactMatch": qudt_unit_iri}
+        if ucum_code is not None:
+            col_prop.setdefault("hasUnit", {})["ucumCode"] = ucum_code
 
         column_jsonld: Dict[str, Any] = {
             "name": name,
@@ -160,7 +300,7 @@ class SemMapSeriesAccessor:
         """Ensure the physical storage is parquet-friendly (e.g., strip pint to magnitudes)."""
         s = self._s
 
-        if _HAVE_PINT and isinstance(s.dtype, PintType):
+        if isinstance(s.dtype, PintType):
             # Store magnitudes; metadata carries units for reconstruction
             s = pd.Series(s.to_numpy().magnitude, index=s.index, name=s.name)
         # For categories, parquet handles pd.Categorical fine.
@@ -181,8 +321,6 @@ class SemMapFrameAccessor:
     @staticmethod
     def _maybe_convert_series_to_pint(s: pd.Series, col_jsonld: Dict[str, Any]) -> None:
         """Best-effort pint conversion based on column JSON-LD."""
-        if not _HAVE_PINT:
-            return
         try:
             col_prop = (col_jsonld or {}).get("columnProperty") or {}
             unit_text = col_prop.get("unitText")
@@ -205,7 +343,7 @@ class SemMapFrameAccessor:
                 cols.append(cmeta)
 
         if cols:
-            return {"tableSchema": {"columns": cols}}
+            return {"datasetSchema": {"columns": cols}}
 
         return None
 
@@ -311,7 +449,7 @@ class SemMapFrameAccessor:
         self._df.attrs["semmap_jsonld"] = meta_obj
 
         # Apply per-column metadata if present
-        cols = (((meta_obj or {}).get("tableSchema") or {}).get("columns")) or []
+        cols = (((meta_obj or {}).get("datasetSchema") or {}).get("columns")) or []
         by_name = {
             c.get("name"): c for c in cols if isinstance(c, dict) and "name" in c
         }

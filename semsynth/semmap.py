@@ -7,12 +7,10 @@ from dataclasses import dataclass
 from .jsonld import JSONLDMixin
 
 import pandas as pd
-
 import pyarrow as pa
 import pyarrow.parquet as pq
 from pint_pandas import PintType
 
-# CONTEXT = json.load(pathlib.Path(__file__).with_name('semmap_context.to_jsonld'))
 CONTEXT = {
     "@context": {
         "csvw": "http://www.w3.org/ns/csvw#",
@@ -32,7 +30,7 @@ CONTEXT = {
         "titles": "csvw:titles",
         "columnProperty": "dsv:columnProperty",
         "columnCompleteness": "dsv:columnCompleteness",
-        "SummaryStatistics": "dsv:summaryStatistics",
+        "summaryStatistics": "dsv:summaryStatistics",
         "statisticalDataType": {"@id": "dsv:statisticalDataType", "@type": "@id"},
         "hasCodeBook": {"@id": "dsv:hasCodeBook", "@type": "@id"},
         "hasVariable": {"@id": "dsv:hasVariable", "@type": "@id"},
@@ -204,13 +202,10 @@ class SemMapSeriesAccessor:
         has_unit: Optional[Union[str, Unit]] = None
         # If both UCUM and QUDT provided, use a Unit node to capture both
         if ucum_code or qudt_unit_iri:
-            if ucum_code and qudt_unit_iri:
+            if qudt_unit_iri:
                 has_unit = Unit(ucumCode=ucum_code, exactMatch=[qudt_unit_iri])
             elif ucum_code:
                 has_unit = Unit(ucumCode=ucum_code)
-            else:
-                # Only QUDT IRI -> allow compact representation as a string
-                has_unit = qudt_unit_iri
 
         col_prop = ColumnProperty(
             unitText=unit_text,

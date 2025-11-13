@@ -1,20 +1,33 @@
+"""MetaSyn backend implementation for SemSynth."""
+
+from __future__ import annotations
+
 import copy
 import json
 import logging
 from pathlib import Path
-from typing import Any, Dict, Optional
-
-import pandas as pd
-from metasyn.metaframe import MetaFrame
-from sklearn.model_selection import train_test_split
+from typing import Any, Dict, Optional, TYPE_CHECKING
 
 from ..metrics import per_variable_distances, summarize_distance_metrics
 from ..models import model_run_root, write_manifest
 from ..utils import coerce_continuous_to_float, ensure_dir, infer_types
 
+if TYPE_CHECKING:  # pragma: no cover - typing only
+    import pandas as pd
+
+
+def _load_metasyn() -> Any:
+    try:
+        from metasyn.metaframe import MetaFrame
+    except ImportError as exc:  # pragma: no cover - optional dependency
+        raise RuntimeError(
+            "MetaSyn backend requires 'metasyn'; install with pip install semsynth[metasyn]"
+        ) from exc
+    return MetaFrame
+
 
 def run_experiment(
-    df: pd.DataFrame,
+    df: "pd.DataFrame",
     *,
     provider: Optional[str],
     dataset_name: Optional[str],
@@ -27,10 +40,20 @@ def run_experiment(
     test_size: float,
     semmap_export: Optional[Dict[str, Any]] = None,
 ) -> Path:
+    """Fit the MetaSyn model and persist artifacts following the backend contract."""
+
+    import pandas as pd
+    from sklearn.model_selection import train_test_split
+
+    MetaFrame = _load_metasyn()
+
     rows = rows or len(df)
+    working = df.copy()
+    disc_cols, cont_cols = infer_types(working)
+    working = coerce_continuous_to_float(working, cont_cols)
 
     train_df, test_df = train_test_split(
-        df.copy(), test_size=test_size, random_state=seed, shuffle=True
+        working, test_size=test_size, random_state=seed, shuffle=True
     )
     train_df = train_df.reset_index(drop=True)
     test_df = test_df.reset_index(drop=True)
@@ -39,60 +62,45 @@ def run_experiment(
     run_dir = run_root / label
     ensure_dir(str(run_dir))
 
-    # Fit MetaFrame (GMF) on the same training data
-    logging.info("Fitting MetaSyn MetaFrame on train")
+    logging.info("Fitting MetaSyn MetaFrame on train for %s", label)
     mf = MetaFrame.fit_dataframe(train_df)
-    metasyn_gmf = run_dir / "metasyn_gmf.json"
+    gmf_path = run_dir / "metasyn_gmf.json"
     try:
-        mf.save(str(metasyn_gmf))
-    except Exception as e:
-        logging.warning(f"Could not save MetaSyn GMF: {e}")
-        metasyn_gmf = None
+        mf.save(str(gmf_path))
+    except Exception:
+        logging.warning("Could not serialize MetaSyn GMF", exc_info=True)
+        gmf_path = None
 
-    # Synthesize MetaSyn data
     try:
         synth_meta = mf.synthesize(n=rows)
-        import polars as pl
-
-        if isinstance(synth_meta, pl.DataFrame):
+        if hasattr(synth_meta, "to_pandas"):
             synth_df = synth_meta.to_pandas()
         else:
-            synth_df = synth_meta
-    except Exception as e:
-        logging.warning(f"MetaSyn synthesis failed: {e}")
-        synth_df = pd.DataFrame(columns=df.columns)
+            synth_df = pd.DataFrame(synth_meta)
+    except Exception:
+        logging.exception("MetaSyn synthesis failed", exc_info=True)
+        synth_df = pd.DataFrame(columns=working.columns)
 
-    # Align columns and dtypes
-    disc_cols, cont_cols = infer_types(df)
-    synth_df = synth_df.reindex(columns=df.columns)
-    for c in disc_cols:
-        if c in synth_df.columns:
-            synth_df[c] = synth_df[c].astype("category")
-            if pd.api.types.is_categorical_dtype(df[c]):
-                synth_df[c] = synth_df[c].cat.set_categories(df[c].cat.categories)
+    synth_df = synth_df.reindex(columns=working.columns)
+    for column in disc_cols:
+        if column in synth_df.columns:
+            synth_df[column] = synth_df[column].astype("category")
+            if pd.api.types.is_categorical_dtype(df[column]):
+                synth_df[column] = synth_df[column].cat.set_categories(
+                    df[column].cat.categories
+                )
     synth_df = coerce_continuous_to_float(synth_df, cont_cols)
 
-    synth_df.to_csv(run_dir / "synthetic.csv", index=False)
-    logging.info("Wrote synthetic CSV: %s", run_dir / "synthetic.csv")
+    synth_csv = run_dir / "synthetic.csv"
+    synth_df.to_csv(synth_csv, index=False)
 
     if semmap_export:
         try:
-            synth_df.semmap.apply_json_metadata(
-                copy.deepcopy(semmap_export), convert_pint=False
-            )
-            metasyn_semmap_parquet_path = run_dir / "synthetic_metasyn.semmap.parquet"
-            synth_df.semmap.to_parquet(str(metasyn_semmap_parquet_path), index=False)
-            metasyn_semmap_parquet_file = str(metasyn_semmap_parquet_path)
-            logging.info(
-                "Wrote SemMap parquet for MetaSyn synthetic: %s",
-                metasyn_semmap_parquet_path,
-            )
+            synth_df.semmap.apply_json_metadata(copy.deepcopy(semmap_export), convert_pint=False)
+            synth_df.semmap.to_parquet(str(run_dir / "synthetic.semmap.parquet"), index=False)
         except Exception:
-            logging.exception(
-                "Failed to serialize SemMap parquet for MetaSyn synthetic"
-            )
+            logging.exception("Failed to serialize SemMap parquet for MetaSyn synthetic")
 
-    # Distances for MetaSyn model (use overall discrete/continuous cols inferred earlier)
     dist_df = per_variable_distances(test_df, synth_df, disc_cols, cont_cols)
     dist_df.to_csv(run_dir / "per_variable_metrics.csv", index=False)
     metrics = {
@@ -103,11 +111,8 @@ def run_experiment(
         "synth_rows": len(synth_df),
         "discrete_cols": len(disc_cols),
         "continuous_cols": len(cont_cols),
-        "umap_png": None,
     }
-    (run_dir / "metrics.json").write_text(
-        json.dumps(metrics, indent=2), encoding="utf-8"
-    )
+    (run_dir / "metrics.json").write_text(json.dumps(metrics, indent=2), encoding="utf-8")
 
     manifest = {
         "backend": "metasyn",
@@ -115,6 +120,7 @@ def run_experiment(
         "provider": provider,
         "dataset_name": dataset_name,
         "provider_id": provider_id,
+        "params": dict(model_info or {}),
         "seed": seed,
         "rows": rows,
         "test_size": test_size,
@@ -122,3 +128,4 @@ def run_experiment(
     write_manifest(run_dir, manifest)
     logging.info("Finished MetaSyn run: %s", label)
     return run_dir
+

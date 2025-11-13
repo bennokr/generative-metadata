@@ -1,22 +1,10 @@
 from __future__ import annotations
-from dataclasses import dataclass
-from typing import Dict, List, Optional
-import numpy as np
-import pandas as pd
 
-# pip install synthcity
-from synthcity.plugins.core.dataloader import GenericDataLoader
-from synthcity.metrics.eval_sanity import (
-    CommonRowsProportion,
-    NearestSyntheticNeighborDistance,
-    CloseValuesProbability,
-)
-from synthcity.metrics.eval_privacy import (
-    kAnonymization,
-    kMap,
-    IdentifiabilityScore,
-    DeltaPresence,
-)
+from dataclasses import dataclass
+from typing import Dict, List, Optional, TYPE_CHECKING
+
+if TYPE_CHECKING:  # pragma: no cover - typing only
+    import pandas as pd
 
 @dataclass
 class DatasetPrivacySummary:
@@ -33,7 +21,39 @@ class DatasetPrivacySummary:
     rare_qi_reproduction_rate: Optional[float]
     t_closeness: Dict[str, Dict[str, float]]  # per sensitive var: {'mean','p95','max'}
 
-def _prep(df: pd.DataFrame, meta: pd.DataFrame) -> pd.DataFrame:
+
+def _load_synthcity_modules():
+    try:
+        from synthcity.plugins.core.dataloader import GenericDataLoader
+        from synthcity.metrics.eval_sanity import (
+            CommonRowsProportion,
+            NearestSyntheticNeighborDistance,
+            CloseValuesProbability,
+        )
+        from synthcity.metrics.eval_privacy import (
+            kAnonymization,
+            kMap,
+            IdentifiabilityScore,
+            DeltaPresence,
+        )
+    except ImportError as exc:  # pragma: no cover - optional dependency
+        raise RuntimeError(
+            "Privacy metrics require 'synthcity'; install with pip install semsynth[synthcity]"
+        ) from exc
+    return (
+        GenericDataLoader,
+        CommonRowsProportion,
+        NearestSyntheticNeighborDistance,
+        CloseValuesProbability,
+        kAnonymization,
+        kMap,
+        IdentifiabilityScore,
+        DeltaPresence,
+    )
+
+def _prep(df: "pd.DataFrame", meta: "pd.DataFrame") -> "pd.DataFrame":
+    import pandas as pd
+
     """Small, deterministic typing + NA handling."""
     t = dict(zip(meta.variable, meta.type))
     out = df.copy()
@@ -50,22 +70,40 @@ def _prep(df: pd.DataFrame, meta: pd.DataFrame) -> pd.DataFrame:
             out[c] = out[c].astype("object").where(out[c].notna(), "__MISSING__")
     return out
 
-def _tv(p: pd.Series, q: pd.Series) -> float:
+def _tv(p, q) -> float:
+    import numpy as np
+
     idx = p.index.union(q.index)
     return 0.5 * float(np.abs(p.reindex(idx, fill_value=0) - q.reindex(idx, fill_value=0)).sum())
 
-def _w1(x: np.ndarray, y: np.ndarray) -> float:
+def _w1(x, y) -> float:
+    import numpy as np
+
     x = np.sort(x[~np.isnan(x)]); y = np.sort(y[~np.isnan(y)])
-    if len(x) == 0 or len(y) == 0: return 0.0
+    if len(x) == 0 or len(y) == 0:
+        return 0.0
     n = max(len(x), len(y))
     q = (np.arange(n) + 0.5) / n
     return float(np.mean(np.abs(np.quantile(x, q) - np.quantile(y, q))))
 
-def summarize_privacy_synthcity(df_real: pd.DataFrame,
-                                df_synth: pd.DataFrame,
-                                meta: pd.DataFrame,
+def summarize_privacy_synthcity(df_real: "pd.DataFrame",
+                                df_synth: "pd.DataFrame",
+                                meta: "pd.DataFrame",
                                 *,
                                 eps: float = 0.1) -> DatasetPrivacySummary:
+    import numpy as np
+    import pandas as pd
+
+    (
+        GenericDataLoader,
+        CommonRowsProportion,
+        NearestSyntheticNeighborDistance,
+        CloseValuesProbability,
+        kAnonymization,
+        kMap,
+        IdentifiabilityScore,
+        DeltaPresence,
+    ) = _load_synthcity_modules()
     # select columns
     assert {'variable','role','type'}.issubset(meta.columns)
     use_meta = meta[~meta.role.isin(['ignore','id'])].copy()

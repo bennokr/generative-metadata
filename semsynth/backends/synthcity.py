@@ -5,11 +5,11 @@ import logging
 import numbers
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple, TYPE_CHECKING
 
-import numpy as np
-import pandas as pd
-from sklearn.model_selection import train_test_split
+if TYPE_CHECKING:  # pragma: no cover - typing only
+    import numpy as np
+    import pandas as pd
 
 from ..metrics import per_variable_distances, summarize_distance_metrics
 from ..utils import (
@@ -50,14 +50,24 @@ def canonical_generator_name(name: str) -> str:
     return aliases[key]
 
 
+def _load_synthcity_plugins():
+    try:
+        from synthcity.plugins import Plugins
+    except ImportError as exc:  # pragma: no cover - optional dependency
+        raise RuntimeError(
+            "SynthCity backend requires 'synthcity'; install with pip install semsynth[synthcity]"
+        ) from exc
+    return Plugins
+
+
 @dataclass
 class SynthRunArtifacts:
     plugin_name: str
     plugin_params: Dict[str, Any]
     model_obj: Any
-    real_train: pd.DataFrame
-    real_test: pd.DataFrame
-    synth_df: pd.DataFrame
+    real_train: "pd.DataFrame"
+    real_test: "pd.DataFrame"
+    synth_df: "pd.DataFrame"
     discrete_cols: List[str]
     continuous_cols: List[str]
     seed: int
@@ -108,7 +118,7 @@ def _ensure_torch_rmsnorm() -> None:
 
 def _get_plugin(name: str, params: Dict[str, Any]):
     _ensure_torch_rmsnorm()
-    from synthcity.plugins import Plugins
+    Plugins = _load_synthcity_plugins()
 
     logging.info("Loading synthcity plugin: %s", name)
     return Plugins().get(name, **(params or {}))
@@ -123,7 +133,10 @@ def _normalize_plugin_params(
     return normalized
 
 
-def _ensure_dataframe(obj: Any) -> pd.DataFrame:
+def _ensure_dataframe(obj: Any) -> "pd.DataFrame":
+    import numpy as np
+    import pandas as pd
+
     if isinstance(obj, pd.DataFrame):
         return obj
     if hasattr(obj, "dataframe"):
@@ -140,7 +153,7 @@ def _ensure_dataframe(obj: Any) -> pd.DataFrame:
 
 
 def run_experiment(
-    df: pd.DataFrame,
+    df: "pd.DataFrame",
     *,
     provider: Optional[str],
     dataset_name: Optional[str],
@@ -153,6 +166,10 @@ def run_experiment(
     test_size: float,
     semmap_export: Optional[Dict[str, Any]] = None,
 ) -> Path:
+    import numpy as np
+    import pandas as pd
+    from sklearn.model_selection import train_test_split
+
     logging.info("Starting synthcity run: %s", label)
     working = df.copy()
     disc_cols, cont_cols = infer_types(working)

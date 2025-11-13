@@ -1,11 +1,16 @@
+"""Utilities for building and rendering UMAP embeddings lazily."""
+
 from __future__ import annotations
 
-from typing import Dict, List, Optional, Tuple
 from dataclasses import dataclass
-
 import os
 import tempfile
 from pathlib import Path
+from typing import Any, Dict, List, Optional, Tuple, TYPE_CHECKING
+
+if TYPE_CHECKING:  # pragma: no cover - typing only
+    import numpy as np
+    import pandas as pd
 
 # Ensure numba has a writable cache directory and disable caching to avoid sandbox errors.
 os.environ.setdefault("NUMBA_DISABLE_CACHING", "1")
@@ -16,51 +21,71 @@ cache_dir = Path(
 )
 cache_dir.mkdir(parents=True, exist_ok=True)
 
-import numpy as np
-import pandas as pd
-import matplotlib.pyplot as plt
-from sklearn.compose import ColumnTransformer
-from sklearn.impute import SimpleImputer
-from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import OneHotEncoder, StandardScaler
-
-import umap
-
 
 @dataclass
 class UMAPArtifacts:
-    preproc: object
-    umap_model: object
-    sample_idx: np.ndarray
-    embedding: np.ndarray
-    label_mapping: Optional[Dict]
-    color_labels: Optional[np.ndarray]
+    """Artifacts generated when fitting a UMAP projection."""
+
+    preproc: Any
+    umap_model: Any
+    sample_idx: "np.ndarray"
+    embedding: "np.ndarray"
+    label_mapping: Optional[Dict[Any, int]]
+    color_labels: Optional["np.ndarray"]
 
 
 def pick_color_labels(
-    series: Optional[pd.Series],
-) -> Tuple[Optional[np.ndarray], Optional[Dict]]:
+    series: Optional["pd.Series"],
+) -> Tuple[Optional["np.ndarray"], Optional[Dict[Any, int]]]:
+    """Convert a categorical series into numeric labels for coloring."""
+
     if series is None:
         return None, None
+
+    import numpy as np
+    import pandas as pd
+
     values = series.astype("category")
     cats = list(values.cat.categories)
-    mapping = {cat: i for i, cat in enumerate(cats)}
+    mapping = {cat: idx for idx, cat in enumerate(cats)}
     labels = values.map(mapping).to_numpy()
     return labels, mapping
 
 
 def build_umap(
-    df: pd.DataFrame,
+    df: "pd.DataFrame",
     discrete_cols: List[str],
     continuous_cols: List[str],
-    color_series: Optional[pd.Series],
-    rng: np.random.Generator,
+    color_series: Optional["pd.Series"],
+    rng: "np.random.Generator",
     random_state: int = 42,
     max_sample: int = 1000,
     n_neighbors: int = 30,
     min_dist: float = 0.1,
     n_components: int = 2,
 ) -> UMAPArtifacts:
+    """Fit a UMAP model on a sample of the dataset."""
+
+    import numpy as np
+    import pandas as pd
+
+    try:
+        from sklearn.compose import ColumnTransformer
+        from sklearn.impute import SimpleImputer
+        from sklearn.pipeline import Pipeline
+        from sklearn.preprocessing import OneHotEncoder, StandardScaler
+    except ImportError as exc:  # pragma: no cover - optional dependency
+        raise RuntimeError(
+            "UMAP generation requires scikit-learn; install with pip install semsynth[umap]"
+        ) from exc
+
+    try:
+        import umap
+    except ImportError as exc:  # pragma: no cover - optional dependency
+        raise RuntimeError(
+            "UMAP generation requires 'umap-learn'; install with pip install semsynth[umap]"
+        ) from exc
+
     cont_pipe = Pipeline(
         [
             ("impute", SimpleImputer(strategy="median")),
@@ -112,18 +137,30 @@ def build_umap(
     )
 
 
-def transform_with_umap(art: UMAPArtifacts, df: pd.DataFrame) -> np.ndarray:
-    X = art.preproc.transform(df)
-    return art.umap_model.transform(X)
+def transform_with_umap(art: UMAPArtifacts, df: "pd.DataFrame") -> "np.ndarray":
+    """Project new data with the fitted UMAP model."""
+
+    return art.umap_model.transform(art.preproc.transform(df))
 
 
 def plot_umap(
-    embedding: np.ndarray,
+    embedding: "np.ndarray",
     outfile: str,
     title: str,
-    color_labels: Optional[np.ndarray] = None,
+    color_labels: Optional["np.ndarray"] = None,
     lims: Optional[Tuple[Tuple[float, float], Tuple[float, float]]] = None,
-) -> None:
+) -> Tuple[Tuple[float, float], Tuple[float, float]]:
+    """Render the embedding to disk and return axis limits."""
+
+    import numpy as np
+
+    try:
+        import matplotlib.pyplot as plt
+    except ImportError as exc:  # pragma: no cover - optional dependency
+        raise RuntimeError(
+            "UMAP plotting requires matplotlib; install with pip install semsynth[umap]"
+        ) from exc
+
     fig = plt.figure(figsize=(4, 3), dpi=140)
     if color_labels is None:
         plt.scatter(embedding[:, 0], embedding[:, 1], s=4)
@@ -134,17 +171,17 @@ def plot_umap(
         plt.scatter(embedding[:, 0], embedding[:, 1], s=4, c=color_labels, cmap=dark)
     plt.title(title)
     for ax in fig.axes:
-        ax.set_xticks([])  # Remove x-axis ticks
-        ax.set_yticks([])  # Remove y-axis ticks
+        ax.set_xticks([])
+        ax.set_yticks([])
     if lims:
         xlim, ylim = lims
         for ax in fig.axes:
             ax.set_xlim(xlim)
             ax.set_ylim(ylim)
-    # plt.xlabel("UMAP-1")
-    # plt.ylabel("UMAP-2")
     plt.tight_layout()
     plt.savefig(outfile)
     plt.close()
-    for ax in fig.axes:
-        return ax.get_xlim(), ax.get_ylim()
+    if not fig.axes:
+        return ((0.0, 0.0), (0.0, 0.0))
+    ax = fig.axes[0]
+    return ax.get_xlim(), ax.get_ylim()

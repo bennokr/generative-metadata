@@ -1,18 +1,16 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, TYPE_CHECKING
 import html
+import io
 import json
 import logging
 import os
 import textwrap
-import io
 
-import markdown
-import pandas as pd
-from pyDSV.dsvTransformer import DSVTransformer
-
+if TYPE_CHECKING:  # pragma: no cover - typing only
+    import pandas as pd
 from .jsonld_to_rdfa import SCHEMA_ORG, render_rdfa
 from .models import ModelRun
 
@@ -33,16 +31,19 @@ def write_report_md(
     # dataset_jsonld_file: Optional[str],
     dataset_provider: Optional[str],
     dataset_provider_id: Optional[int],
-    df: pd.DataFrame,
+    df: "pd.DataFrame",
     disc_cols: List[str],
     cont_cols: List[str],
-    umap_png_real: str,
+    umap_png_real: Optional[str] = None,
     declared_types: Optional[dict] = None,
     inferred_types: Optional[dict] = None,
     variable_descriptions: Optional[dict] = None,
     semmap_jsonld: Optional[dict] = None,
     model_runs: Optional[List[ModelRun]] = None,
 ) -> None:
+    import markdown
+    import pandas as pd
+
     md_path = Path(outdir) / "report.md"
 
     semmap_html_name: Optional[str] = None
@@ -155,6 +156,8 @@ def write_report_md(
                         "disc_jsd_median": summary.get("disc_jsd_median"),
                         "cont_ks_mean": summary.get("cont_ks_mean"),
                         "cont_w1_mean": summary.get("cont_w1_mean"),
+                        "privacy_overlap": run.privacy_metrics.get("exact_overlap_rate"),
+                        "downstream_sign_match": run.downstream_metrics.get("sign_match_rate"),
                     }
                 )
 
@@ -165,9 +168,10 @@ def write_report_md(
         f.write("## Models\n\n")
         f.write("<table>\n")
         f.write("<tr><th>UMAP</th><th>Details</th><th>Structure</th></tr>\n")
-        f.write(
-            f"<tr><td><img src='{Path(umap_png_real).name}' width='280'/></td><td><h3>Real data</h3></td><td></td></tr>\n"
-        )
+        if umap_png_real:
+            f.write(
+                f"<tr><td><img src='{Path(umap_png_real).name}' width='280'/></td><td><h3>Real data</h3></td><td></td></tr>\n"
+            )
 
         if model_runs:
             # Model details (umap, links, params)
@@ -199,6 +203,8 @@ def write_report_md(
                 _write_link("Synthetic CSV", run.synthetic_csv)
                 _write_link("Per-variable metrics", run.per_variable_csv)
                 _write_link("Metrics JSON", run.run_dir / "metrics.json")
+                _write_link("Privacy metrics", run.privacy_json)
+                _write_link("Downstream metrics", run.downstream_json)
 
                 cell = markdown.markdown(c.getvalue(), extensions=["extra"])
                 f.write(cell)

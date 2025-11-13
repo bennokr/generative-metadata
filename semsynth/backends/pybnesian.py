@@ -2,16 +2,12 @@ from __future__ import annotations
 
 import json
 import logging
-from pathlib import Path
-from typing import Any, Dict, Optional, Tuple, List
 from dataclasses import dataclass
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Tuple, TYPE_CHECKING
 
-import pandas as pd
-from sklearn.model_selection import train_test_split
-
-from graphviz import Digraph
-import networkx as nx
-from pybnesian import hc, CLGNetworkType, SemiparametricBNType
+if TYPE_CHECKING:  # pragma: no cover - typing only
+    import pandas as pd
 
 from ..metrics import per_variable_distances, summarize_distance_metrics, heldout_loglik
 from ..utils import (
@@ -31,9 +27,20 @@ class BNArtifacts:
     continuous_cols: List[str]
 
 
+def _load_pybnesian():
+    try:
+        from pybnesian import hc, CLGNetworkType, SemiparametricBNType
+    except ImportError as exc:  # pragma: no cover - optional dependency
+        raise RuntimeError(
+            "PyBNesian backend requires 'pybnesian'; install with pip install semsynth[pybnesian]"
+        ) from exc
+    return hc, CLGNetworkType, SemiparametricBNType
+
+
 def _bn_type_from_str(bn_type: str):
     t = bn_type.lower().strip()
     if t in {"clg", "clgnetwork", "clgnetworktype"}:
+        _, CLGNetworkType, _ = _load_pybnesian()
         return CLGNetworkType()
     if t in {
         "semiparametric",
@@ -42,6 +49,7 @@ def _bn_type_from_str(bn_type: str):
         "spbn",
         "semi",
     }:
+        _, _, SemiparametricBNType = _load_pybnesian()
         return SemiparametricBNType()
     raise ValueError(
         f"Unsupported bn_type: {bn_type!r}. Supported: 'clg', 'semiparametric'"
@@ -58,6 +66,7 @@ def learn_bn(
     operators: Optional[List[str]] = None,
     max_indegree: Optional[int] = None,
 ) -> BNArtifacts:
+    hc, _, _ = _load_pybnesian()
     bn_type_obj = _bn_type_from_str(bn_type)
     score = score or "bic"
     operators = list(operators) if operators is not None else ["arcs"]
@@ -88,6 +97,12 @@ def learn_bn(
 def bn_to_graphviz(
     model, node_types: Dict[str, object], out_png: str, title: str = "Learned BN"
 ) -> None:
+    try:
+        from graphviz import Digraph
+    except Exception:  # pragma: no cover - optional dependency
+        logging.warning("graphviz not installed; skipping BN visualization")
+        return
+
     dot = Digraph(comment=title, format="png")
     dot.attr(rankdir="LR")
     for node, ftype in node_types.items():
@@ -107,6 +122,12 @@ def bn_to_graphviz(
 def save_graphml_structure(
     model, node_types: Dict[str, object], out_graphml: str
 ) -> None:
+    try:
+        import networkx as nx
+    except Exception:  # pragma: no cover - optional dependency
+        logging.warning("networkx not installed; skipping GraphML export")
+        return
+
     G = nx.DiGraph()
     for n in model.nodes():
         ftype = node_types[n]
@@ -117,7 +138,7 @@ def save_graphml_structure(
 
 
 def run_experiment(
-    df: pd.DataFrame,
+    df: "pd.DataFrame",
     *,
     provider: Optional[str],
     dataset_name: Optional[str],
@@ -134,6 +155,10 @@ def run_experiment(
 
     model_info keys: type ('clg' or 'semiparametric'), score, operators, max_indegree.
     """
+
+    import pandas as pd
+    from sklearn.model_selection import train_test_split
+
     model_info = dict(model_info or {})
     bn_type = str(model_info.get("type", "clg"))
     score = model_info.get("score")

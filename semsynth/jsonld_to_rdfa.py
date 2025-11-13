@@ -119,7 +119,7 @@ def repeating_headers(lst: List[dict]) -> List[str]:
 
 def render_literal(prop: str, value: Union[str, int, float, bool]) -> str:
     text = "true" if value is True else "false" if value is False else str(value)
-    return tag("span", {"property": prop}, html.escape(text))
+    return tag("span", {"property": prop}, html.escape(text).replace("\n", "<br>"))
 
 
 def render_iri(prop: str, iri: str) -> str:
@@ -288,9 +288,11 @@ HTML_HEAD = """<!doctype html>
     .prop {{ margin: .2rem 0; }}
     .name {{ font-weight: 600; margin-right: .25rem; }}
     .id-link {{ margin: .2rem 0; }}
-    table.prop-table {{ border-collapse: collapse; width: 100%; margin: .25rem 0 1rem; }}
+    table.prop-table {{ border-collapse: collapse; margin: .25rem 1rem 1rem; }}
     table.prop-table th, table.prop-table td {{ border: 1px solid #ddd; padding: .35rem .5rem; text-align: left; vertical-align: top; }}
     table.prop-table th {{ background: #f3f3f3; }}
+    div[property] {{ margin-left: 1rem; }}
+    div[property]:before {{ content: attr(property); font-weight:bold; margin-left: -1rem; }}
   </style>
 </head>
 <body>

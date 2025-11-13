@@ -4,4 +4,8 @@
   "provider": "uciml",
   "dataset_name": "Heart Disease",
   "provider_id": 45,
+  "params": {},
+  "seed": 42,
+  "rows": 303,
+  "test_size": 0.2
 }

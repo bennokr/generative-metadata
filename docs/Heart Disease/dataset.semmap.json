@@ -21,7 +21,7 @@
       "titles": "csvw:titles",
       "columnProperty": "dsv:columnProperty",
       "columnCompleteness": "dsv:columnCompleteness",
-      "SummaryStatistics": "dsv:summaryStatistics",
+      "summaryStatistics": "dsv:summaryStatistics",
       "statisticalDataType": {
         "@id": "dsv:statisticalDataType",
         "@type": "@id"

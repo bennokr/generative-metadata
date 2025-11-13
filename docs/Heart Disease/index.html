@@ -53,7 +53,7 @@ table.per-var-dist thead th { text-align: center; }
     <tr>
     <td style="text-align: left;">age</td>
     <td style="text-align: left;">continuous</td>
-    <td style="text-align: left;">54.5421 ± 9.0497 [29, 48, 56, 61, 77]</td>
+    <td style="text-align: left;"></td>
     </tr>
     <tr>
     <td style="text-align: left;">sex</td>
@@ -83,12 +83,12 @@ table.per-var-dist thead th { text-align: center; }
     <tr>
     <td style="text-align: left;">trestbps</td>
     <td style="text-align: left;">continuous</td>
-    <td style="text-align: left;">131.6936 ± 17.7628 [94, 120, 130, 140, 200]</td>
+    <td style="text-align: left;"></td>
     </tr>
     <tr>
     <td style="text-align: left;">chol</td>
     <td style="text-align: left;">continuous</td>
-    <td style="text-align: left;">247.3502 ± 51.9976 [126, 211, 243, 276, 564]</td>
+    <td style="text-align: left;"></td>
     </tr>
     <tr>
     <td style="text-align: left;">fbs</td>
@@ -113,7 +113,7 @@ table.per-var-dist thead th { text-align: center; }
     <tr>
     <td style="text-align: left;">thalach</td>
     <td style="text-align: left;">continuous</td>
-    <td style="text-align: left;">149.5993 ± 22.9416 [71, 133, 153, 166, 202]</td>
+    <td style="text-align: left;"></td>
     </tr>
     <tr>
     <td style="text-align: left;">exang</td>
@@ -123,7 +123,7 @@ table.per-var-dist thead th { text-align: center; }
     <tr>
     <td style="text-align: left;">oldpeak</td>
     <td style="text-align: left;">continuous</td>
-    <td style="text-align: left;">1.0556 ± 1.1661 [0, 0, 0.8, 1.6, 6.2]</td>
+    <td style="text-align: left;"></td>
     </tr>
     <tr>
     <td style="text-align: left;">slope</td>
@@ -212,24 +212,40 @@ table.per-var-dist thead th { text-align: center; }
     <th style="text-align: right;">disc_jsd_median</th>
     <th style="text-align: right;">cont_ks_mean</th>
     <th style="text-align: right;">cont_w1_mean</th>
+    <th style="text-align: left;">privacy_overlap</th>
+    <th style="text-align: left;">downstream_sign_match</th>
     </tr>
     </thead>
     <tbody>
     <tr>
+    <td style="text-align: left;">metasyn</td>
+    <td style="text-align: left;">metasyn</td>
+    <td style="text-align: right;">0.0945</td>
+    <td style="text-align: right;">0.0971</td>
+    <td style="text-align: right;">0.1983</td>
+    <td style="text-align: right;">4.8733</td>
+    <td style="text-align: left;"></td>
+    <td style="text-align: left;"></td>
+    </tr>
+    <tr>
     <td style="text-align: left;">clg_mi2</td>
     <td style="text-align: left;">pybnesian</td>
-    <td style="text-align: right;">0.1003</td>
-    <td style="text-align: right;">0.0995</td>
-    <td style="text-align: right;">0.2344</td>
-    <td style="text-align: right;">4.4109</td>
+    <td style="text-align: right;">0.094</td>
+    <td style="text-align: right;">0.1012</td>
+    <td style="text-align: right;">0.169</td>
+    <td style="text-align: right;">4.5617</td>
+    <td style="text-align: left;"></td>
+    <td style="text-align: left;"></td>
     </tr>
     <tr>
     <td style="text-align: left;">semi_mi5</td>
     <td style="text-align: left;">pybnesian</td>
-    <td style="text-align: right;">0.1003</td>
-    <td style="text-align: right;">0.0995</td>
-    <td style="text-align: right;">0.2344</td>
-    <td style="text-align: right;">4.4109</td>
+    <td style="text-align: right;">0.094</td>
+    <td style="text-align: right;">0.1012</td>
+    <td style="text-align: right;">0.169</td>
+    <td style="text-align: right;">4.5617</td>
+    <td style="text-align: left;"></td>
+    <td style="text-align: left;"></td>
     </tr>
     <tr>
     <td style="text-align: left;">ctgan_fast</td>
@@ -238,6 +254,8 @@ table.per-var-dist thead th { text-align: center; }
     <td style="text-align: right;">0.4085</td>
     <td style="text-align: right;">0.686</td>
     <td style="text-align: right;">30.8935</td>
+    <td style="text-align: left;"></td>
+    <td style="text-align: left;"></td>
     </tr>
     <tr>
     <td style="text-align: left;">tvae_quick</td>
@@ -246,6 +264,8 @@ table.per-var-dist thead th { text-align: center; }
     <td style="text-align: right;">0.1128</td>
     <td style="text-align: right;">0.2007</td>
     <td style="text-align: right;">6.072</td>
+    <td style="text-align: left;"></td>
+    <td style="text-align: left;"></td>
     </tr>
     </tbody>
     </table>
@@ -254,11 +274,25 @@ table.per-var-dist thead th { text-align: center; }
     <tr><th>UMAP</th><th>Details</th><th>Structure</th></tr>
     <tr><td><img src='umap_real.png' width='280'/></td><td><h3>Real data</h3></td><td></td></tr>
     <tr><td>
+    <img src='models/metasyn/umap.png' width='280'/></td><td>
+
+    <h3>Model: metasyn (metasyn)</h3>
+    <ul>
+    <li>Seed: 42, rows: 303</li>
+    <li><a href="models/metasyn/synthetic.csv">Synthetic CSV</a></li>
+    <li><a href="models/metasyn/per_variable_metrics.csv">Per-variable metrics</a></li>
+    <li><a href="models/metasyn/metrics.json">Metrics JSON</a></li>
+    </ul></td><td>
+
+    </td></tr>
+
+
+    <tr><td>
     <img src='models/clg_mi2/umap.png' width='280'/></td><td>
 
     <h3>Model: clg_mi2 (pybnesian)</h3>
     <ul>
-    <li>Seed: 42, rows: 237</li>
+    <li>Seed: 42, rows: 303</li>
     <li>Params: <code>{"max_indegree": 2, "operators": ["arcs"], "score": "bic", "type": "clg"}</code></li>
     <li><a href="models/clg_mi2/synthetic.csv">Synthetic CSV</a></li>
     <li><a href="models/clg_mi2/per_variable_metrics.csv">Per-variable metrics</a></li>
@@ -274,7 +308,7 @@ table.per-var-dist thead th { text-align: center; }
 
     <h3>Model: semi_mi5 (pybnesian)</h3>
     <ul>
-    <li>Seed: 42, rows: 237</li>
+    <li>Seed: 42, rows: 303</li>
     <li>Params: <code>{"max_indegree": 5, "operators": ["arcs"], "score": "bic", "type": "semiparametric"}</code></li>
     <li><a href="models/semi_mi5/synthetic.csv">Synthetic CSV</a></li>
     <li><a href="models/semi_mi5/per_variable_metrics.csv">Per-variable metrics</a></li>

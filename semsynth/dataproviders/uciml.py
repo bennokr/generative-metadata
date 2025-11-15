@@ -12,6 +12,7 @@ import pandas as pd
 import requests
 
 from ..specs import DatasetSpec
+from ._helpers import clean_dataset_frame
 
 
 def list_uciml(
@@ -90,10 +91,6 @@ def load_uciml_by_id(
     if data_path.exists():
         try:
             df_all = pd.read_csv(data_path).convert_dtypes()
-            # Drop trivial id/index columns if present
-            for col in list(df_all.columns):
-                if str(col).lower() in {"id", "index"}:
-                    df_all = df_all.drop(columns=[col])
             meta_dict = {}
             try:
                 meta_dict = (
@@ -101,17 +98,11 @@ def load_uciml_by_id(
                 )
             except Exception:
                 meta_dict = {}
-            # Color series from cached metadata or heuristic
-            color_series: Optional[pd.Series] = None
             spec.target = meta_dict.get("target")
-            if isinstance(spec.target, str) and spec.target in df_all.columns:
-                color_series = df_all[spec.target]
-            else:
-                # Try common fallback names
-                for c in ["target", "class"]:
-                    if c in df_all.columns:
-                        color_series = df_all[c]
-                        break
+            df_all, detected_target, color_series = clean_dataset_frame(
+                df_all, target=spec.target, metadata=meta_dict
+            )
+            spec.target = spec.target or detected_target
 
             spec.name = meta_dict.get("name") or f"UCI_{dataset_id}"
             spec.meta = {
@@ -138,9 +129,12 @@ def load_uciml_by_id(
             y.columns[0] if hasattr(y, "columns") and len(y.columns) else y.name
         )
         color_series = df_all[spec.target] if spec.target in df_all.columns else None
-    for col in list(df_all.columns):
-        if str(col).lower() in {"id", "index"}:
-            df_all = df_all.drop(columns=[col])
+
+    df_all, detected_target, color_series = clean_dataset_frame(
+        df_all, target=spec.target
+    )
+    if detected_target:
+        spec.target = detected_target
 
     # Persist cache
     try:

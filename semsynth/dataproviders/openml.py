@@ -11,6 +11,7 @@ from typing import List, Optional, Tuple
 import pandas as pd
 
 from ..specs import DatasetSpec
+from ._helpers import clean_dataset_frame
 
 
 def get_default_openml() -> List[DatasetSpec]:
@@ -87,18 +88,11 @@ def load_openml_by_name(
             data_path = by_name_dir / f"{spec.id}.csv.gz"
             if data_path.exists():
                 df_all = pd.read_csv(data_path).convert_dtypes()
-                for col in list(df_all.columns):
-                    if str(col).lower() in {"id", "index"}:
-                        df_all = df_all.drop(columns=[col])
-                color_series = None
                 spec.target = info.get("target")
-                if isinstance(spec.target, str) and spec.target in df_all.columns:
-                    color_series = df_all[spec.target]
-                else:
-                    for c in ["class", "target"]:
-                        if c in df_all.columns:
-                            color_series = df_all[c]
-                            break
+                df_all, detected_target, color_series = clean_dataset_frame(
+                    df_all, target=spec.target, metadata=info
+                )
+                spec.target = spec.target or detected_target
                 spec.name = str(info.get("name") or name)
                 spec.meta = info
                 return spec, df_all, color_series
@@ -120,16 +114,9 @@ def load_openml_by_name(
     spec.meta = openml.datasets.get_dataset(spec.id)
     Xy, _, _, _ = spec.meta.get_data(dataset_format="dataframe")
     df_all = Xy.copy()
-    for col in list(df_all.columns):
-        if str(col).lower() in {"id", "index"}:
-            df_all = df_all.drop(columns=[col])
-    color_series = None
-
-    for c in ["class", "target"]:
-        if c in df_all.columns:
-            color_series = df_all[c]
-            spec.target = c
-            break
+    df_all, detected_target, color_series = clean_dataset_frame(df_all)
+    if detected_target:
+        spec.target = detected_target
 
     # Persist cache
     try:

@@ -2,13 +2,18 @@
 
 from __future__ import annotations
 
+import json
 from dataclasses import dataclass
 from pathlib import Path
 from types import SimpleNamespace
 from typing import Any, Dict, List, Optional
 
 import pandas as pd
+import pytest
 
+from semsynth.dataproviders._helpers import clean_dataset_frame
+from semsynth.dataproviders.openml import load_openml_by_name
+from semsynth.dataproviders.uciml import load_uciml_by_id
 from semsynth.models import ModelConfigBundle, ModelSpec
 from semsynth.pipeline import (
     BackendExecutor,
@@ -18,6 +23,7 @@ from semsynth.pipeline import (
     PreprocessingResult,
     ReportWriter,
     UmapArtifacts,
+    _build_downstream_meta,
 )
 from semsynth.specs import DatasetSpec
 
@@ -89,6 +95,8 @@ class _StubUmapModule:
 
 
 def _create_preprocessing_result(df: pd.DataFrame, tmp_path) -> PreprocessingResult:
+    target_series = df["value"].copy()
+    target_series.attrs["prov:hadRole"] = "target"
     return PreprocessingResult(
         df_processed=df,
         df_no_na=df,
@@ -97,7 +105,7 @@ def _create_preprocessing_result(df: pd.DataFrame, tmp_path) -> PreprocessingRes
         cont_cols=["value"],
         inferred_types={"category": "discrete", "value": "continuous"},
         semmap_export={"dummy": True},
-        color_series=None,
+        color_series=target_series,
         umap_png_real=None,
         umap_artifacts=UmapArtifacts(transformer=None, real_png=tmp_path / "umap.png", limits=None),
     )
@@ -175,7 +183,12 @@ def test_metric_writer_writes_metrics(tmp_path):
     def summarizer(_: pd.DataFrame, __: pd.DataFrame, ___: pd.DataFrame) -> Summary:
         return Summary(score=0.5)
 
-    def comparer(_: pd.DataFrame, __: pd.DataFrame, ___: Dict[str, Any]) -> Dict[str, Any]:
+    def comparer(_: pd.DataFrame, __: pd.DataFrame, metadata: Dict[str, Any]) -> Dict[str, Any]:
+        schema = metadata.get("dsv:datasetSchema", {})
+        columns = schema.get("dsv:column", [])
+        assert columns and columns[0]["schema:name"] == "value"
+        stats = columns[0].get("dsv:summaryStatistics", {})
+        assert stats.get("dsv:statisticalDataType") == "dsv:QuantitativeDataType"
         return {
             "formula": {"metric": 1.0},
             "compare": pd.DataFrame({"sign_match": [1, 1]}),
@@ -190,13 +203,176 @@ def test_metric_writer_writes_metrics(tmp_path):
         run_dir, real_df, {"value": "continuous"}, synth_df=synth_df
     )
     downstream_payload = writer.write_downstream(
-        run_dir, real_df, synth_df, {"value": "continuous"}, target=None
+        run_dir, real_df, synth_df, {"value": "continuous"}, target_series=None
     )
 
     assert privacy_payload == {"score": 0.5}
     assert downstream_payload["sign_match_rate"] == 1.0
     assert (run_dir / "metrics.privacy.json").exists()
     assert (run_dir / "metrics.downstream.json").exists()
+
+
+def test_build_downstream_meta_matches_dsv_schema():
+    df = pd.DataFrame({"feature": ["a", "b", "a"], "target": [0, 1, 1]})
+    inferred = {"feature": "discrete", "target": "discrete"}
+    target_series = df["target"].copy()
+    target_series.attrs["prov:hadRole"] = "target"
+
+    meta = _build_downstream_meta(df, inferred, target_series)
+
+    schema = meta["dsv:datasetSchema"]
+    columns = schema["dsv:column"]
+    by_name = {col["schema:name"]: col for col in columns}
+
+    assert by_name["target"]["prov:hadRole"] == "target"
+    stats = by_name["target"]["dsv:summaryStatistics"]
+    assert stats["dsv:statisticalDataType"] == "dsv:NominalDataType"
+    assert by_name["target"]["schema:defaultValue"] == "0"
+
+    codebook = (
+        by_name["target"]["dsv:columnProperty"]["dsv:hasCodeBook"]["skos:hasTopConcept"]
+    )
+    assert {concept["skos:notation"] for concept in codebook} == {"0", "1"}
+    assert by_name["feature"]["prov:hadRole"] == "predictor"
+
+
+def test_clean_dataset_frame_detects_target_hint():
+    df = pd.DataFrame(
+        {
+            "id": [1, 2],
+            "feature": [0.1, 0.2],
+            "label": ["a", "b"],
+        }
+    )
+    cleaned, target_name, color_series = clean_dataset_frame(df, target="label")
+
+    assert list(cleaned.columns) == ["feature", "label"]
+    assert target_name == "label"
+    assert color_series.equals(cleaned["label"])
+    assert color_series.attrs.get("prov:hadRole") == "target"
+
+
+def test_clean_dataset_frame_detects_semmap_role():
+    df = pd.DataFrame(
+        {
+            "feature": [0.1, 0.2],
+            "class": ["a", "b"],
+        }
+    )
+    metadata = {
+        "dsv:datasetSchema": {
+            "dsv:column": [
+                {"schema:name": "class", "prov:hadRole": "target"},
+                {"schema:name": "feature"},
+            ]
+        }
+    }
+
+    cleaned, target_name, color_series = clean_dataset_frame(
+        df, metadata=metadata
+    )
+
+    assert target_name == "class"
+    assert color_series.attrs.get("prov:hadRole") == "target"
+
+
+def test_openml_cached_uses_helper(monkeypatch: pytest.MonkeyPatch, tmp_path: Path):
+    cache_dir = tmp_path / "openml"
+    by_name_dir = cache_dir / "by_name"
+    by_name_dir.mkdir(parents=True)
+    dataset_name = "demo"
+    dataset_id = 123
+    meta = {"name": dataset_name, "id": dataset_id, "target": None}
+    (by_name_dir / f"{dataset_name}.json").write_text(json.dumps(meta))
+    df = pd.DataFrame(
+        {
+            "id": [1, 2],
+            "value": [0.1, 0.2],
+            "class": ["a", "b"],
+        }
+    )
+    df.to_csv(by_name_dir / f"{dataset_id}.csv.gz", index=False, compression="infer")
+
+    called: Dict[str, Any] = {}
+
+    def fake_helper(
+        data: pd.DataFrame,
+        *,
+        target: Optional[str] = None,
+        metadata: Optional[Dict[str, Any]] = None,
+    ) -> Any:
+        cleaned = data.drop(columns=["id"], errors="ignore")
+        series = cleaned["class"].copy()
+        called.update(
+            {
+                "called": True,
+                "target": target,
+                "metadata": metadata,
+                "series_id": id(series),
+            }
+        )
+        return cleaned, "class", series
+
+    monkeypatch.setattr(
+        "semsynth.dataproviders.openml.clean_dataset_frame", fake_helper
+    )
+
+    spec, df_loaded, color_series = load_openml_by_name(dataset_name, cache_dir)
+
+    assert called["called"] is True
+    assert called["target"] is None
+    assert isinstance(called["metadata"], dict)
+    assert "id" not in df_loaded.columns
+    assert id(color_series) == called["series_id"]
+    assert spec.target == "class"
+
+
+def test_uciml_cached_uses_helper(monkeypatch: pytest.MonkeyPatch, tmp_path: Path):
+    cache_dir = tmp_path
+    dataset_id = 456
+    meta_path = cache_dir / f"{dataset_id}.meta.json"
+    meta_path.write_text(json.dumps({"name": "demo", "target": None}))
+    df = pd.DataFrame(
+        {
+            "index": [0, 1],
+            "feature": [1, 2],
+            "target": ["x", "y"],
+        }
+    )
+    df.to_csv(cache_dir / f"{dataset_id}.csv.gz", index=False, compression="infer")
+
+    called: Dict[str, Any] = {}
+
+    def fake_helper(
+        data: pd.DataFrame,
+        *,
+        target: Optional[str] = None,
+        metadata: Optional[Dict[str, Any]] = None,
+    ) -> Any:
+        cleaned = data.drop(columns=["index"], errors="ignore")
+        series = cleaned["target"].copy()
+        called.update(
+            {
+                "called": True,
+                "target": target,
+                "metadata": metadata,
+                "series_id": id(series),
+            }
+        )
+        return cleaned, "target", series
+
+    monkeypatch.setattr(
+        "semsynth.dataproviders.uciml.clean_dataset_frame", fake_helper
+    )
+
+    spec, df_loaded, color_series = load_uciml_by_id(dataset_id, cache_dir)
+
+    assert called["called"] is True
+    assert called["target"] is None
+    assert isinstance(called["metadata"], dict)
+    assert "index" not in df_loaded.columns
+    assert id(color_series) == called["series_id"]
+    assert spec.target == "target"
 
 
 def test_backend_executor_runs_models(tmp_path):
@@ -241,7 +417,7 @@ def test_backend_executor_runs_models(tmp_path):
             real_df: pd.DataFrame,
             synth_df: pd.DataFrame,
             inferred: Dict[str, str],
-            target: Optional[str],
+            target_series: Optional[pd.Series],
         ) -> Dict[str, Any]:
             self.downstream_calls.append(
                 {
@@ -249,7 +425,7 @@ def test_backend_executor_runs_models(tmp_path):
                     "real_df": real_df,
                     "synth_df": synth_df,
                     "inferred": inferred,
-                    "target": target,
+                    "target": target_series,
                 }
             )
             return {"ok": True}

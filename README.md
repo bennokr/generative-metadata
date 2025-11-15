@@ -80,6 +80,31 @@ configs:
   - PyBNesian-only extras: `bn_<name>.png`, `structure_<name>.graphml`, `model_<name>.pickle`
   - `synthetic.semmap.parquet` (when SemMap metadata is available)
 
+## 🧰 Metadata templates & column mappings
+- `uci_template.py` turns the JSON payloads cached under `uciml-cache/` (sometimes referenced as `uci-cache/` in earlier docs) into DCAT + DSV JSON-LD that downstream tools can ingest.
+- Scripts under `map_columns/` take that JSON-LD and suggest or write terminology mappings (see `map_columns/README.md`).
+
+### Example: UCI dataset 45 (Heart Disease)
+1. Fetch the dataset metadata. Any command that touches the UCI provider will populate `uciml-cache/<id>.json`. For example:
+   ```bash
+   python semsynth_reports_cli.py report uciml -d 45 --configs-yaml configs/empty.yaml --metasyn false
+   ```
+   This creates `uciml-cache/45.json` alongside the cached CSV/metadata used by the reporting pipeline.
+2. Convert the cached metadata into DCAT + DSV JSON-LD:
+   ```bash
+   python uci_template.py uciml-cache/45.json heart-dataset.jsonld
+   ```
+   The resulting `heart-dataset.jsonld` contains dataset-level `dcat:Dataset` fields plus a `dsv:datasetSchema` block with each variable from the Heart Disease dataset.
+3. Suggest terminology mappings for every variable description using the keyword search helper:
+   ```bash
+   python map_columns/kwd_map_columns.py heart-dataset.jsonld \
+       --datasette-db-url http://127.0.0.1:8001/terminology \
+       --table codes \
+       --limit 5 \
+       --verbose
+   ```
+   Swap in `map_columns/llm_map_columns.py` to drive an LLM-backed workflow that writes an `*.sssom.tsv` file (see `map_columns/README.md` for details).
+
 ## 📝 Notes
 - Metadata-only reports require no YAML file; pass `--configs-yaml` to opt into synthetic runs.
 - All models are treated uniformly in the report; UMAPs share the same projection trained on real data.

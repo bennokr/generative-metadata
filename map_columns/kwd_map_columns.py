@@ -15,7 +15,6 @@ Example:
 
 from __future__ import annotations
 
-import json
 import logging
 from pathlib import Path
 from typing import Any, Dict, List
@@ -23,34 +22,9 @@ from typing import Any, Dict, List
 import defopt
 import requests
 
+from map_columns.shared import load_columns
+
 logger = logging.getLogger(__name__)
-
-
-def load_columns(path: Path) -> List[Dict[str, Any]]:
-    """Extract column name + description from dsv:datasetSchema/dsv:column[]."""
-    data = json.loads(path.read_text(encoding="utf-8"))
-
-    schema = data.get("dsv:datasetSchema") or {}
-    cols_raw = schema.get("dsv:column") or []
-    if not isinstance(cols_raw, list):
-        cols_raw = [cols_raw]
-
-    columns: List[Dict[str, Any]] = []
-    for col in cols_raw:
-        if not isinstance(col, dict):
-            continue
-        name = (
-            col.get("schema:name")
-            or col.get("dcterms:title")
-            or col.get("schema:identifier")
-        )
-        if not name:
-            continue
-        desc = col.get("dcterms:description", "") or ""
-        columns.append({"name": name, "description": desc})
-
-    logger.info("Loaded %d columns from %s", len(columns), path)
-    return columns
 
 
 def query_codes(
@@ -105,14 +79,14 @@ def main(
         format="%(levelname)s:%(name)s:%(message)s",
     )
 
-    columns = load_columns(dataset_json)
+    columns, _ = load_columns(dataset_json)
     if not columns:
         logger.warning("No columns found, nothing to do")
         return
 
     for col in columns:
-        name = col["name"]
-        desc = col["description"].strip()
+        name = col.name or col.column_id or "<unnamed column>"
+        desc = (col.description or "").strip()
         if not desc:
             logger.info("Column %s has no dcterms:description; skipping", name)
             continue

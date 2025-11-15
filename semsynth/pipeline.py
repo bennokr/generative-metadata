@@ -44,6 +44,8 @@ class PipelineConfig:
     compute_privacy: bool = False
     compute_downstream: bool = False
     overwrite_umap: bool = False
+    enable_missingness_wrapping: bool = False
+    missingness_random_state: Optional[int] = None
 
 
 def _load_backend_module(name: str) -> BackendModule:
@@ -182,6 +184,7 @@ class PreprocessingResult:
     color_series: Optional["pd.Series"]
     umap_png_real: Optional[Path]
     umap_artifacts: Optional[UmapArtifacts]
+    missingness_model: Optional["DataFrameMissingnessModel"]
 
 
 class DatasetPreprocessor:
@@ -298,7 +301,25 @@ class DatasetPreprocessor:
 
         df_fit_sample = df_no_na
         if cfg.fit_on_sample and cfg.fit_on_sample < len(df_fit_sample):
-            df_fit_sample = df_no_na.sample(cfg.fit_on_sample, random_state=cfg.random_state)
+            df_fit_sample = df_no_na.sample(
+                cfg.fit_on_sample, random_state=cfg.random_state
+            )
+
+        missingness_model: Optional["DataFrameMissingnessModel"] = None
+        if cfg.enable_missingness_wrapping:
+            miss_state = cfg.missingness_random_state
+            if miss_state is None:
+                miss_state = cfg.random_state
+            try:
+                from . import missingness as missingness_module
+            except ImportError:
+                logging.warning(
+                    "Missingness wrapping requested but dependencies are unavailable"
+                )
+            else:
+                missingness_model = missingness_module.fit_missingness_model(
+                    df_processed, random_state=miss_state
+                )
 
         return PreprocessingResult(
             df_processed=df_processed,
@@ -311,6 +332,7 @@ class DatasetPreprocessor:
             color_series=color_series2,
             umap_png_real=umap_png_real,
             umap_artifacts=umap_artifacts,
+            missingness_model=missingness_model,
         )
 
 
@@ -467,7 +489,29 @@ class BackendExecutor:
                 continue
 
             run_dir_path = Path(run_dir)
-            synth_df = pd.read_csv(run_dir_path / "synthetic.csv").convert_dtypes()
+            synth_path = run_dir_path / "synthetic.csv"
+            synth_df = pd.read_csv(synth_path).convert_dtypes()
+
+            missingness_applied = False
+            if preprocessed.missingness_model is not None:
+                try:
+                    from . import missingness as missingness_module
+                except ImportError:
+                    logging.warning(
+                        "Missingness wrapping requested but dependencies are unavailable"
+                    )
+                else:
+                    synth_df, missingness_applied = (
+                        missingness_module.apply_missingness_to_outputs(
+                            run_dir=run_dir_path,
+                            synth_df=synth_df,
+                            missingness_model=preprocessed.missingness_model,
+                            real_df=preprocessed.df_no_na,
+                            disc_cols=preprocessed.disc_cols,
+                            cont_cols=preprocessed.cont_cols,
+                            backend_name=backend_name,
+                        )
+                    )
 
             compute_privacy_flag = _resolve_flag(
                 self._cfg.compute_privacy,
@@ -595,6 +639,15 @@ class ReportWriter:
             variable_descriptions: Optional variable description mapping.
         """
 
+        try:
+            from . import missingness as missingness_module
+        except ImportError:
+            missingness_summary = None
+        else:
+            missingness_summary = missingness_module.summarize_missingness_model(
+                preprocessed.missingness_model
+            )
+
         self._reporting.write_report_md(
             outdir=str(outdir),
             dataset_name=dataset_spec.name,
@@ -610,8 +663,8 @@ class ReportWriter:
             variable_descriptions=variable_descriptions or None,
             semmap_jsonld=preprocessed.semmap_export,
             model_runs=model_runs,
+            missingness_summary=missingness_summary,
         )
-
 
 def process_dataset(
     dataset_spec: "DatasetSpec",

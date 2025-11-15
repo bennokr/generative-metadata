@@ -108,6 +108,7 @@ def _create_preprocessing_result(df: pd.DataFrame, tmp_path) -> PreprocessingRes
         color_series=target_series,
         umap_png_real=None,
         umap_artifacts=UmapArtifacts(transformer=None, real_png=tmp_path / "umap.png", limits=None),
+        missingness_model=None,
     )
 
 
@@ -470,6 +471,7 @@ def test_report_writer_generates_outputs(tmp_path):
             real_png=tmp_path / "umap_real.png",
             limits={"x": 1.0},
         ),
+        missingness_model=None,
     )
 
     umap_stub = _StubUmapModule()

@@ -7,11 +7,20 @@
 {% endif %}- Rows: {{ num_rows }}
 - Columns: {{ num_cols }}
 - Discrete: {{ num_disc }}  |  Continuous: {{ num_cont }}
+{% if missingness_summary %}- Missingness model: enabled{% if missingness_summary.random_state is not none %} (random state {{ missingness_summary.random_state }}){% endif %} — modeled columns {{ missingness_summary.nonzero_count }} of {{ missingness_summary.total_columns }}{% endif %}
 
 ## Variables and summary
 
 {{ variable_table }}
 
+{% if missingness_summary %}## Missingness model
+
+- Columns with learned missingness: {{ missingness_summary.nonzero_count }} of {{ missingness_summary.total_columns }}
+{% if missingness_summary.zero_count %}- Columns without missingness: {{ missingness_summary.zero_count }}{% endif %}
+{% if missingness_table %}{{ missingness_table }}{% else %}No columns required missingness injection.
+{% endif %}
+
+{% endif %}
 {% if fidelity_table %}## Fidelity summary
 
 {{ fidelity_table }}
@@ -27,7 +36,7 @@
 
 - Seed: {{ model.seed }}, rows: {{ model.rows }}
 {% if model.params_json %}- Params: `{{ model.params_json }}`
-{% endif %}{% for link in model.links %}- [{{ link.label }}]({{ link.href }})
+{% endif %}{% if model.missingness %}- Missingness: {% if model.missingness.wrapped %}wrapped{% else %}{{ model.missingness }}{% endif %}{% if model.missingness.random_state is not none %} (random state {{ model.missingness.random_state }}){% endif %}{% if model.missingness.source %} via {{ model.missingness.source }}{% endif %}{% endif %}{% for link in model.links %}- [{{ link.label }}]({{ link.href }})
 {% endfor %}
 
 </td><td>

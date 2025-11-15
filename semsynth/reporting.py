@@ -55,6 +55,7 @@ class _ModelRow:
     umap_rel: Optional[str]
     structure_rel: Optional[str]
     links: Sequence[_ModelLink]
+    missingness: Optional[Dict[str, Any]] = None
 
 
 def _jinja_environment() -> Environment:
@@ -127,6 +128,7 @@ def write_report_md(
     variable_descriptions: Optional[dict] = None,
     semmap_jsonld: Optional[dict] = None,
     model_runs: Optional[List[ModelRun]] = None,
+    missingness_summary: Optional[Dict[str, Any]] = None,
 ) -> None:
     """Render Markdown and HTML reports for a dataset.
 
@@ -144,6 +146,8 @@ def write_report_md(
         variable_descriptions: Optional free text descriptions for variables.
         semmap_jsonld: Semantic metadata to attach to the report.
         model_runs: Model execution metadata used to build model sections.
+        missingness_summary: Optional description of fitted missingness rates used
+            for contextual reporting.
     """
 
     import markdown
@@ -167,6 +171,7 @@ def write_report_md(
         variable_descriptions=variable_descriptions,
     )
     fidelity_table = _build_fidelity_table(model_runs=model_runs)
+    missingness_table = _build_missingness_table(missingness_summary)
 
     env = _jinja_environment()
     template = env.get_template("report.md.j2")
@@ -183,6 +188,8 @@ def write_report_md(
         fidelity_table=fidelity_table,
         model_rows=model_rows,
         real_umap=os.path.basename(umap_png_real) if umap_png_real else None,
+        missingness_summary=missingness_summary,
+        missingness_table=missingness_table,
     )
     md_path.write_text(md_text, encoding="utf-8")
     logging.info("Wrote report: %s", md_path)
@@ -326,6 +333,34 @@ def _build_fidelity_table(*, model_runs: Optional[Sequence[ModelRun]]) -> Option
     return _dataframe_to_markdown(out.round(4).fillna(""), index=False)
 
 
+def _build_missingness_table(summary: Optional[Dict[str, Any]]) -> Optional[str]:
+    """Create a markdown table describing modeled missingness rates."""
+
+    if not summary:
+        return None
+
+    rows = summary.get("rows") or []
+    if not rows:
+        return None
+
+    out = pd.DataFrame(rows)
+    if "missing_rate" not in out.columns or "column" not in out.columns:
+        return None
+
+    out = out.sort_values("missing_rate", ascending=False).reset_index(drop=True)
+    out["missing_rate"] = out["missing_rate"].round(4)
+    out["missing_pct"] = (out["missing_rate"] * 100).round(2)
+    out.rename(
+        columns={
+            "column": "Column",
+            "missing_rate": "Missing rate",
+            "missing_pct": "Missing %",
+        },
+        inplace=True,
+    )
+    return _dataframe_to_markdown(out[["Column", "Missing rate", "Missing %"]], index=False)
+
+
 def _prepare_model_rows(model_runs: Iterable[ModelRun], base_dir: Path) -> List[_ModelRow]:
     """Convert model runs into template-friendly rows."""
 
@@ -357,6 +392,7 @@ def _prepare_model_rows(model_runs: Iterable[ModelRun], base_dir: Path) -> List[
                 umap_rel=_relative_path(run.umap_png, base_dir),
                 structure_rel=_relative_path(run.run_dir / "structure.png", base_dir),
                 links=tuple(links),
+                missingness=manifest.get("missingness"),
             )
         )
     return prepared

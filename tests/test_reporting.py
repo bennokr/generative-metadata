@@ -3,10 +3,12 @@ from __future__ import annotations
 from pathlib import Path
 
 import pandas as pd
+import pytest
+
+pytest.importorskip("jinja2")
 
 from semsynth.models import ModelRun
 from semsynth.reporting import write_report_md
-
 
 def _touch(path: Path, content: str = "data") -> Path:
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -35,7 +37,12 @@ def test_write_report_md_renders_expected_sections(tmp_path: Path) -> None:
         metrics_json=metrics_json,
         metrics={"summary": {"disc_jsd_mean": 0.1, "cont_ks_mean": 0.2}},
         umap_png=umap_png,
-        manifest={"seed": 123, "rows": 100, "params": {"alpha": 1}},
+        manifest={
+            "seed": 123,
+            "rows": 100,
+            "params": {"alpha": 1},
+            "missingness": {"wrapped": True, "random_state": 11, "source": "pipeline"},
+        },
         privacy_json=privacy_json,
         privacy_metrics={"exact_overlap_rate": 0.05},
         downstream_json=downstream_json,
@@ -62,6 +69,15 @@ def test_write_report_md_renders_expected_sections(tmp_path: Path) -> None:
         variable_descriptions={"status": "Approval status"},
         semmap_jsonld=semmap_payload,
         model_runs=[model_run],
+        missingness_summary={
+            "random_state": 11,
+            "total_columns": 2,
+            "nonzero_count": 1,
+            "zero_count": 1,
+            "rows": [
+                {"column": "status", "missing_rate": 0.4},
+            ],
+        },
     )
 
     markdown_path = tmp_path / "report.md"
@@ -79,11 +95,14 @@ def test_write_report_md_renders_expected_sections(tmp_path: Path) -> None:
     assert "**Source**: [OpenML dataset 42]" in md_text
     assert "SemMap JSON-LD" in md_text
     assert "## Variables and summary" in md_text
+    assert "## Missingness model" in md_text
     assert "## Fidelity summary" in md_text
     assert "## Models" in md_text
     assert "models/demo/umap.png" in md_text
     assert "models/demo/structure.png" in md_text
     assert "Synthetic CSV" in md_text
+    assert "Missingness: wrapped" in md_text
+    assert "status" in md_text and "0.4" in md_text
 
     html_text = html_path.read_text(encoding="utf-8")
     assert "Data Report — Demo dataset" in html_text

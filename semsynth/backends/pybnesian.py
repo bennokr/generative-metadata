@@ -219,7 +219,7 @@ def run_experiment(
             import semsynth.semmap as semmap  # noqa: F401  # register accessor
 
             sdf = synth_df.copy()
-            sdf.semmap.apply_json_metadata(
+            sdf.semmap.from_jsonld(
                 copy.deepcopy(semmap_export), convert_pint=False
             )
             sdf.semmap.to_parquet(

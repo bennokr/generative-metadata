@@ -33,10 +33,11 @@ SemSynth is a compact toolkit to profile tabular datasets, synthesize data with 
    With the command above you receive dataset metadata, a real-data UMAP projection, and HTML/Markdown reports under `outputs/<Dataset Name>/`.
 
 3. Full report with synthetic models 🤖
-   - Pick a configuration bundle from `configs/`:
-     - `configs/simple_config.yaml` (MetaSyn + two PyBNesian models)
-     - `configs/advanced_config.yaml` (MetaSyn, PyBNesian, and SynthCity models)
-     - `configs/only_metasyn_config.yaml` (MetaSyn baseline only)
+    - Pick a configuration bundle from `configs/`:
+      - `configs/simple_config.yaml` (MetaSyn + two PyBNesian models)
+      - `configs/advanced_config.yaml` (MetaSyn, PyBNesian, and SynthCity models)
+      - `configs/maximal_config.yaml` (enables UMAP, privacy, downstream metrics, and the broadest mix of MetaSyn, PyBNesian, and SynthCity generators)
+      - `configs/only_metasyn_config.yaml` (MetaSyn baseline only)
    - Example: `python semsynth_reports_cli.py report openml --datasets adult --configs-yaml configs/advanced_config.yaml --generate-umap on --compute-privacy on --compute-downstream on`
 
    Report toggles accept `auto` (respect YAML defaults), `on`, or `off`. Use `auto` when your YAML sets global defaults for `generate_umap`, `compute_privacy`, or `compute_downstream`.
@@ -44,6 +45,7 @@ SemSynth is a compact toolkit to profile tabular datasets, synthesize data with 
 ## 📄 Unified YAML format
 - `configs/simple_config.yaml` mixes MetaSyn with two PyBNesian baselines.
 - `configs/advanced_config.yaml` extends the simple bundle with SynthCity generators.
+- `configs/maximal_config.yaml` enables every optional report toggle and includes the widest selection of MetaSyn, PyBNesian, and SynthCity generators.
 - `configs/only_metasyn_config.yaml` keeps MetaSyn as the single synthetic data baseline.
 
 Example:

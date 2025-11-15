@@ -1,10 +1,13 @@
 from __future__ import annotations
 
+import logging
 from dataclasses import dataclass
 from typing import Dict, List, Optional, TYPE_CHECKING
 
 if TYPE_CHECKING:  # pragma: no cover - typing only
     import pandas as pd
+
+from .torch_compat import ensure_torch_rmsnorm
 
 @dataclass
 class DatasetPrivacySummary:
@@ -20,9 +23,12 @@ class DatasetPrivacySummary:
     k_pct_lt5: Optional[float]
     rare_qi_reproduction_rate: Optional[float]
     t_closeness: Dict[str, Dict[str, float]]  # per sensitive var: {'mean','p95','max'}
+    identifiability_score: Optional[float] = None
+    delta_presence: Optional[float] = None
 
 
 def _load_synthcity_modules():
+    ensure_torch_rmsnorm()
     try:
         from synthcity.plugins.core.dataloader import GenericDataLoader
         from synthcity.metrics.eval_sanity import (
@@ -144,8 +150,17 @@ def summarize_privacy_synthcity(df_real: "pd.DataFrame",
     else:
         k_min = k_pct_lt5 = k_map_val = None
 
-    ident = float(IdentifiabilityScore().evaluate_default(Xr, Xs))
-    delta = float(DeltaPresence().evaluate_default(Xr, Xs))
+    ident = None
+    try:
+        ident = float(IdentifiabilityScore().evaluate_default(Xr, Xs))
+    except Exception as exc:  # pragma: no cover - depends on optional deps
+        logging.warning("Identifiability metric failed: %s", exc)
+
+    delta = None
+    try:
+        delta = float(DeltaPresence().evaluate_default(Xr, Xs))
+    except Exception as exc:  # pragma: no cover - depends on optional deps
+        logging.warning("Delta presence metric failed: %s", exc)
 
     # rare QI reproduction (real count<=5 or freq<=1%)
     if qi:
@@ -188,4 +203,6 @@ def summarize_privacy_synthcity(df_real: "pd.DataFrame",
         k_pct_lt5=k_pct_lt5,
         rare_qi_reproduction_rate=rare_rate,
         t_closeness=t_close,
+        identifiability_score=ident,
+        delta_presence=delta,
     )

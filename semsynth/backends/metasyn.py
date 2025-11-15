@@ -96,8 +96,12 @@ def run_experiment(
 
     if semmap_export:
         try:
-            synth_df.semmap.apply_json_metadata(copy.deepcopy(semmap_export), convert_pint=False)
-            synth_df.semmap.to_parquet(str(run_dir / "synthetic.semmap.parquet"), index=False)
+            synth_df.semmap.from_jsonld(
+                copy.deepcopy(semmap_export), convert_pint=False
+            )
+            synth_df.semmap.to_parquet(
+                str(run_dir / "synthetic.semmap.parquet"), index=False
+            )
         except Exception:
             logging.exception("Failed to serialize SemMap parquet for MetaSyn synthetic")
 

@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import json
 import logging
-import numbers
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple, TYPE_CHECKING
@@ -12,6 +11,8 @@ if TYPE_CHECKING:  # pragma: no cover - typing only
     import pandas as pd
 
 from ..metrics import per_variable_distances, summarize_distance_metrics
+from ..models import model_run_root, write_manifest
+from ..torch_compat import ensure_torch_rmsnorm
 from ..utils import (
     coerce_continuous_to_float,
     coerce_discrete_to_category,
@@ -19,7 +20,6 @@ from ..utils import (
     infer_types,
     rename_categorical_categories_to_str,
 )
-from ..models import model_run_root, write_manifest
 
 
 def canonical_generator_name(name: str) -> str:
@@ -75,49 +75,8 @@ class SynthRunArtifacts:
     test_size: float
 
 
-def _ensure_torch_rmsnorm() -> None:
-    try:
-        import torch
-        from torch import nn
-
-        if hasattr(nn, "RMSNorm"):
-            return
-
-        class _RMSNorm(nn.Module):
-            def __init__(
-                self,
-                normalized_shape: int | Tuple[int, ...],
-                eps: float = 1e-6,
-                elementwise_affine: bool = True,
-            ) -> None:
-                super().__init__()
-                if isinstance(normalized_shape, numbers.Integral):
-                    normalized_shape = (int(normalized_shape),)
-                else:
-                    normalized_shape = tuple(normalized_shape)
-                self.normalized_shape = normalized_shape
-                self.eps = eps
-                self.elementwise_affine = elementwise_affine
-                if elementwise_affine:
-                    self.weight = nn.Parameter(torch.ones(*self.normalized_shape))
-                else:
-                    self.register_parameter("weight", None)
-
-            def forward(self, input: "torch.Tensor") -> "torch.Tensor":
-                dims = tuple(range(-len(self.normalized_shape), 0))
-                rms = torch.rsqrt(input.pow(2).mean(dim=dims, keepdim=True) + self.eps)
-                output = input * rms
-                if self.elementwise_affine:
-                    output = output * self.weight
-                return output
-
-        nn.RMSNorm = _RMSNorm  # type: ignore[attr-defined]
-    except Exception:
-        pass
-
-
 def _get_plugin(name: str, params: Dict[str, Any]):
-    _ensure_torch_rmsnorm()
+    ensure_torch_rmsnorm()
     Plugins = _load_synthcity_plugins()
 
     logging.info("Loading synthcity plugin: %s", name)
@@ -128,7 +87,18 @@ def _normalize_plugin_params(
     plugin_name: str, params: Dict[str, Any]
 ) -> Dict[str, Any]:
     normalized = {k: v for k, v in (params or {}).items() if v is not None}
-    if plugin_name == "ctgan" and "epochs" in normalized and "n_iter" not in normalized:
+    iter_plugins = {
+        "ctgan",
+        "tvae",
+        "pategan",
+        "adsgan",
+        "dpgan",
+    }
+    if (
+        plugin_name in iter_plugins
+        and "epochs" in normalized
+        and "n_iter" not in normalized
+    ):
         normalized["n_iter"] = normalized.pop("epochs")
     return normalized
 
@@ -182,6 +152,16 @@ def run_experiment(
     train_df = train_df.reset_index(drop=True)
     test_df = test_df.reset_index(drop=True)
 
+    for col in cont_cols:
+        if col in train_df.columns:
+            train_df[col] = pd.to_numeric(train_df[col], errors="coerce").astype(
+                "float64"
+            )
+        if col in test_df.columns:
+            test_df[col] = pd.to_numeric(test_df[col], errors="coerce").astype(
+                "float64"
+            )
+
     model_type = model_info.pop("type")
     plugin_name = canonical_generator_name(model_type)
     plugin_params = _normalize_plugin_params(plugin_name, model_info)
@@ -208,7 +188,7 @@ def run_experiment(
             import semsynth.semmap as semmap  # noqa: F401
 
             sdf = synth_df.copy()
-            sdf.semmap.apply_json_metadata(
+            sdf.semmap.from_jsonld(
                 copy.deepcopy(semmap_export), convert_pint=False
             )
             sdf.semmap.to_parquet(

@@ -119,41 +119,44 @@ def _build_privacy_metadata(df: "pd.DataFrame", inferred: Dict[str, str]) -> "pd
 def _build_downstream_meta(
     df: "pd.DataFrame",
     inferred: Dict[str, str],
-    target: Optional[str],
+    target_series: Optional["pd.Series"],
 ) -> Dict[str, Any]:
     import pandas as pd
 
-    meta: Dict[str, Any] = {
-        "dataset": {"target_name": target, "target_type": None},
-        "variables": {},
-    }
+    target_name: Optional[str] = None
+    if isinstance(target_series, pd.Series):
+        if target_series.attrs.get("prov:hadRole") == "target":
+            target_name = target_series.name if target_series.name in df.columns else None
+
+    columns_meta: List[Dict[str, Any]] = []
     for column in df.columns:
-        role = "target" if target and column == target else "predictor"
+        role = "target" if target_name and column == target_name else "predictor"
         kind = inferred.get(column, "continuous")
-        if kind == "continuous":
-            stat_type = "numeric"
-            categories: List[str] = []
-        else:
+        col_meta: Dict[str, Any] = {
+            "schema:name": column,
+            "prov:hadRole": role,
+        }
+
+        stats_type = "dsv:QuantitativeDataType" if kind == "continuous" else "dsv:NominalDataType"
+        col_meta["dsv:summaryStatistics"] = {"dsv:statisticalDataType": stats_type}
+
+        if kind != "continuous":
             series = df[column].astype("category")
             categories = [str(cat) for cat in series.cat.categories]
-            stat_type = "binary" if len(categories) <= 2 else "nominal"
-        meta["variables"][column] = {
-            "role": role,
-            "stat_type": stat_type,
-            "categories": categories,
-            "reference": categories[0] if categories else None,
-            "interaction_ok": True,
-            "missing_codes": [],
-        }
-    if target:
-        target_type = meta["variables"][target]["stat_type"]
-        if target_type == "nominal" and len(meta["variables"][target]["categories"]) > 2:
-            meta["dataset"]["target_type"] = "multiclass"
-        else:
-            meta["dataset"]["target_type"] = target_type
-    else:
-        meta["dataset"]["target_type"] = "continuous"
-    return meta
+            if categories:
+                column_property: Dict[str, Any] = {
+                    "dsv:hasCodeBook": {
+                        "skos:hasTopConcept": [
+                            {"skos:notation": cat, "skos:prefLabel": cat}
+                            for cat in categories
+                        ]
+                    }
+                }
+                col_meta["dsv:columnProperty"] = column_property
+                col_meta["schema:defaultValue"] = categories[0]
+        columns_meta.append(col_meta)
+
+    return {"dsv:datasetSchema": {"dsv:column": columns_meta}}
 
 
 @dataclass
@@ -261,7 +264,8 @@ class DatasetPreprocessor:
 
         color_series2 = None
         if isinstance(color_series, pd.Series) and color_series.name in df_no_na.columns:
-            color_series2 = df_no_na[color_series.name]
+            color_series2 = df_no_na[color_series.name].copy()
+            color_series2.attrs.update(color_series.attrs)
 
         umap_png_real: Optional[Path] = outdir / "umap_real.png"
         umap_artifacts: Optional[UmapArtifacts] = None
@@ -359,7 +363,7 @@ class MetricWriter:
         real_df: "pd.DataFrame",
         synth_df: "pd.DataFrame",
         inferred: Dict[str, str],
-        target: Optional[str],
+        target_series: Optional["pd.Series"],
     ) -> Dict[str, Any]:
         """Write downstream metrics comparing synthetic and real data.
 
@@ -368,7 +372,7 @@ class MetricWriter:
             real_df: Real dataset used for comparisons.
             synth_df: Synthetic dataset produced by backend.
             inferred: Mapping of column names to inferred types.
-            target: Optional target column name.
+            target_series: Optional target series annotated with ``prov:hadRole``.
 
         Returns:
             Dict[str, Any]: Serialized payload written to disk.
@@ -376,7 +380,7 @@ class MetricWriter:
 
         comparer = self._downstream_compare or _import_downstream_compare()
 
-        meta = _build_downstream_meta(real_df, inferred, target)
+        meta = _build_downstream_meta(real_df, inferred, target_series)
         results = comparer(real_df, synth_df, meta)
         compare = results.get("compare")
         sign_match_rate = float("nan")
@@ -492,14 +496,19 @@ class BackendExecutor:
                 except Exception:
                     logging.exception("Failed to compute privacy metrics for %s", label)
 
-            if compute_downstream_flag and dataset_spec.target:
+            target_series = preprocessed.color_series
+            has_target_series = (
+                isinstance(target_series, pd.Series)
+                and target_series.attrs.get("prov:hadRole") == "target"
+            )
+            if compute_downstream_flag and has_target_series:
                 try:
                     self._metric_writer.write_downstream(
                         run_dir_path,
                         preprocessed.df_no_na,
                         synth_df,
                         preprocessed.inferred_types,
-                        dataset_spec.target,
+                        target_series,
                     )
                     logging.info("Wrote downstream metrics for %s", label)
                 except ImportError:

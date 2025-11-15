@@ -1,15 +1,34 @@
-"""Measure downstream fidelity of a synthetic dataset by training regression models
+"""Measure downstream fidelity of a synthetic dataset by training regression models.
 
 # Example usage (sketch)
 
 >>> meta = {
->>>   "dataset": {"target_name": "target", "target_type": "binary"},
->>>   "variables": {
->>>       "target": {"role": "target", "stat_type": "binary"},
->>>       "age":    {"role": "predictor", "stat_type": "numeric", "missing_codes": [], "interaction_ok": True},
->>>       "sex":    {"role": "predictor", "stat_type": "binary", "categories": [0,1], "reference": 0, "interaction_ok": True},
->>>       "cp":     {"role": "predictor", "stat_type": "nominal", "categories": [0,1,2,3], "reference": 0, "interaction_ok": True},
->>>       "thal":   {"role": "predictor", "stat_type": "nominal", "categories": [3,6,7], "reference": 3, "interaction_ok": True},
+>>>   "dsv:datasetSchema": {
+>>>       "dsv:column": [
+>>>           {
+>>>               "schema:name": "target",
+>>>               "prov:hadRole": "target",
+>>>               "dsv:summaryStatistics": {
+>>>                   "dsv:statisticalDataType": "dsv:NominalDataType"
+>>>               },
+>>>               "schema:defaultValue": "0",
+>>>               "dsv:columnProperty": {
+>>>                   "dsv:hasCodeBook": {
+>>>                       "skos:hasTopConcept": [
+>>>                           {"skos:notation": "0"},
+>>>                           {"skos:notation": "1"},
+>>>                       ]
+>>>                   }
+>>>               }
+>>>           },
+>>>           {
+>>>               "schema:name": "age",
+>>>               "prov:hadRole": "predictor",
+>>>               "dsv:summaryStatistics": {
+>>>                   "dsv:statisticalDataType": "dsv:QuantitativeDataType"
+>>>               }
+>>>           },
+>>>       ]
 >>>   }
 >>> }
 
@@ -22,6 +41,8 @@
 """
 
 import itertools
+from typing import Any, Dict, Iterable, List, Mapping, Optional, Sequence, Tuple
+
 import numpy as np
 import pandas as pd
 
@@ -35,84 +56,226 @@ import patsy
 import statsmodels.api as sm
 from statsmodels.imputation import mice
 
-# -----------------------------
-# Utilities
-# -----------------------------
+def _schema(meta: Mapping[str, Any]) -> Mapping[str, Any]:
+    schema = meta.get("dsv:datasetSchema") or meta.get("datasetSchema") or {}
+    if isinstance(schema, Mapping):
+        return schema
+    return {}
 
-def _is_cat(vmeta):
-    return vmeta["stat_type"] in {"binary", "nominal", "ordinal"}
 
-def _cat_levels(vmeta):
-    return list(vmeta.get("categories", []))
+def _columns(meta: Mapping[str, Any]) -> Sequence[Mapping[str, Any]]:
+    schema = _schema(meta)
+    columns = schema.get("dsv:column") or schema.get("columns") or []
+    return [col for col in columns if isinstance(col, Mapping)]
 
-def _ref_level(vmeta):
-    # choose provided reference, else first category
-    return vmeta.get("reference", (vmeta.get("categories") or [None])[0])
 
-def _cat_term(var, vmeta):
+def _column_name(col_meta: Mapping[str, Any]) -> Optional[str]:
+    for key in ("schema:name", "name", "column", "column_name"):
+        value = col_meta.get(key)
+        if isinstance(value, str) and value:
+            return value
+    return None
+
+
+def _column_role(col_meta: Mapping[str, Any]) -> str:
+    role = col_meta.get("prov:hadRole")
+    if isinstance(role, str):
+        role_lower = role.strip().lower()
+        if role_lower:
+            return role_lower
+    return "predictor"
+
+
+def _statistical_type(col_meta: Mapping[str, Any]) -> str:
+    nodes: List[Mapping[str, Any]] = []
+
+    maybe_stats = col_meta.get("dsv:summaryStatistics") or col_meta.get("summaryStatistics")
+    if isinstance(maybe_stats, Mapping):
+        nodes.append(maybe_stats)
+
+    column_prop = col_meta.get("dsv:columnProperty") or col_meta.get("columnProperty")
+    if isinstance(column_prop, Mapping):
+        prop_stats = column_prop.get("dsv:summaryStatistics") or column_prop.get("summaryStatistics")
+        if isinstance(prop_stats, Mapping):
+            nodes.append(prop_stats)
+
+    for node in nodes:
+        dtype = node.get("dsv:statisticalDataType") or node.get("statisticalDataType")
+        if isinstance(dtype, str):
+            return dtype
+        if isinstance(dtype, Mapping):
+            identifier = dtype.get("@id") or dtype.get("id")
+            if isinstance(identifier, str):
+                return identifier
+    return ""
+
+
+def _is_cat(col_meta: Mapping[str, Any]) -> bool:
+    dtype = _statistical_type(col_meta).lower()
+    if not dtype:
+        return False
+    return any(token in dtype for token in ("nominal", "categorical", "ordinal", "binary"))
+
+
+def _cat_levels(col_meta: Mapping[str, Any]) -> List[str]:
+    column_prop = col_meta.get("dsv:columnProperty") or col_meta.get("columnProperty") or {}
+    codebook: Mapping[str, Any]
+    if isinstance(column_prop, Mapping):
+        codebook = column_prop.get("dsv:hasCodeBook") or column_prop.get("hasCodeBook") or {}
+    else:
+        codebook = {}
+    concepts = []
+    if isinstance(codebook, Mapping):
+        concepts = codebook.get("skos:hasTopConcept") or codebook.get("hasTopConcept") or []
+    levels: List[str] = []
+    for concept in concepts or []:
+        if not isinstance(concept, Mapping):
+            continue
+        for key in ("skos:notation", "notation", "skos:prefLabel", "prefLabel"):
+            value = concept.get(key)
+            if isinstance(value, str):
+                levels.append(value)
+                break
+    return levels
+
+
+def _ref_level(col_meta: Mapping[str, Any]) -> Optional[str]:
+    default = col_meta.get("schema:defaultValue") or col_meta.get("defaultValue")
+    if isinstance(default, str):
+        return default
+    if default is not None:
+        return str(default)
+    levels = _cat_levels(col_meta)
+    return levels[0] if levels else None
+
+def _cat_term(var: str, vmeta: Mapping[str, Any]) -> str:
     ref = _ref_level(vmeta)
-    if vmeta["stat_type"] in {"binary", "nominal"}:
+    dtype = _statistical_type(vmeta).lower()
+    if any(token in dtype for token in ("binary", "nominal", "categorical")):
         return f'C({var}, Treatment(reference="{ref}"))'
-    if vmeta["stat_type"] == "ordinal":
-        # encode as integer if ordered levels provided; else treat as categorical
-        if vmeta.get("ordered_levels"):
-            return var  # assume df holds ordinal-coded numbers already
+    if "ordinal" in dtype:
+        ordered_levels = vmeta.get("ordered_levels")
+        if isinstance(ordered_levels, Sequence) and not isinstance(ordered_levels, (str, bytes)):
+            return var
         return f'C({var}, Treatment(reference="{ref}"))'
     raise ValueError("not categorical")
 
-def _var_term(var, vmeta):
+
+def _var_term(var: str, vmeta: Mapping[str, Any]) -> str:
     return _cat_term(var, vmeta) if _is_cat(vmeta) else var
 
-def _cardinality(df, var, vmeta):
+
+def _cardinality(df: pd.DataFrame, var: str, vmeta: Mapping[str, Any]) -> float:
     if _is_cat(vmeta):
         return len(_cat_levels(vmeta)) or df[var].nunique(dropna=True)
     return np.inf
 
-def _replace_missing_codes(df, meta):
+
+def _column_lookup(meta: Mapping[str, Any]) -> Dict[str, Mapping[str, Any]]:
+    return {
+        name: col
+        for col in _columns(meta)
+        if (name := _column_name(col))
+    }
+
+
+def _target_info(
+    meta: Mapping[str, Any],
+    df: Optional[pd.DataFrame] = None,
+) -> Tuple[str, str]:
+    lookup = _column_lookup(meta)
+    for name, col_meta in lookup.items():
+        if _column_role(col_meta) != "target":
+            continue
+        dtype = _statistical_type(col_meta).lower()
+        if "count" in dtype:
+            return name, "count"
+        if _is_cat(col_meta):
+            levels = _cat_levels(col_meta)
+            if not levels and df is not None and name in df.columns:
+                levels = list(pd.Series(df[name]).dropna().unique())
+            if len(levels) <= 2:
+                return name, "binary"
+            return name, "multiclass"
+        return name, "continuous"
+    raise ValueError("metadata must define a target column with prov:hadRole = 'target'")
+
+
+def _missing_codes(col_meta: Mapping[str, Any]) -> List[str]:
+    column_prop = col_meta.get("dsv:columnProperty") or col_meta.get("columnProperty") or {}
+    codes: List[str] = []
+    if isinstance(column_prop, Mapping):
+        missing_node = column_prop.get("dsv:missingValueCode") or column_prop.get("missingValueCode")
+        if isinstance(missing_node, Sequence) and not isinstance(missing_node, (str, bytes)):
+            for item in missing_node:
+                if isinstance(item, str):
+                    codes.append(item)
+        elif isinstance(missing_node, str):
+            codes.append(missing_node)
+    summary = col_meta.get("dsv:summaryStatistics") or col_meta.get("summaryStatistics") or {}
+    if isinstance(summary, Mapping):
+        fmt = summary.get("dsv:missingValueFormat") or summary.get("missingValueFormat")
+        if isinstance(fmt, str):
+            codes.append(fmt)
+    return codes
+
+
+def _replace_missing_codes(df: pd.DataFrame, meta: Mapping[str, Any]) -> pd.DataFrame:
     df = df.copy()
-    for var, vmeta in meta["variables"].items():
-        if "missing_codes" in vmeta and vmeta["missing_codes"]:
-            miss = set(vmeta["missing_codes"])
-            df[var] = df[var].map(lambda x: np.nan if x in miss else x)
+    for name, col_meta in _column_lookup(meta).items():
+        if name not in df.columns:
+            continue
+        codes = _missing_codes(col_meta)
+        if codes:
+            miss = set(codes)
+            df[name] = df[name].map(lambda x: np.nan if x in miss else x)
     return df
 
-def _coerce_dtypes_and_levels(df, meta, *, fill_cats_with_missing_token=False):
+
+def _coerce_dtypes_and_levels(
+    df: pd.DataFrame,
+    meta: Mapping[str, Any],
+    *,
+    fill_cats_with_missing_token: bool = False,
+) -> pd.DataFrame:
     """Apply categories and ordinals from metadata. Optionally append '__MISSING__'."""
+
     df = df.copy()
-    for var, vmeta in meta["variables"].items():
-        if var not in df.columns:
+    for name, col_meta in _column_lookup(meta).items():
+        if name not in df.columns:
             continue
-        if _is_cat(vmeta):
-            levels = list(_cat_levels(vmeta))
+        if _is_cat(col_meta):
+            levels = list(_cat_levels(col_meta))
             if fill_cats_with_missing_token and "__MISSING__" not in levels:
                 levels = levels + ["__MISSING__"]
+            ordered = "ordinal" in _statistical_type(col_meta).lower()
             if levels:
-                df[var] = pd.Categorical(df[var], categories=levels, ordered=vmeta["stat_type"] == "ordinal")
+                df[name] = pd.Categorical(df[name], categories=levels, ordered=ordered)
             else:
-                # infer then freeze
-                cats = list(pd.Series(df[var]).dropna().unique())
+                cats = list(pd.Series(df[name]).dropna().unique())
                 if fill_cats_with_missing_token:
                     cats = cats + ["__MISSING__"]
-                df[var] = pd.Categorical(df[var], categories=cats, ordered=vmeta["stat_type"] == "ordinal")
+                df[name] = pd.Categorical(df[name], categories=cats, ordered=ordered)
         else:
-            df[var] = pd.to_numeric(df[var], errors="coerce")
+            df[name] = pd.to_numeric(df[name], errors="coerce")
     return df
 
-def _fill_for_screening(df, meta):
+
+def _fill_for_screening(df: pd.DataFrame, meta: Mapping[str, Any]) -> pd.DataFrame:
     """Single-imputation for feature screening only."""
+
     df = df.copy()
-    for var, vmeta in meta["variables"].items():
-        if var not in df.columns or vmeta["role"] == "target":
+    for name, col_meta in _column_lookup(meta).items():
+        if name not in df.columns or _column_role(col_meta) == "target":
             continue
-        if _is_cat(vmeta):
-            df[var] = df[var].astype("object")
-            df[var] = df[var].where(df[var].notna(), "__MISSING__")
+        if _is_cat(col_meta):
+            df[name] = df[name].astype("object")
+            df[name] = df[name].where(df[name].notna(), "__MISSING__")
         else:
-            df[var] = pd.to_numeric(df[var], errors="coerce")
+            df[name] = pd.to_numeric(df[name], errors="coerce")
             imp = SimpleImputer(strategy="median")
-            df[var] = imp.fit_transform(df[[var]]).ravel()
-    # target: drop NA rows for the screening stage
-    yname = meta["dataset"]["target_name"]
+            df[name] = imp.fit_transform(df[[name]]).ravel()
+    yname, _ = _target_info(meta, df)
     df = df[df[yname].notna()]
     return df
 
@@ -120,24 +283,20 @@ def _fill_for_screening(df, meta):
 # Candidate generation
 # -----------------------------
 
-def generate_candidates(df, meta, max_interactions=5):
-    preds = [v for v, m in meta["variables"].items() if m["role"] == "predictor"]
-    # main effects
-    main_terms = []
-    for v in preds:
-        main_terms.append(_var_term(v, meta["variables"][v]))
+def generate_candidates(
+    df: pd.DataFrame,
+    meta: Mapping[str, Any],
+    max_interactions: int = 5,
+) -> Tuple[List[str], List[str]]:
+    lookup = _column_lookup(meta)
+    preds = [name for name, col in lookup.items() if _column_role(col) == "predictor"]
 
-    # interactions under strong heredity, conservative cardinality rules
-    cand_pairs = []
+    main_terms = [_var_term(name, lookup[name]) for name in preds]
+
+    cand_pairs: List[Sequence[str]] = []
     for a, b in itertools.combinations(preds, 2):
-        ma, mb = meta["variables"][a], meta["variables"][b]
-        if not ma.get("interaction_ok", True) or not mb.get("interaction_ok", True):
-            continue
+        ma, mb = lookup[a], lookup[b]
         ca, cb = _cardinality(df, a, ma), _cardinality(df, b, mb)
-        # allow:
-        # - num × num
-        # - num × cat with cat <= 6
-        # - cat × cat if product of levels <= 12
         if not _is_cat(ma) and not _is_cat(mb):
             ok = True
         elif _is_cat(ma) and not _is_cat(mb):
@@ -148,13 +307,13 @@ def generate_candidates(df, meta, max_interactions=5):
             ok = (ca * cb) <= 12
         if ok:
             cand_pairs.append((a, b))
-    # cap
+
     cand_pairs = cand_pairs[:max_interactions]
 
     inter_terms = []
     for a, b in cand_pairs:
-        ta = _var_term(a, meta["variables"][a])
-        tb = _var_term(b, meta["variables"][b])
+        ta = _var_term(a, lookup[a])
+        tb = _var_term(b, lookup[b])
         inter_terms.append(f"{ta}:{tb}")
     return main_terms, inter_terms
 
@@ -262,26 +421,36 @@ def formula_from_selected(yname, selected_terms):
 # Public API
 # -----------------------------
 
-def auto_formula(df, meta, *, max_interactions=5, cv=5):
+def auto_formula(
+    df: pd.DataFrame,
+    meta: Mapping[str, Any],
+    *,
+    max_interactions: int = 5,
+    cv: int = 5,
+) -> str:
     df0 = _replace_missing_codes(df, meta)
     df0 = _coerce_dtypes_and_levels(df0, meta, fill_cats_with_missing_token=True)
     df0 = _fill_for_screening(df0, meta)
 
-    # Build full candidate set
     main_terms, inter_terms = generate_candidates(df0, meta, max_interactions=max_interactions)
     full_formula = " + ".join(main_terms + inter_terms)
 
-    yname = meta["dataset"]["target_name"]
-    target_type = meta["dataset"]["target_type"]
+    yname, target_type = _target_info(meta, df0)
 
     selected_terms = screen_terms(df0, yname, target_type, full_formula, cv=cv)
     return formula_from_selected(yname, selected_terms)
 
-def fit_with_mi(df, formula, meta, *, m=20, burnin=5):
-    yname = meta["dataset"]["target_name"]
-    target_type = meta["dataset"]["target_type"]
 
-    # Prepare data for MI (keep NaN, apply levels but no single impute)
+def fit_with_mi(
+    df: pd.DataFrame,
+    formula: str,
+    meta: Mapping[str, Any],
+    *,
+    m: int = 20,
+    burnin: int = 5,
+):
+    yname, target_type = _target_info(meta, df)
+
     df_mi = _replace_missing_codes(df, meta)
     df_mi = _coerce_dtypes_and_levels(df_mi, meta, fill_cats_with_missing_token=False)
 

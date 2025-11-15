@@ -1,0 +1,38 @@
+# Data Report — {{ dataset_name }}
+
+{% if provider_link %}**Source**: [{{ provider_link.text }}]({{ provider_link.url }})
+
+{% endif %}{% if semmap_json_name %}- SemMap JSON-LD: [{{ semmap_json_name }}]({{ semmap_json_name }})
+{% endif %}{% if semmap_html_name %}- SemMap HTML: [{{ semmap_html_name }}]({{ semmap_html_name }})
+{% endif %}- Rows: {{ num_rows }}
+- Columns: {{ num_cols }}
+- Discrete: {{ num_disc }}  |  Continuous: {{ num_cont }}
+
+## Variables and summary
+
+{{ variable_table }}
+
+{% if fidelity_table %}## Fidelity summary
+
+{{ fidelity_table }}
+
+{% endif %}## Models
+
+<table>
+<tr><th>UMAP</th><th>Details</th><th>Structure</th></tr>
+{% if real_umap %}<tr><td><img src='{{ real_umap }}' width='280'/></td><td><h3>Real data</h3></td><td></td></tr>
+{% endif %}{% for model in model_rows %}<tr><td>{% if model.umap_rel %}<img src='{{ model.umap_rel }}' width='280'/>{% endif %}</td><td>
+
+### Model: {{ model.name }} ({{ model.backend }})
+
+- Seed: {{ model.seed }}, rows: {{ model.rows }}
+{% if model.params_json %}- Params: `{{ model.params_json }}`
+{% endif %}{% for link in model.links %}- [{{ link.label }}]({{ link.href }})
+{% endfor %}
+
+</td><td>
+{% if model.structure_rel %}<a href='{{ model.structure_rel }}'><img src='{{ model.structure_rel }}' width='280'/></a>{% endif %}
+</td></tr>
+
+{% endfor %}</table>
+

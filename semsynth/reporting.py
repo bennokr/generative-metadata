@@ -1,16 +1,33 @@
+"""Utilities for rendering dataset reports.
+
+The reporting workflow produces a Markdown summary and a corresponding HTML
+document for a dataset. The workflow follows three major steps:
+
+1. Assemble an in-memory context describing the dataset, variable summaries and
+   model runs.
+2. Render Markdown content from a Jinja template using the assembled context.
+3. Convert the Markdown output to HTML and embed it inside a static page
+   template for distribution.
+
+This module exposes :func:`write_report_md` as the high-level entry point and
+contains helpers for computing summary tables, templating and distribution
+formatting.
+"""
+
 from __future__ import annotations
 
+from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Dict, List, Optional, TYPE_CHECKING
-import html
-import io
+from typing import Any, Dict, Iterable, List, Optional, Sequence
 import json
 import logging
 import os
 import textwrap
 
-if TYPE_CHECKING:  # pragma: no cover - typing only
-    import pandas as pd
+from jinja2 import Environment, FileSystemLoader, select_autoescape
+from markupsafe import Markup
+import pandas as pd
+
 from .jsonld_to_rdfa import SCHEMA_ORG, render_rdfa
 from .models import ModelRun
 
@@ -18,10 +35,80 @@ from .models import ModelRun
 _TEMPLATES_DIR = Path(__file__).resolve().parent.parent / "templates"
 
 
+@dataclass
+class _ModelLink:
+    """Represents a hyperlink entry in a model's report row."""
+
+    label: str
+    href: str
+
+
+@dataclass
+class _ModelRow:
+    """Pre-rendered data describing a model run section in the report."""
+
+    name: str
+    backend: str
+    seed: Any
+    rows: Any
+    params_json: Optional[str]
+    umap_rel: Optional[str]
+    structure_rel: Optional[str]
+    links: Sequence[_ModelLink]
+
+
+def _jinja_environment() -> Environment:
+    """Return a configured Jinja environment for report templates."""
+
+    return Environment(
+        loader=FileSystemLoader(str(_TEMPLATES_DIR)),
+        autoescape=select_autoescape(("html", "xml"), default=False),
+        trim_blocks=True,
+        lstrip_blocks=True,
+    )
+
+
 def _resolve_semmap_context(data: Dict[str, Any]) -> Any:
     if isinstance(data, dict) and data.get("@context"):
         return data["@context"]
     return SCHEMA_ORG
+
+
+def _write_semmap_artifacts(
+    output_dir: Path, dataset_name: str, semmap_jsonld: Optional[dict]
+) -> tuple[Optional[str], Optional[str]]:
+    """Persist SemMap metadata artifacts and return filenames.
+
+    Args:
+        output_dir: Target directory for report files.
+        dataset_name: Dataset label used for the HTML title.
+        semmap_jsonld: JSON-LD payload representing semantic metadata.
+
+    Returns:
+        Tuple containing the JSON filename and the rendered HTML filename. Each
+        entry can be ``None`` when the corresponding artifact could not be
+        generated.
+    """
+
+    if not isinstance(semmap_jsonld, dict) or not semmap_jsonld:
+        return None, None
+
+    json_name = "dataset.semmap.json"
+    json_path = output_dir / json_name
+    json_path.write_text(json.dumps(semmap_jsonld, indent=2), encoding="utf-8")
+
+    html_name: Optional[str] = None
+    try:
+        context = _resolve_semmap_context(semmap_jsonld)
+        html_title = f"{dataset_name} — SemMap metadata"
+        semmap_fragment = render_rdfa(semmap_jsonld, context, html_title)
+        html_path = output_dir / "dataset.semmap.html"
+        html_path.write_text(semmap_fragment, encoding="utf-8")
+        html_name = html_path.name
+        logging.info("Wrote SemMap metadata HTML: %s", html_path)
+    except Exception:  # pragma: no cover - log and continue report generation
+        logging.exception("Failed to render SemMap metadata HTML", exc_info=True)
+    return json_name, html_name
 
 
 def write_report_md(
@@ -41,207 +128,83 @@ def write_report_md(
     semmap_jsonld: Optional[dict] = None,
     model_runs: Optional[List[ModelRun]] = None,
 ) -> None:
+    """Render Markdown and HTML reports for a dataset.
+
+    Args:
+        outdir: Directory where report files should be written.
+        dataset_name: Human readable dataset title used in headings.
+        dataset_provider: External provider identifier (e.g. ``"openml"``).
+        dataset_provider_id: Provider specific identifier for linking back.
+        df: Source dataframe containing the analysed dataset.
+        disc_cols: Names of discrete variables used for summary statistics.
+        cont_cols: Names of continuous variables used for numeric summaries.
+        umap_png_real: Optional path to the real-data UMAP image.
+        declared_types: Mapping of declared data types per variable.
+        inferred_types: Mapping of inferred data types per variable.
+        variable_descriptions: Optional free text descriptions for variables.
+        semmap_jsonld: Semantic metadata to attach to the report.
+        model_runs: Model execution metadata used to build model sections.
+    """
+
     import markdown
     import pandas as pd
 
-    md_path = Path(outdir) / "report.md"
+    output_dir = Path(outdir)
+    output_dir.mkdir(parents=True, exist_ok=True)
+    md_path = output_dir / "report.md"
 
-    semmap_html_name: Optional[str] = None
-    if isinstance(semmap_jsonld, dict) and semmap_jsonld:
-        try:
-            context = _resolve_semmap_context(semmap_jsonld)
-            html_title = f"{dataset_name} — SemMap metadata"
-            semmap_fragment = render_rdfa(semmap_jsonld, context, html_title)
-            semmap_html_path = md_path.parent / "dataset.semmap.html"
-            semmap_html_path.write_text(semmap_fragment, encoding="utf-8")
-            semmap_html_name = semmap_html_path.name
-            logging.info(f"Wrote SemMap metadata HTML: {semmap_html_path}")
-        except Exception:
-            logging.exception("Failed to render SemMap metadata HTML", exc_info=True)
-            semmap_html_name = None
+    semmap_json_name, semmap_html_name = _write_semmap_artifacts(
+        output_dir, dataset_name, semmap_jsonld
+    )
+
     num_rows, num_cols = df.shape
-    with md_path.open("w", encoding="utf-8") as f:
+    model_rows = _prepare_model_rows(model_runs or [], output_dir)
+    variable_table = _build_variable_summary(
+        df=df,
+        cont_cols=cont_cols,
+        declared_types=declared_types,
+        inferred_types=inferred_types,
+        variable_descriptions=variable_descriptions,
+    )
+    fidelity_table = _build_fidelity_table(model_runs=model_runs)
 
-        def df_to_markdown(d: pd.DataFrame, index: bool = False) -> str:
-            try:
-                return d.to_markdown(index=index)
-            except Exception:
-                return d.to_string(index=index)
+    env = _jinja_environment()
+    template = env.get_template("report.md.j2")
+    md_text = template.render(
+        dataset_name=dataset_name,
+        provider_link=_provider_link(dataset_provider, dataset_provider_id),
+        semmap_json_name=semmap_json_name,
+        semmap_html_name=semmap_html_name,
+        num_rows=num_rows,
+        num_cols=num_cols,
+        num_disc=len(disc_cols),
+        num_cont=len(cont_cols),
+        variable_table=variable_table,
+        fidelity_table=fidelity_table,
+        model_rows=model_rows,
+        real_umap=os.path.basename(umap_png_real) if umap_png_real else None,
+    )
+    md_path.write_text(md_text, encoding="utf-8")
+    logging.info("Wrote report: %s", md_path)
 
-        f.write(f"# Data Report — {dataset_name}\n\n")
-
-        # Provider-specific links
-        if dataset_provider and dataset_provider_id:
-            if dataset_provider == "openml":
-                url = (
-                    f"https://www.openml.org/search?type=data&id={dataset_provider_id}"
-                )
-                f.write(f"**Source**: [OpenML dataset {dataset_provider_id}]({url})\n")
-            elif dataset_provider == "uciml":
-                url = f"https://archive.ics.uci.edu/dataset/{dataset_provider_id}"
-                f.write(f"**Source**: [UCI dataset {dataset_provider_id}]({url})\n")
-        f.write("\n")
-
-        # Overview
-        
-        if semmap_jsonld:
-            semmap_json_name = "dataset.semmap.json"
-            with open(Path(outdir) / semmap_json_name, 'w') as fw:
-                json.dump(semmap_jsonld, fw, indent=2)
-            f.write(f"- SemMap JSON-LD: [{semmap_json_name}]({semmap_json_name})\n")
-        if semmap_html_name:
-            f.write(f"- SemMap HTML: [{semmap_html_name}]({semmap_html_name})\n")
-        f.write(f"- Rows: {num_rows}\n")
-        f.write(f"- Columns: {num_cols}\n")
-        f.write(f"- Discrete: {len(disc_cols)}  |  Continuous: {len(cont_cols)}\n")
-        f.write("\n")
-
-        # Build compact per-variable summary baseline table with a single 'dist' column
-        var_rows = []
-        for c in df.columns:
-            var_rows.append({"variable": c, "dist": _format_dist(df[c], cont_cols)})
-        baseline_out = pd.DataFrame(var_rows)
-        baseline_out = baseline_out.fillna("")
-
-        # Build declared, inferred, and description tables (if provided)
-        declared_df = None
-        if isinstance(declared_types, dict) and declared_types:
-            declared_df = pd.DataFrame(
-                [{"variable": k, "declared": v} for k, v in declared_types.items()]
-            )
-        inferred_df = None
-        if isinstance(inferred_types, dict) and inferred_types:
-            inferred_df = pd.DataFrame(
-                [{"variable": k, "inferred": v} for k, v in inferred_types.items()]
-            )
-        desc_df = None
-        if isinstance(variable_descriptions, dict) and variable_descriptions:
-            desc_df = pd.DataFrame(
-                [
-                    {"variable": k, "description": v}
-                    for k, v in variable_descriptions.items()
-                ]
-            )
-
-        # Merge into baseline summary
-        merged = baseline_out
-        if declared_df is not None and not declared_df.empty:
-            merged = declared_df.merge(merged, on="variable", how="right")
-        if inferred_df is not None and not inferred_df.empty:
-            merged = inferred_df.merge(merged, on="variable", how="right")
-        if desc_df is not None and not desc_df.empty:
-            merged = desc_df.merge(merged, on="variable", how="right")
-        merged = merged.fillna("")
-
-        f.write("## Variables and summary\n\n")
-        f.write(df_to_markdown(merged, index=False) + "\n\n")
-
-        model_runs = sorted(model_runs or [], key=lambda x: (x.backend, x.name))
-
-        if model_runs:
-            # Unified fidelity summary combining all runs and optional MetaSyn
-            f.write("## Fidelity summary\n\n")
-            rows = []
-            for run in model_runs:
-                summary = (
-                    run.metrics.get("summary", {})
-                    if isinstance(run.metrics, dict)
-                    else {}
-                )
-                rows.append(
-                    {
-                        "model": run.name,
-                        "backend": run.backend,
-                        "disc_jsd_mean": summary.get("disc_jsd_mean"),
-                        "disc_jsd_median": summary.get("disc_jsd_median"),
-                        "cont_ks_mean": summary.get("cont_ks_mean"),
-                        "cont_w1_mean": summary.get("cont_w1_mean"),
-                        "privacy_overlap": run.privacy_metrics.get("exact_overlap_rate"),
-                        "downstream_sign_match": run.downstream_metrics.get("sign_match_rate"),
-                    }
-                )
-
-            if rows:
-                out = pd.DataFrame(rows)
-                f.write(df_to_markdown(out.round(4).fillna(""), index=False) + "\n\n")
-
-        f.write("## Models\n\n")
-        f.write("<table>\n")
-        f.write("<tr><th>UMAP</th><th>Details</th><th>Structure</th></tr>\n")
-        if umap_png_real:
-            f.write(
-                f"<tr><td><img src='{Path(umap_png_real).name}' width='280'/></td><td><h3>Real data</h3></td><td></td></tr>\n"
-            )
-
-        if model_runs:
-            # Model details (umap, links, params)
-            for run in model_runs:
-                f.write("<tr><td>\n")
-                if run.umap_png and run.umap_png.exists():
-                    rel_png = os.path.relpath(run.umap_png, start=md_path.parent)
-                    f.write(f"<img src='{rel_png}' width='280'/>")
-                f.write("</td><td>\n\n")
-
-                c = io.StringIO()
-                manifest = run.manifest or {}
-                c.write(f"### Model: {run.name} ({run.backend})\n\n")
-                c.write(
-                    f"- Seed: {manifest.get('seed')}, rows: {manifest.get('rows')}\n"
-                )
-                params = manifest.get("params") or {}
-                if params:
-                    c.write("- Params: `" + json.dumps(params, sort_keys=True) + "`\n")
-
-                def _write_link(label: str, target: Optional[Path]) -> None:
-                    if target is None:
-                        return
-                    if not target.exists():
-                        return
-                    rel = os.path.relpath(target, start=md_path.parent)
-                    c.write(f"- [{label}]({rel})\n")
-
-                _write_link("Synthetic CSV", run.synthetic_csv)
-                _write_link("Per-variable metrics", run.per_variable_csv)
-                _write_link("Metrics JSON", run.run_dir / "metrics.json")
-                _write_link("Privacy metrics", run.privacy_json)
-                _write_link("Downstream metrics", run.downstream_json)
-
-                cell = markdown.markdown(c.getvalue(), extensions=["extra"])
-                f.write(cell)
-                f.write("</td><td>\n\n")
-                structure_png = run.run_dir / "structure.png"
-                if structure_png.exists():
-                    rel_png = os.path.relpath(structure_png, start=md_path.parent)
-                    f.write(f"<a href='{rel_png}'><img src='{rel_png}' width='280'/></a>\n")
-                f.write("</td></tr>\n\n")
-                f.write("\n")
-
-        f.write("<table>\n\n")
-    logging.info(f"Wrote report: {md_path}")
-
-    html_path = Path(outdir) / "index.html"
-    md_text = md_path.read_text(encoding="utf-8")
+    html_path = output_dir / "index.html"
     html_body = markdown.markdown(md_text, extensions=["extra", "md_in_html"])
     html_body = textwrap.indent(html_body, "    ")
     report_title = f"Data Report — {dataset_name}"
-    try:
-        css_text = (_TEMPLATES_DIR / "report_style.css").read_text(encoding="utf-8")
-    except Exception:
-        css_text = ""
-    try:
-        tpl = (_TEMPLATES_DIR / "report_template.html").read_text(encoding="utf-8")
-    except Exception:
-        tpl = '<!doctype html><html><head><title>{{TITLE}}</title><style>{{CSS}}</style></head><body><main class="report-container">{{BODY}}</main></body></html>'
-    html_out = (
-        tpl.replace("{{TITLE}}", html.escape(report_title))
-        .replace("{{CSS}}", css_text)
-        .replace("{{BODY}}", html_body)
+    css_text = _read_template_text("report_style.css")
+    html_template = _load_html_template(env)
+    html_out = html_template.render(
+        TITLE=report_title,
+        CSS=Markup(css_text),
+        BODY=Markup(html_body),
     )
     html_path.write_text(html_out, encoding="utf-8")
-    logging.info(f"Converted to HTML: {html_path}")
+    logging.info("Converted to HTML: %s", html_path)
 
 
 def _format_dist(col: pd.Series, cont_cols: List[str], *, top_n: int = 10) -> str:
+    """Return a concise distribution summary for a column."""
+
     s = col.dropna()
     if col.name in cont_cols:
         try:
@@ -299,3 +262,164 @@ def _format_dist(col: pd.Series, cont_cols: List[str], *, top_n: int = 10) -> st
     if shown > top_n:
         parts.append(f"… (+{shown - top_n} more)")
     return "\n".join(parts)
+
+
+def _build_variable_summary(
+    df: pd.DataFrame,
+    cont_cols: Iterable[str],
+    *,
+    declared_types: Optional[dict],
+    inferred_types: Optional[dict],
+    variable_descriptions: Optional[dict],
+) -> str:
+    """Create the Markdown table summarising variables."""
+
+    cont_list = list(dict.fromkeys(cont_cols))
+    var_rows = [
+        {"variable": column, "dist": _format_dist(df[column], cont_list)}
+        for column in df.columns
+    ]
+    baseline = pd.DataFrame(var_rows).fillna("")
+
+    merged = baseline
+    for mapping, label in (
+        (declared_types, "declared"),
+        (inferred_types, "inferred"),
+        (variable_descriptions, "description"),
+    ):
+        if isinstance(mapping, dict) and mapping:
+            other = pd.DataFrame(
+                [{"variable": key, label: value} for key, value in mapping.items()]
+            )
+            merged = other.merge(merged, on="variable", how="right").fillna("")
+
+    return _dataframe_to_markdown(merged, index=False)
+
+
+def _build_fidelity_table(*, model_runs: Optional[Sequence[ModelRun]]) -> Optional[str]:
+    """Create the markdown representation of the fidelity table."""
+
+    runs = sorted(model_runs or [], key=lambda run: (run.backend, run.name))
+    if not runs:
+        return None
+
+    rows: List[Dict[str, Any]] = []
+    for run in runs:
+        summary = run.metrics.get("summary", {}) if isinstance(run.metrics, dict) else {}
+        rows.append(
+            {
+                "model": run.name,
+                "backend": run.backend,
+                "disc_jsd_mean": summary.get("disc_jsd_mean"),
+                "disc_jsd_median": summary.get("disc_jsd_median"),
+                "cont_ks_mean": summary.get("cont_ks_mean"),
+                "cont_w1_mean": summary.get("cont_w1_mean"),
+                "privacy_overlap": run.privacy_metrics.get("exact_overlap_rate"),
+                "downstream_sign_match": run.downstream_metrics.get("sign_match_rate"),
+            }
+        )
+
+    if not rows:
+        return None
+
+    out = pd.DataFrame(rows)
+    return _dataframe_to_markdown(out.round(4).fillna(""), index=False)
+
+
+def _prepare_model_rows(model_runs: Iterable[ModelRun], base_dir: Path) -> List[_ModelRow]:
+    """Convert model runs into template-friendly rows."""
+
+    prepared: List[_ModelRow] = []
+    for run in sorted(model_runs, key=lambda r: (r.backend, r.name)):
+        manifest = run.manifest or {}
+        params = manifest.get("params") or {}
+        params_json = json.dumps(params, sort_keys=True) if params else None
+
+        links = []
+        for label, target in (
+            ("Synthetic CSV", run.synthetic_csv),
+            ("Per-variable metrics", run.per_variable_csv),
+            ("Metrics JSON", run.metrics_json or run.run_dir / "metrics.json"),
+            ("Privacy metrics", run.privacy_json),
+            ("Downstream metrics", run.downstream_json),
+        ):
+            rel = _relative_path(target, base_dir)
+            if rel:
+                links.append(_ModelLink(label=label, href=rel))
+
+        prepared.append(
+            _ModelRow(
+                name=run.name,
+                backend=run.backend,
+                seed=manifest.get("seed"),
+                rows=manifest.get("rows"),
+                params_json=params_json,
+                umap_rel=_relative_path(run.umap_png, base_dir),
+                structure_rel=_relative_path(run.run_dir / "structure.png", base_dir),
+                links=tuple(links),
+            )
+        )
+    return prepared
+
+
+def _relative_path(target: Optional[Path], base_dir: Path) -> Optional[str]:
+    """Return a relative path when the target exists."""
+
+    if target is None:
+        return None
+    target_path = Path(target)
+    if not target_path.exists():
+        return None
+    return os.path.relpath(target_path, start=base_dir)
+
+
+def _provider_link(
+    dataset_provider: Optional[str], dataset_provider_id: Optional[int]
+) -> Optional[Dict[str, str]]:
+    """Build a provider hyperlink descriptor for the template."""
+
+    if not dataset_provider or not dataset_provider_id:
+        return None
+    provider = dataset_provider.lower()
+    if provider == "openml":
+        url = f"https://www.openml.org/search?type=data&id={dataset_provider_id}"
+        text = f"OpenML dataset {dataset_provider_id}"
+    elif provider == "uciml":
+        url = f"https://archive.ics.uci.edu/dataset/{dataset_provider_id}"
+        text = f"UCI dataset {dataset_provider_id}"
+    else:
+        return None
+    return {"url": url, "text": text}
+
+
+def _read_template_text(template_name: str) -> str:
+    """Load template text from disk, returning an empty string on failure."""
+
+    try:
+        return (_TEMPLATES_DIR / template_name).read_text(encoding="utf-8")
+    except Exception:  # pragma: no cover - optional styling
+        logging.debug("Failed to read template %s", template_name, exc_info=True)
+        return ""
+
+
+def _load_html_template(env: Environment):
+    """Load the HTML template with a fallback inline template."""
+
+    try:
+        return env.get_template("report_template.html")
+    except Exception:  # pragma: no cover - fallback path
+        logging.debug("Falling back to inline HTML template", exc_info=True)
+        return env.from_string(
+            "<!doctype html><html><head><title>{{TITLE}}</title>"
+            "<style>{{CSS}}</style></head><body><main class=\"report-container\">"
+            "{{BODY}}</main></body></html>"
+        )
+
+
+def _dataframe_to_markdown(df: pd.DataFrame, *, index: bool) -> str:
+    """Convert a dataframe to Markdown with a string fallback."""
+
+    try:
+        return df.to_markdown(index=index)
+    except Exception:
+        return df.to_string(index=index)

@@ -1,20 +1,8 @@
-defopt
-graphviz
-markdown
-matplotlib
-metasyn
-networkx
-numpy
-openml
-pandas
-pybnesian
-scikit-learn
-scipy
-tabulate
-ucimlrepo
-ucumvert
-umap-learn
-synthcity>=0.2
-torch
-pint-pandas
-ucumvert
+# Install SemSynth in editable mode with dev tools for testing.
+-e .[dev]
+
+# Optional extras are available for specific backends:
+#   pip install -e .[pybnesian]
+#   pip install -e .[metasyn]
+#   pip install -e .[synthcity]
+#   pip install -e .[umap]

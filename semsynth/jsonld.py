@@ -15,6 +15,8 @@ class JSONLDMixin:
     def _build_aliases(self):
         self.__alias = {f.name: f.name for f in fields(self)}
         ctx = getattr(self, "__context__", {})
+        if not isinstance(ctx, dict):
+            return
         for term, val in ctx.items():
             if term in self.__alias:
                 if isinstance(val, dict) and "@id" in val:

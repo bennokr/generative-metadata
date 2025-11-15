@@ -72,7 +72,7 @@ def report(
     provider: str = "openml",
     *,
     datasets: List[str] | None = None,
-    outdir: str = "docs",
+    outdir: str = "outputs",
     configs_yaml: str = "",
     area: str = "Health and Medicine",
     verbose: bool = False,

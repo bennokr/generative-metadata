@@ -1,0 +1,68 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "semsynth"
+version = "0.1.0"
+description = "Synthetic data profiling and reporting for OpenML and UCI datasets."
+readme = "README.md"
+requires-python = ">=3.9"
+authors = [
+  { name = "SemSynth Authors" }
+]
+keywords = ["synthetic-data", "data-profiling", "metadata", "uci"]
+dependencies = [
+  "defopt",
+  "markdown",
+  "numpy",
+  "openml",
+  "pandas",
+  "pint-pandas",
+  "pyarrow",
+  "pyyaml",
+  "requests",
+  "scikit-learn",
+  "ucimlrepo"
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest",
+  "pytest-cov"
+]
+metasyn = [
+  "metasyn"
+]
+pybnesian = [
+  "graphviz",
+  "networkx",
+  "pybnesian"
+]
+synthcity = [
+  "synthcity>=0.2",
+  "torch"
+]
+umap = [
+  "matplotlib",
+  "umap-learn"
+]
+all = [
+  "metasyn",
+  "graphviz",
+  "networkx",
+  "pybnesian",
+  "synthcity>=0.2",
+  "torch",
+  "matplotlib",
+  "umap-learn",
+  "ucumvert"
+]
+
+[project.scripts]
+semsynth = "semsynth.cli:main"
+semsynth-reports = "semsynth.cli:main"
+semsynth-reports-index = "semsynth_reports_index:main"
+
+[tool.setuptools]
+packages = ["semsynth"]

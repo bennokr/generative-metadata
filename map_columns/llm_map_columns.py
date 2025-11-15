@@ -24,13 +24,14 @@ from __future__ import annotations
 import csv
 import json
 import logging
-from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, List
 
 import defopt
 import llm
 from llm_tools_datasette import Datasette
+
+from map_columns.shared import ColumnInfo, DatasetMetadata, load_columns
 
 logger = logging.getLogger(__name__)
 
@@ -47,24 +48,11 @@ SSSOM_COLUMNS = [
 ]
 
 
-@dataclass
-class ColumnInfo:
-    """Flattened view of a dsv:Column entry."""
-
-    column_id: str
-    name: str
-    description: str
-    about: str
-    unit: str
-    role: str
-    statistical_data_type: str
-
-
-def build_system_prompt(dataset_meta: Dict[str, str], extra_prompt: str = "") -> str:
+def build_system_prompt(dataset_meta: DatasetMetadata, extra_prompt: str = "") -> str:
     """Build the system prompt, including dataset-level metadata and codebook."""
-    title = dataset_meta.get("title", "")
-    desc = dataset_meta.get("description", "")
-    toc = dataset_meta.get("table_of_contents", "")
+    title = dataset_meta.title or ""
+    desc = dataset_meta.description or ""
+    toc = dataset_meta.table_of_contents or ""
 
     base = f"""
 You map dataset variables to codes from one or more vocabularies loaded into a Datasette `codes` table.
@@ -106,60 +94,6 @@ invent codes that are not actually present in the `codes` table.
     return base
 
 
-def parse_dataset_json(path: Path) -> tuple[List[ColumnInfo], Dict[str, str]]:
-    """Parse dsv:datasetSchema/dsv:column[] and dataset-level metadata."""
-    data = json.loads(path.read_text(encoding="utf-8"))
-
-    dataset_meta = {
-        "title": data.get("dcterms:title", ""),
-        "description": data.get("dcterms:description", ""),
-        "table_of_contents": data.get("dcterms:tableOfContents", ""),
-    }
-
-    schema = data.get("dsv:datasetSchema") or {}
-    cols_raw = schema.get("dsv:column") or []
-    if not isinstance(cols_raw, list):
-        cols_raw = [cols_raw]
-
-    columns: List[ColumnInfo] = []
-    for col in cols_raw:
-        if not isinstance(col, dict):
-            continue
-
-        name = (
-            col.get("schema:name")
-            or col.get("dcterms:title")
-            or col.get("schema:identifier")
-        )
-        if not name:
-            continue
-
-        description = col.get("dcterms:description", "") or ""
-        about = col.get("schema:about", "") or ""
-        unit = col.get("schema:unitText", "") or ""
-        role = col.get("prov:hadRole", "") or ""
-
-        stat_type = ""
-        stats = col.get("dsv:summaryStatistics")
-        if isinstance(stats, dict):
-            stat_type = stats.get("dsv:statisticalDataType", "") or ""
-
-        columns.append(
-            ColumnInfo(
-                column_id=name,
-                name=name,
-                description=description,
-                about=about,
-                unit=unit,
-                role=role,
-                statistical_data_type=stat_type,
-            )
-        )
-
-    logger.info("Parsed %d columns from %s", len(columns), path)
-    return columns, dataset_meta
-
-
 def map_column(
     model: llm.Model,
     ds_tool: Datasette,
@@ -171,7 +105,13 @@ def map_column(
     Ask the LLM (with the Datasette tool) to map one column.
     Returns a list of mapping dicts compatible with SSSOM core columns.
     """
-    var_id = column.column_id
+    var_id = column.column_id or column.name or "unknown"
+    column_name = column.name or var_id
+    role = column.role or ""
+    description = column.description or ""
+    about = column.about or ""
+    unit = column.unit or ""
+    data_type = column.statistical_data_type or ""
 
     user_prompt = f"""
 You are mapping ONE dataset variable to one or more codes from the vocabularies
@@ -179,12 +119,12 @@ available in the Datasette `codes` table.
 
 Variable:
 - internal_id: {var_id}
-- column_name: {column.name}
-- role: {column.role}
-- description: {column.description}
-- about: {column.about}
-- unit: {column.unit}
-- statistical_data_type: {column.statistical_data_type}
+- column_name: {column_name}
+- role: {role}
+- description: {description}
+- about: {about}
+- unit: {unit}
+- statistical_data_type: {data_type}
 
 Tasks:
 
@@ -230,7 +170,7 @@ Rules:
 - Do NOT include any text before or after the JSON. The entire response must be valid JSON.
 """
 
-    logger.info("Requesting mapping for column %s", column.column_id)
+    logger.info("Requesting mapping for column %s", var_id)
 
     chain = model.chain(
         user_prompt,
@@ -240,19 +180,19 @@ Rules:
 
     text = chain.text().strip()
     if not text:
-        logger.warning("Empty response for column %s", column.column_id)
+        logger.warning("Empty response for column %s", var_id)
         return []
 
     try:
         data = json.loads(text)
     except json.JSONDecodeError:
-        logger.warning("Invalid JSON for column %s; skipping", column.column_id)
+        logger.warning("Invalid JSON for column %s; skipping", var_id)
         return []
 
     if isinstance(data, dict):
         data = [data]
     if not isinstance(data, list):
-        logger.warning("Unexpected JSON structure for column %s; skipping", column.column_id)
+        logger.warning("Unexpected JSON structure for column %s; skipping", var_id)
         return []
 
     cleaned: List[Dict[str, Any]] = []
@@ -261,7 +201,7 @@ Rules:
             continue
         row = {
             "subject_id": m.get("subject_id", f"{subject_prefix}:{var_id}"),
-            "subject_label": m.get("subject_label", column.name or var_id),
+            "subject_label": m.get("subject_label", column_name),
             "predicate_id": m.get("predicate_id", ""),
             "object_id": m.get("object_id", ""),
             "object_label": m.get("object_label", ""),
@@ -273,7 +213,7 @@ Rules:
             continue
         cleaned.append(row)
 
-    logger.info("Column %s: produced %d mappings", column.column_id, len(cleaned))
+    logger.info("Column %s: produced %d mappings", var_id, len(cleaned))
     return cleaned
 
 
@@ -314,7 +254,7 @@ def main(
         format="%(levelname)s:%(name)s:%(message)s",
     )
 
-    columns, dataset_meta = parse_dataset_json(dataset_json)
+    columns, dataset_meta = load_columns(dataset_json)
     if not columns:
         logger.warning("No columns found in %s; nothing to do", dataset_json)
         return

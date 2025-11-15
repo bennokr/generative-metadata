@@ -1,28 +1,513 @@
 #!/usr/bin/env python3
-import os
-import sys
+"""Build README index and DCAT catalog for SemSynth reports."""
+
+from __future__ import annotations
+
+import argparse
+import json
+import logging
+import mimetypes
+import re
+import subprocess
+from dataclasses import dataclass, field
+from datetime import datetime, timezone
+from hashlib import sha256
+from pathlib import Path
+from typing import Dict, Iterable, List, Optional, Sequence, Set, Tuple
+
+from semsynth.jsonld import JSONLDMixin
+from semsynth.prov import Activity, Agent, DEFAULT_CONTEXT, FileEntity, Plan
 
 
-def main():
-    if len(sys.argv) < 2:
-        print(f"Usage: {sys.argv[0]} <directory>")
-        sys.exit(1)
+LOGGER = logging.getLogger(__name__)
 
-    base_dir = sys.argv[1]
-    if not os.path.isdir(base_dir):
-        print(f"{base_dir} is not a directory")
-        sys.exit(1)
 
-    subdirs = [
-        d for d in os.listdir(base_dir) if os.path.isdir(os.path.join(base_dir, d))
+@dataclass
+class PathURLMapper:
+    """Map repository paths to catalog-friendly URLs."""
+
+    root_dir: Path
+    base_url: Optional[str] = None
+
+    def for_path(self, path: Path) -> str:
+        """Return a URL for a filesystem path."""
+
+        resolved_root = self.root_dir.resolve()
+        resolved_path = path.resolve()
+        try:
+            relative = resolved_path.relative_to(resolved_root)
+            relative_text = relative.as_posix()
+        except ValueError:
+            # Fall back to a normalized absolute path without a file scheme.
+            relative_text = resolved_path.as_posix().lstrip("/")
+
+        if self.base_url:
+            return f"{self.base_url.rstrip('/')}/{relative_text}"
+        return relative_text
+
+DCAT_CONTEXT: Dict[str, object] = {
+    "id": "@id",
+    "type": "@type",
+    "dcat": "http://www.w3.org/ns/dcat#",
+    "dct": "http://purl.org/dc/terms/",
+    "prov": "http://www.w3.org/ns/prov#",
+    "xsd": "http://www.w3.org/2001/XMLSchema#",
+    "title": "dct:title",
+    "description": "dct:description",
+    "identifier": "dct:identifier",
+    "keywords": "dcat:keyword",
+    "modified": {"@id": "dct:modified", "@type": "xsd:dateTime"},
+    "issued": {"@id": "dct:issued", "@type": "xsd:dateTime"},
+    "landing_page": {"@id": "dcat:landingPage", "@type": "@id"},
+    "datasets": {"@id": "dcat:dataset"},
+    "distributions": {"@id": "dcat:distribution"},
+    "access_url": {"@id": "dcat:accessURL", "@type": "@id"},
+    "download_url": {"@id": "dcat:downloadURL", "@type": "@id"},
+    "media_type": "dcat:mediaType",
+    "format": "dct:format",
+    "byte_size": {"@id": "dcat:byteSize", "@type": "xsd:integer"},
+    "wasGeneratedBy": {"@id": "prov:wasGeneratedBy", "@type": "@id"},
+    "wasDerivedFrom": {"@id": "prov:wasDerivedFrom", "@type": "@id"},
+}
+
+
+@dataclass
+class CatalogDistribution(JSONLDMixin):
+    """DCAT Distribution entry for catalog output."""
+
+    __context__ = DCAT_CONTEXT
+
+    id: str
+    title: str
+    type: List[str] = field(default_factory=lambda: ["dcat:Distribution"])
+    access_url: Optional[str] = None
+    download_url: Optional[str] = None
+    media_type: Optional[str] = None
+    format: Optional[str] = None
+    byte_size: Optional[int] = None
+    modified: Optional[str] = None
+    issued: Optional[str] = None
+
+
+@dataclass
+class CatalogDataset(JSONLDMixin):
+    """DCAT Dataset entry representing a SemSynth report."""
+
+    __context__ = DCAT_CONTEXT
+
+    id: str
+    identifier: str
+    title: str
+    description: str
+    type: List[str] = field(default_factory=lambda: ["dcat:Dataset"])
+    keywords: List[str] = field(default_factory=list)
+    landing_page: Optional[str] = None
+    modified: Optional[str] = None
+    issued: Optional[str] = None
+    wasDerivedFrom: Optional[List[Dict[str, str]]] = None
+    distributions: List[CatalogDistribution] = field(default_factory=list)
+
+
+@dataclass
+class DataCatalog(JSONLDMixin):
+    """DCAT Catalog container for SemSynth outputs."""
+
+    __context__ = DCAT_CONTEXT
+
+    id: str
+    title: str
+    description: str
+    type: List[str] = field(default_factory=lambda: ["dcat:Catalog"])
+    modified: Optional[str] = None
+    datasets: List[CatalogDataset] = field(default_factory=list)
+    wasGeneratedBy: Optional[Dict[str, str]] = None
+
+
+def slugify(value: str) -> str:
+    """Convert a dataset name to a slug for identifiers."""
+
+    slug = re.sub(r"[^a-z0-9]+", "-", value.lower())
+    return slug.strip("-")
+
+
+def to_iso(dt: datetime) -> str:
+    """Return an ISO 8601 timestamp with timezone information."""
+
+    return dt.astimezone(timezone.utc).isoformat()
+
+
+def read_lines(path: Path) -> Sequence[str]:
+    """Read a text file safely and return its lines."""
+
+    try:
+        return path.read_text(encoding="utf-8").splitlines()
+    except FileNotFoundError:
+        return []
+
+
+def build_description(name: str, report_path: Path) -> str:
+    """Generate a short dataset description."""
+
+    lines = read_lines(report_path)
+    for line in lines:
+        text = line.strip()
+        if not text or text.startswith("#"):
+            continue
+        text = re.sub(r"\[(.*?)\]\((.*?)\)", r"\1", text)
+        text = text.replace("**", "")
+        if text:
+            return f"{text} — synthetic assets curated by SemSynth."
+    return f"Synthetic datasets and semantic mappings for {name} generated by SemSynth."
+
+
+def infer_model_name(path: Path, dataset_dir: Path) -> str:
+    """Best-effort extraction of model name from a synthetic artifact path."""
+
+    try:
+        parts = path.relative_to(dataset_dir).parts
+    except ValueError:
+        parts = path.parts
+    if "models" in parts:
+        idx = parts.index("models")
+        if idx + 1 < len(parts):
+            return parts[idx + 1]
+    match = re.search(r"(metasyn|ctgan|tvae|semi|clg)[^./]*", path.name, re.IGNORECASE)
+    if match:
+        return match.group(1)
+    return path.stem
+
+
+def distribution_title(dataset_name: str, dataset_dir: Path, path: Path) -> str:
+    """Create a human readable title for a distribution."""
+
+    if path.name == "dataset.semmap.json":
+        return f"{dataset_name} SemMap JSON-LD"
+    model = infer_model_name(path, dataset_dir)
+    suffix = path.suffix.lstrip(".")
+    return f"{dataset_name} synthetic data ({model}, {suffix})"
+
+
+def mimetype_for(path: Path) -> Optional[str]:
+    """Look up the MIME type for a path."""
+
+    mime, _ = mimetypes.guess_type(path.name)
+    return mime
+
+
+def sha256_digest(path: Path) -> str:
+    """Compute a SHA-256 digest for a file."""
+
+    hsh = sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            hsh.update(chunk)
+    return hsh.hexdigest()
+
+
+def collect_distributions(
+    dataset_name: str, dataset_dir: Path, mapper: PathURLMapper
+) -> Tuple[List[CatalogDistribution], Set[Path]]:
+    """Collect SemMap and synthetic distributions for a dataset."""
+
+    distributions: List[CatalogDistribution] = []
+    inputs: Set[Path] = set()
+
+    semmap = dataset_dir / "dataset.semmap.json"
+    if semmap.exists():
+        url = mapper.for_path(semmap)
+        distributions.append(
+            CatalogDistribution(
+                id=f"urn:distribution:{slugify(dataset_name)}:semmap-json",
+                title=distribution_title(dataset_name, dataset_dir, semmap),
+                access_url=url,
+                download_url=url,
+                media_type="application/ld+json",
+                format="JSON-LD",
+                byte_size=semmap.stat().st_size,
+                modified=to_iso(datetime.fromtimestamp(semmap.stat().st_mtime, tz=timezone.utc)),
+                issued=to_iso(datetime.fromtimestamp(semmap.stat().st_ctime, tz=timezone.utc)),
+            )
+        )
+        inputs.add(semmap)
+
+    seen: Set[Path] = set()
+    for pattern in ("synthetic*.csv", "synthetic*.parquet", "synthetic*.json"):
+        for path in dataset_dir.rglob(pattern):
+            if not path.is_file() or path in seen:
+                continue
+            seen.add(path)
+            mime = mimetype_for(path)
+            try:
+                modified = datetime.fromtimestamp(path.stat().st_mtime, tz=timezone.utc)
+                created = datetime.fromtimestamp(path.stat().st_ctime, tz=timezone.utc)
+                size = path.stat().st_size
+            except OSError:
+                continue
+            try:
+                relative_id = path.relative_to(dataset_dir.parent)
+            except ValueError:
+                relative_id = path.name
+            dist_id = slugify(f"{dataset_name}-{relative_id}")
+            url = mapper.for_path(path)
+            distributions.append(
+                CatalogDistribution(
+                    id=f"urn:distribution:{dist_id}",
+                    title=distribution_title(dataset_name, dataset_dir, path),
+                    access_url=url,
+                    download_url=url,
+                    media_type=mime,
+                    format=path.suffix.upper().lstrip("."),
+                    byte_size=size,
+                    modified=to_iso(modified),
+                    issued=to_iso(created),
+                )
+            )
+            inputs.add(path)
+
+    return distributions, inputs
+
+
+def collect_datasets(
+    base_dir: Path, dataset_dirs: Sequence[Path], mapper: PathURLMapper
+) -> Tuple[List[CatalogDataset], Set[Path]]:
+    """Build catalog dataset entries and gather provenance inputs."""
+
+    datasets: List[CatalogDataset] = []
+    inputs: Set[Path] = set()
+
+    for dataset_dir in dataset_dirs:
+        dataset_name = dataset_dir.name
+        distributions, dist_inputs = collect_distributions(dataset_name, dataset_dir, mapper)
+        if not distributions:
+            LOGGER.info("Skipping %s – no distributions detected", dataset_name)
+            continue
+
+        inputs.update(dist_inputs)
+
+        slug = slugify(dataset_name)
+        landing = dataset_dir / "index.html"
+        latest_modified = max(
+            (datetime.fromisoformat(dist.modified) for dist in distributions if dist.modified),
+            default=datetime.now(timezone.utc),
+        )
+        dataset = CatalogDataset(
+            id=f"urn:dataset:{slug}",
+            identifier=slug,
+            title=dataset_name,
+            description=build_description(dataset_name, dataset_dir / "report.md"),
+            keywords=[dataset_name, "synthetic data", "SemMap", "SemSynth"],
+            landing_page=mapper.for_path(landing) if landing.exists() else None,
+            modified=to_iso(latest_modified),
+            issued=distributions[0].issued,
+            wasDerivedFrom=[{"id": mapper.for_path(path)} for path in sorted(dist_inputs)],
+            distributions=distributions,
+        )
+        datasets.append(dataset)
+
+    return datasets, inputs
+
+
+def git_command(args: Sequence[str]) -> Optional[str]:
+    """Run a git command and capture its output."""
+
+    try:
+        result = subprocess.run(args, check=True, capture_output=True, text=True)
+        return result.stdout.strip() or None
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        return None
+
+
+def build_catalog(
+    base_dir: Path, dataset_dirs: Sequence[Path], mapper: PathURLMapper
+) -> Tuple[DataCatalog, Set[Path]]:
+    """Construct the DCAT catalog and collect provenance inputs."""
+
+    datasets, inputs = collect_datasets(base_dir, dataset_dirs, mapper)
+    now = datetime.now(timezone.utc)
+    catalog = DataCatalog(
+        id="urn:catalog:semsynth-docs",
+        title="SemSynth Synthetic Data Catalog",
+        description="DCAT catalog of SemSynth reports and synthetic datasets.",
+        modified=to_iso(now),
+        datasets=datasets,
+    )
+    return catalog, inputs
+
+
+def build_provenance(
+    catalog: DataCatalog,
+    inputs: Iterable[Path],
+    activity_id: str,
+    start_time: datetime,
+    end_time: datetime,
+    mapper: PathURLMapper,
+) -> Tuple[Activity, Agent, Plan, List[FileEntity]]:
+    """Create PROV components describing the catalog generation."""
+
+    agent_id = "urn:agent:semsynth_reports_index.py"
+    plan_id = "urn:plan:semsynth_reports_index.py"
+
+    commit = git_command(["git", "rev-parse", "HEAD"])
+    origin = git_command(["git", "config", "--get", "remote.origin.url"])
+
+    activity = Activity(
+        id=activity_id,
+        startedAtTime=to_iso(start_time),
+        endedAtTime=to_iso(end_time),
+        wasAssociatedWith={"id": agent_id},
+        used=[{"id": plan_id}] + [{"id": mapper.for_path(path)} for path in sorted(inputs)],
+    )
+
+    agent = Agent(id=agent_id, label="semsynth_reports_index.py")
+    plan = Plan(
+        id=plan_id,
+        label="Generate SemSynth reports catalog",
+        hasVersion=commit,
+        source={"id": origin} if origin else None,
+    )
+
+    files: List[FileEntity] = []
+    for path in sorted(inputs):
+        try:
+            stat = path.stat()
+        except FileNotFoundError:
+            continue
+        files.append(
+            FileEntity(
+                id=mapper.for_path(path),
+                format=mimetype_for(path) or "application/octet-stream",
+                extent=stat.st_size,
+                modified=to_iso(datetime.fromtimestamp(stat.st_mtime, tz=timezone.utc)),
+                identifier=f"sha256:{sha256_digest(path)}",
+            )
+        )
+
+    catalog.wasGeneratedBy = {"id": activity.id}
+
+    return activity, agent, plan, files
+
+
+def write_readme(base_dir: Path, dataset_dirs: Sequence[Path]) -> None:
+    """Rewrite docs/README.md with dataset links."""
+
+    readme_path = base_dir / "README.md"
+    lines = ["# Data Reports", ""]
+    for directory in dataset_dirs:
+        lines.append(f"- [{directory.name}]({directory.name}/)")
+    readme_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    LOGGER.info("Updated %s", readme_path)
+
+
+def select_dataset_dirs(base_dir: Path) -> List[Path]:
+    """Select dataset directories containing reports."""
+
+    dirs = []
+    for path in sorted(base_dir.iterdir()):
+        if not path.is_dir():
+            continue
+        if path.name.startswith(".") or path.name.lower() == "semsynth":
+            continue
+        if (path / "report.md").exists():
+            dirs.append(path)
+    return dirs
+
+
+def write_catalog_document(
+    catalog: DataCatalog,
+    activity: Activity,
+    agent: Agent,
+    plan: Plan,
+    files: Sequence[FileEntity],
+    context: Dict[str, object],
+    output_path: Path,
+    mapper: PathURLMapper,
+) -> None:
+    """Serialize the combined DCAT + PROV JSON-LD document."""
+
+    graph = [
+        catalog.to_jsonld(with_context=False),
+        activity.to_jsonld(with_context=False),
+        agent.to_jsonld(with_context=False),
+        plan.to_jsonld(with_context=False),
+        *[file.to_jsonld(with_context=False) for file in files],
     ]
-    subdirs.sort()
 
-    readme_path = os.path.join(base_dir, "README.md")
-    with open(readme_path, "w") as f:
-        f.write("# Data Reports\n\n")
-        for d in subdirs:
-            f.write(f"- [{d}]({d}/)\n")
+    document = {"@context": context, "@graph": graph}
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    output_path.write_text(json.dumps(document, ensure_ascii=False, indent=2), encoding="utf-8")
+    LOGGER.info("Wrote %s", output_path)
+
+    # Append output file entity with size and checksum.
+    stat = output_path.stat()
+    catalog_file = FileEntity(
+        id=mapper.for_path(output_path),
+        format="application/ld+json",
+        extent=stat.st_size,
+        modified=to_iso(datetime.fromtimestamp(stat.st_mtime, tz=timezone.utc)),
+        identifier=f"sha256:{sha256_digest(output_path)}",
+        wasGeneratedBy={"id": activity.id},
+    )
+    graph.append(catalog_file.to_jsonld(with_context=False))
+    output_path.write_text(json.dumps({"@context": context, "@graph": graph}, ensure_ascii=False, indent=2), encoding="utf-8")
+
+
+def parse_args(argv: Optional[Sequence[str]] = None) -> argparse.Namespace:
+    """Parse command line arguments."""
+
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("directory", type=Path, help="Path to the docs directory with reports")
+    parser.add_argument(
+        "--base-url",
+        dest="base_url",
+        type=str,
+        default=None,
+        help="Base URL where generated artifacts are published.",
+    )
+    parser.add_argument(
+        "--output",
+        dest="output",
+        type=Path,
+        default=Path("output/catalog.jsonld"),
+        help="Path for the generated catalog JSON-LD document.",
+    )
+    return parser.parse_args(argv)
+
+
+def main(argv: Optional[Sequence[str]] = None) -> None:
+    """Entry point for CLI usage."""
+
+    args = parse_args(argv)
+    base_dir = args.directory
+    if not base_dir.is_dir():
+        raise SystemExit(f"{base_dir} is not a directory")
+    base_dir = base_dir.resolve()
+    root_dir = base_dir.parent
+
+    logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
+
+    mapper = PathURLMapper(root_dir=root_dir, base_url=args.base_url)
+
+    dataset_dirs = select_dataset_dirs(base_dir)
+    write_readme(base_dir, dataset_dirs)
+
+    start_time = datetime.now(timezone.utc)
+    catalog, inputs = build_catalog(base_dir, dataset_dirs, mapper)
+    end_time = datetime.now(timezone.utc)
+
+    activity_id = f"urn:activity:semsynth_reports_index:{start_time.strftime('%Y%m%dT%H%M%S')}"
+    activity, agent, plan, file_entities = build_provenance(
+        catalog, inputs, activity_id, start_time, end_time, mapper
+    )
+
+    context = {**DEFAULT_CONTEXT, **DCAT_CONTEXT}
+    output_path = args.output
+    if not output_path.is_absolute():
+        output_path = (root_dir / output_path).resolve()
+    else:
+        output_path = output_path.resolve()
+    write_catalog_document(
+        catalog, activity, agent, plan, file_entities, context, output_path, mapper
+    )
 
 
 if __name__ == "__main__":

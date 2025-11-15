@@ -322,10 +322,18 @@ def generate_candidates(
 # -----------------------------
 
 def screen_terms(df, yname, target_type, full_formula, *, cv=5):
-    # Build design
-    y, X = patsy.dmatrices(f"{yname} ~ {full_formula}", df, return_type="dataframe")
+    # Build design (RHS only) and use raw target column to avoid patsy expanding it
+    X = patsy.dmatrix(full_formula, df, return_type="dataframe")
     term_slices = X.design_info.term_slices  # mapping term -> slice of columns
-    term_names  = X.design_info.term_names
+    term_names = X.design_info.term_names
+
+    y_series = df[yname]
+    if target_type in ("binary", "multiclass", "count"):
+        if pd.api.types.is_categorical_dtype(y_series):
+            y_series = y_series.cat.codes
+        y_values = pd.to_numeric(y_series, errors="coerce").fillna(0).astype(int)
+    else:
+        y_values = pd.to_numeric(y_series, errors="coerce")
 
     # scale numeric columns for stability; keep intercept unscaled
     colnames = X.columns
@@ -348,7 +356,7 @@ def screen_terms(df, yname, target_type, full_formula, *, cv=5):
             n_jobs=None,
             fit_intercept=False
         )
-        est.fit(X_scaled, y.values.ravel())
+        est.fit(X_scaled, y_values.values.ravel())
         coef = est.coef_.reshape(-1)  # (n_features,)
         nz = np.where(np.abs(coef) > 1e-8)[0]
 
@@ -364,13 +372,13 @@ def screen_terms(df, yname, target_type, full_formula, *, cv=5):
             n_jobs=None,
             fit_intercept=False
         )
-        est.fit(X_scaled, y.values.ravel())
+        est.fit(X_scaled, y_values.values.ravel())
         coef = est.coef_  # (K, n_features)
         nz = np.where((np.abs(coef) > 1e-8).any(axis=0))[0]
 
     elif target_type == "continuous":
         est = LassoCV(alphas=None, cv=cv, max_iter=5000, fit_intercept=False)
-        est.fit(X_scaled, y.values.ravel())
+        est.fit(X_scaled, y_values.values.ravel())
         coef = est.coef_
         nz = np.where(np.abs(coef) > 1e-8)[0]
 
@@ -379,18 +387,18 @@ def screen_terms(df, yname, target_type, full_formula, *, cv=5):
         grid = {"alpha": np.logspace(-4, 1, 12)}
         base = PoissonRegressor(max_iter=2000, fit_intercept=False, alpha=1.0, l1_ratio=1.0, verbose=0)
         est = GridSearchCV(base, grid, cv=cv, scoring="neg_mean_poisson_deviance")
-        est.fit(X_scaled, y.values.ravel())
+        est.fit(X_scaled, y_values.values.ravel())
         coef = est.best_estimator_.coef_
         nz = np.where(np.abs(coef) > 1e-8)[0]
     else:
         raise ValueError("target_type must be one of: binary, multiclass, continuous, count")
 
     # Map selected columns → terms
-    selected_terms = set()
+    selected_terms: set[str] = set()
     for tname, sl in term_slices.items():
         idxs = range(sl.start, sl.stop)
         if any(i in nz for i in idxs):
-            selected_terms.add(tname)
+            selected_terms.add(str(tname))
 
     # Enforce strong heredity: if an interaction is kept, keep both parents
     mains = {t for t in selected_terms if ":" not in t and t != "Intercept"}
@@ -453,6 +461,24 @@ def fit_with_mi(
 
     df_mi = _replace_missing_codes(df, meta)
     df_mi = _coerce_dtypes_and_levels(df_mi, meta, fill_cats_with_missing_token=False)
+    cat_cols = df_mi.select_dtypes(include="category").columns
+    for col in cat_cols:
+        codes = df_mi[col].cat.codes.astype("float64")
+        df_mi[col] = codes.where(codes >= 0, np.nan)
+
+    if target_type == "multiclass":
+        df_single = df_mi.copy()
+        for col in df_single.columns:
+            if df_single[col].isna().any():
+                series = df_single[col]
+                if pd.api.types.is_numeric_dtype(series):
+                    df_single[col] = series.fillna(series.median())
+                else:
+                    mode = series.mode(dropna=True)
+                    fill_value = mode.iloc[0] if not mode.empty else 0
+                    df_single[col] = series.fillna(fill_value)
+        model = sm.MNLogit.from_formula(formula, df_single)
+        return model.fit(maxiter=200, disp=False)
 
     imp = mice.MICEData(df_mi)
 
@@ -465,10 +491,6 @@ def fit_with_mi(
     elif target_type == "count":
         model_class = sm.GLM
         init_kwds = {"family": sm.families.Poisson()}
-    elif target_type == "multiclass":
-        # MNLogit supports formulas; MICE can wrap any model_class with from_formula
-        model_class = sm.MNLogit
-        init_kwds = {}
     else:
         raise ValueError("unsupported target_type")
 

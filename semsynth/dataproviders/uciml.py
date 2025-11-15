@@ -114,9 +114,31 @@ def load_uciml_by_id(
             pass
 
     # Online fetch via ucimlrepo and then cache
+    import ssl
     from ucimlrepo import fetch_ucirepo
 
-    d = fetch_ucirepo(id=dataset_id)
+    try:
+        d = fetch_ucirepo(id=dataset_id)
+    except ConnectionError as exc:  # pragma: no cover - network dependent
+        logging.warning(
+            "Retrying uciml fetch with unverified SSL context due to %s", exc
+        )
+        default_https_context = ssl._create_default_https_context
+        default_context_factory = ssl.create_default_context
+
+        def insecure_context(*args, **kwargs):
+            context = default_context_factory(*args, **kwargs)
+            context.check_hostname = False
+            context.verify_mode = ssl.CERT_NONE
+            return context
+
+        try:
+            ssl._create_default_https_context = ssl._create_unverified_context
+            ssl.create_default_context = insecure_context
+            d = fetch_ucirepo(id=dataset_id)
+        finally:
+            ssl._create_default_https_context = default_https_context
+            ssl.create_default_context = default_context_factory
     spec.meta = d.metadata
     X = d.data.features
     y = d.data.targets

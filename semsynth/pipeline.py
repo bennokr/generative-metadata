@@ -402,6 +402,23 @@ class MetricWriter:
 
         comparer = self._downstream_compare or _import_downstream_compare()
 
+        unique_targets: Optional[int] = None
+        if target_series is not None:
+            unique_targets = int(target_series.dropna().nunique())
+        if unique_targets is not None and unique_targets > 2:
+            logging.info(
+                "Skipping downstream metrics for %s due to multiclass target", run_dir.name
+            )
+            payload = {
+                "formula": None,
+                "sign_match_rate": None,
+                "skipped_reason": "multiclass_target",
+            }
+            (run_dir / "metrics.downstream.json").write_text(
+                json.dumps(payload, indent=2), encoding="utf-8"
+            )
+            return payload
+
         meta = _build_downstream_meta(real_df, inferred, target_series)
         results = comparer(real_df, synth_df, meta)
         compare = results.get("compare")

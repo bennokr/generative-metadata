@@ -178,7 +178,10 @@ def coerce_continuous_to_float(
         s = df[c]
         converted: Optional[pd.Series] = None
         if pd.api.types.is_integer_dtype(s):
-            converted = pd.to_numeric(s, errors="coerce").astype(float)
+            numeric = pd.to_numeric(s, errors="coerce")
+            converted = pd.Series(
+                np.asarray(numeric, dtype="float64"), index=s.index, name=s.name
+            )
         else:
             if PintType is not None and isinstance(getattr(s, "dtype", None), PintType):
                 try:

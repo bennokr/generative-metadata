@@ -1,0 +1,57 @@
+generate_umap: true
+compute_privacy: true
+compute_downstream: true
+configs:
+  - name: metasyn_full
+    backend: metasyn
+    seed: 42
+    compute_privacy: true
+    compute_downstream: true
+  - name: pybnesian_clg_mi3
+    backend: pybnesian
+    model:
+      type: clg
+      score: bic
+      operators: [arcs]
+      max_indegree: 3
+    seed: 42
+    compute_privacy: true
+    compute_downstream: true
+  - name: pybnesian_semiparametric_mi5
+    backend: pybnesian
+    model:
+      type: semiparametric
+      score: bic
+      operators: [arcs]
+      max_indegree: 5
+    seed: 42
+    compute_privacy: true
+    compute_downstream: true
+  - name: synthcity_ctgan_full
+    backend: synthcity
+    model:
+      type: ctgan
+      epochs: 30
+      batch_size: 512
+    rows: 2000
+    seed: 42
+    compute_privacy: true
+    compute_downstream: true
+  - name: synthcity_tvae_full
+    backend: synthcity
+    model:
+      type: tvae
+      epochs: 30
+      batch_size: 512
+    rows: 2000
+    seed: 42
+    compute_privacy: true
+    compute_downstream: true
+  - name: synthcity_pategan_privacy
+    backend: synthcity
+    model:
+      type: pategan
+    rows: 2000
+    seed: 42
+    compute_privacy: true
+    compute_downstream: true

@@ -8,5 +8,6 @@
 
 Home <self>
 getting-started
+schema
 api
 ```

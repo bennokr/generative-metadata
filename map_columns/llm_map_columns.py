@@ -31,7 +31,7 @@ import defopt
 import llm
 from llm_tools_datasette import Datasette
 
-from map_columns.shared import ColumnInfo, DatasetMetadata, load_columns
+from map_columns.shared import ColumnInfo, load_columns
 
 logger = logging.getLogger(__name__)
 
@@ -48,11 +48,11 @@ SSSOM_COLUMNS = [
 ]
 
 
-def build_system_prompt(dataset_meta: DatasetMetadata, extra_prompt: str = "") -> str:
+def build_system_prompt(dataset_meta: Any, extra_prompt: str = "") -> str:
     """Build the system prompt, including dataset-level metadata and codebook."""
-    title = dataset_meta.title or ""
-    desc = dataset_meta.description or ""
-    toc = dataset_meta.table_of_contents or ""
+    title = getattr(dataset_meta, "title", None) or ""
+    desc = getattr(dataset_meta, "description", None) or ""
+    toc = getattr(dataset_meta, "tableOfContents", None) or getattr(dataset_meta, "table_of_contents", None) or ""
 
     base = f"""
 You map dataset variables to codes from one or more vocabularies loaded into a Datasette `codes` table.

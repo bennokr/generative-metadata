@@ -1,5 +1,15 @@
 # Data Report — {{ dataset_name }}
 
+{% if dataset_description %}{{ dataset_description }}
+
+{% endif %}{% if dataset_purpose %}**Purpose**: {{ dataset_purpose }}
+
+{% endif %}{% if dataset_table %}**Documentation**: {{ dataset_table }}
+
+{% endif %}{% if dataset_citation %}**Citation**: {{ dataset_citation }}
+
+{% endif %}
+
 {% if provider_link %}**Source**: [{{ provider_link.text }}]({{ provider_link.url }})
 
 {% endif %}{% if semmap_json_name %}- SemMap JSON-LD: [{{ semmap_json_name }}]({{ semmap_json_name }})

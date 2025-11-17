@@ -1,9 +1,20 @@
 import json
 from pathlib import Path
+
 import pandas as pd
 from pint_pandas import PintType
 
-from semsynth.semmap import SemMapFrameAccessor
+from semsynth.semmap import (
+    Column,
+    ColumnProperty,
+    CodeBook,
+    CodeConcept,
+    DatasetSchema,
+    Metadata,
+    SemMapFrameAccessor,
+    StatisticalDataType,
+    SummaryStatistics,
+)
 
 
 def data_dir() -> Path:
@@ -98,3 +109,48 @@ def subset_diff(expected, actual, path=""):
         if expected != actual:
             return f"{path}: expected {expected!r}, got {actual!r}"
         return None
+
+
+def test_to_privacy_frame_normalizes_roles_and_types():
+    metadata = Metadata(
+        datasetSchema=DatasetSchema(
+            columns=[
+                Column(
+                    name="age",
+                    hadRole="predictor",
+                    summaryStatistics=SummaryStatistics(
+                        statisticalDataType=StatisticalDataType.Interval
+                    ),
+                ),
+                Column(
+                    name="disease",
+                    hadRole="Sensitive",
+                    columnProperty=ColumnProperty(
+                        hasCodeBook=CodeBook(
+                            hasTopConcept=[
+                                CodeConcept(notation="yes", prefLabel="Yes"),
+                                CodeConcept(notation="no", prefLabel="No"),
+                            ]
+                        )
+                    ),
+                ),
+                Column(name="id_col", hadRole="identifier"),
+                Column(name="notes", hadRole=None),
+            ]
+        )
+    )
+
+    inferred = {"age": "continuous", "disease": "discrete", "id_col": "discrete", "notes": "continuous"}
+    privacy_df = metadata.to_privacy_frame(inferred)
+    roles = dict(zip(privacy_df.variable, privacy_df.role))
+    types = dict(zip(privacy_df.variable, privacy_df.type))
+
+    assert roles == {
+        "age": "qi",
+        "disease": "sensitive",
+        "id_col": "id",
+        "notes": "qi",
+    }
+    assert types["age"] == "numeric"
+    assert types["disease"] == "categorical"
+    assert types["id_col"] == "categorical"

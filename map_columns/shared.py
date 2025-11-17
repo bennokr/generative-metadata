@@ -6,26 +6,11 @@ import json
 import logging
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Dict, Iterable, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
+
+from semsynth.semmap import Column, Metadata
 
 logger = logging.getLogger(__name__)
-
-
-@dataclass(frozen=True)
-class DatasetMetadata:
-    """Dataset-level metadata extracted from DCAT/DSV JSON."""
-
-    title: Optional[str] = None
-    description: Optional[str] = None
-    table_of_contents: Optional[str] = None
-
-    def as_dict(self) -> Dict[str, Optional[str]]:
-        """Return the metadata as a dictionary."""
-        return {
-            "title": self.title,
-            "description": self.description,
-            "table_of_contents": self.table_of_contents,
-        }
 
 
 @dataclass(frozen=True)
@@ -40,15 +25,7 @@ class ColumnInfo:
     role: Optional[str] = None
     statistical_data_type: Optional[str] = None
     summary_statistics: Optional[Dict[str, Any]] = None
-
-
-def _ensure_list(value: Any) -> Iterable[Any]:
-    """Return ``value`` as an iterable list."""
-    if value is None:
-        return []
-    if isinstance(value, list):
-        return value
-    return [value]
+    source: Optional[str] = None
 
 
 def _coerce_optional_str(value: Any) -> Optional[str]:
@@ -61,63 +38,39 @@ def _coerce_optional_str(value: Any) -> Optional[str]:
     return None
 
 
-def load_columns(path: Path) -> Tuple[List[ColumnInfo], DatasetMetadata]:
+def _column_to_info(col: Column) -> ColumnInfo:
+    summary_stats: Optional[Dict[str, Any]] = None
+    statistical_data_type: Optional[str] = None
+    if col.summaryStatistics:
+        summary_stats = col.summaryStatistics.to_jsonld()
+        if col.summaryStatistics.statisticalDataType:
+            statistical_data_type = col.summaryStatistics.statisticalDataType.value
+    return ColumnInfo(
+        column_id=_coerce_optional_str(col.identifier) or _coerce_optional_str(col.name),
+        name=_coerce_optional_str(col.name),
+        description=_coerce_optional_str(col.description),
+        about=_coerce_optional_str(col.about),
+        unit=_coerce_optional_str(getattr(col.columnProperty, "unitText", None)),
+        role=_coerce_optional_str(col.hadRole),
+        statistical_data_type=statistical_data_type,
+        summary_statistics=summary_stats,
+        source=_coerce_optional_str(getattr(col.columnProperty, "source", None)),
+    )
+
+
+def load_columns(path: Path) -> Tuple[List[ColumnInfo], Metadata]:
     """Load dataset metadata and column definitions from JSON.
 
     Args:
         path: Location of the DCAT/DSV JSON/JSON-LD file.
 
     Returns:
-        A tuple of ``(columns, dataset_metadata)`` where ``columns`` is a list
-        of :class:`ColumnInfo` and ``dataset_metadata`` describes the dataset.
+        A tuple of ``(columns, metadata)`` where ``columns`` is a list
+        of :class:`ColumnInfo` and ``metadata`` is the parsed SemMap object.
     """
     data = json.loads(path.read_text(encoding="utf-8"))
-
-    metadata = DatasetMetadata(
-        title=_coerce_optional_str(data.get("dcterms:title")),
-        description=_coerce_optional_str(data.get("dcterms:description")),
-        table_of_contents=_coerce_optional_str(data.get("dcterms:tableOfContents")),
-    )
-
-    schema = data.get("dsv:datasetSchema") or {}
-    raw_columns = _ensure_list(schema.get("dsv:column") or [])
-
-    columns: List[ColumnInfo] = []
-    for entry in raw_columns:
-        if not isinstance(entry, dict):
-            continue
-
-        name = (
-            _coerce_optional_str(entry.get("schema:name"))
-            or _coerce_optional_str(entry.get("dcterms:title"))
-            or _coerce_optional_str(entry.get("schema:identifier"))
-        )
-        if not name:
-            continue
-
-        column_id = _coerce_optional_str(entry.get("schema:identifier")) or name
-
-        summary_stats_raw = entry.get("dsv:summaryStatistics")
-        summary_stats: Optional[Dict[str, Any]] = None
-        statistical_data_type: Optional[str] = None
-        if isinstance(summary_stats_raw, dict):
-            summary_stats = dict(summary_stats_raw)
-            statistical_data_type = _coerce_optional_str(
-                summary_stats_raw.get("dsv:statisticalDataType")
-            )
-
-        columns.append(
-            ColumnInfo(
-                column_id=column_id,
-                name=name,
-                description=_coerce_optional_str(entry.get("dcterms:description")),
-                about=_coerce_optional_str(entry.get("schema:about")),
-                unit=_coerce_optional_str(entry.get("schema:unitText")),
-                role=_coerce_optional_str(entry.get("prov:hadRole")),
-                statistical_data_type=statistical_data_type,
-                summary_statistics=summary_stats,
-            )
-        )
+    metadata = Metadata.from_dcat_dsv(data)
+    columns = [_column_to_info(col) for col in metadata.datasetSchema.columns]
 
     logger.info("Loaded %d columns from %s", len(columns), path)
     return columns, metadata

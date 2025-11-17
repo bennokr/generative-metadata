@@ -1,6 +1,6 @@
 from __future__ import annotations
 import json
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Mapping, Optional, Union
 from enum import Enum
 from dataclasses import dataclass
 
@@ -16,6 +16,7 @@ CONTEXT = {
         "csvw": "http://www.w3.org/ns/csvw#",
         "dsv": "https://w3id.org/dsv-ontology#",
         "skos": "http://www.w3.org/2004/02/skos/core#",
+        "prov": "http://www.w3.org/ns/prov#",
         "qudt": "http://qudt.org/schema/qudt/",
         "unit": "http://qudt.org/vocab/unit/",
         "quantitykind": "http://qudt.org/vocab/quantitykind/",
@@ -23,11 +24,28 @@ CONTEXT = {
         "schema": "https://schema.org/",
         "wd": "http://www.wikidata.org/entity/",
         "dct": "http://purl.org/dc/terms/",
+        "dcat": "http://www.w3.org/ns/dcat#",
+        "title": "dct:title",
+        "description": "dct:description",
+        "abstract": "dct:abstract",
+        "purpose": "dct:purpose",
+        "tableOfContents": "dct:tableOfContents",
+        "landingPage": "dcat:landingPage",
+        "accessRights": "dct:accessRights",
+        "citation": "schema:citation",
+        "identifier": "dct:identifier",
+        "funding": "schema:funding",
+        "populationType": "schema:populationType",
         "url": "csvw:url",
         "datasetSchema": "dsv:datasetSchema",
         "columns": {"@id": "dsv:column", "@container": "@set"},
         "name": "csvw:name",
         "titles": "csvw:titles",
+        "description": "dct:description",
+        "identifier": "schema:identifier",
+        "about": "schema:about",
+        "hadRole": "prov:hadRole",
+        "defaultValue": "schema:defaultValue",
         "columnProperty": "dsv:columnProperty",
         "columnCompleteness": "dsv:columnCompleteness",
         "summaryStatistics": "dsv:summaryStatistics",
@@ -105,6 +123,10 @@ class SummaryStatistics(JSONLDMixin):
     numberOfRows: Optional[int] = None
     numberOfColumns: Optional[int] = None
     missingValueFormat: Optional[str] = None
+    meanValue: Optional[float] = None
+    medianValue: Optional[float] = None
+    minimum: Optional[float] = None
+    maximum: Optional[float] = None
 
 
 @dataclass
@@ -113,7 +135,7 @@ class Unit(SkosMappings):
 
 
 @dataclass
-class ColumnProperty(JSONLDMixin):
+class ColumnProperty(SkosMappings, JSONLDMixin):
     summaryStatistics: Optional[SummaryStatistics] = None
     unitText: Optional[str] = None  # e.g., "unit:YR" or "year"
     hasUnit: Optional[Unit] = None  # Unit node with possible QUDT IRI skos match
@@ -127,6 +149,11 @@ class ColumnProperty(JSONLDMixin):
 class Column(JSONLDMixin):
     name: str  # required
     titles: Optional[Union[str, List[str]]] = None
+    description: Optional[str] = None
+    identifier: Optional[str] = None
+    about: Optional[str] = None
+    hadRole: Optional[str] = None
+    defaultValue: Optional[Any] = None
     columnProperty: Optional[ColumnProperty] = None
     summaryStatistics: Optional[SummaryStatistics] = None
 
@@ -143,6 +170,196 @@ class Metadata(JSONLDMixin):
     __context__ = CONTEXT
     datasetSchema: DatasetSchema  # required
     summaryStatistics: Optional[SummaryStatistics] = None
+    title: Optional[str] = None
+    description: Optional[str] = None
+    abstract: Optional[str] = None
+    purpose: Optional[str] = None
+    landingPage: Optional[str] = None
+    tableOfContents: Optional[str] = None
+    citation: Optional[Any] = None
+    provider: Optional[str] = None
+    identifier: Optional[Any] = None
+    funding: Optional[Any] = None
+    populationType: Optional[Any] = None
+    accessRights: Optional[Any] = None
+
+    @classmethod
+    def from_dcat_dsv(cls, payload: Mapping[str, Any]) -> "Metadata":
+        """Build a :class:`Metadata` instance from a DCAT/DSV JSON-LD payload.
+
+        Args:
+            payload: Raw JSON-LD mapping created by :mod:`uci_template`.
+
+        Returns:
+            Parsed metadata with dataset- and column-level attributes populated.
+        """
+
+        def _get(*keys: str) -> Optional[Any]:
+            for key in keys:
+                if key in payload:
+                    return payload.get(key)
+            return None
+
+        ds_summary = payload.get("dsv:summaryStatistics") or {}
+        ds_stats = SummaryStatistics(
+            datasetCompleteness=ds_summary.get("dsv:datasetCompleteness"),
+            numberOfRows=ds_summary.get("dsv:numberOfRows"),
+            numberOfColumns=ds_summary.get("dsv:numberOfColumns"),
+            missingValueFormat=ds_summary.get("dsv:missingValueFormat"),
+        ) if isinstance(ds_summary, Mapping) else None
+
+        schema = payload.get("dsv:datasetSchema") or payload.get("datasetSchema") or {}
+        columns_json = []
+        if isinstance(schema, Mapping):
+            columns_json = schema.get("dsv:column") or schema.get("columns") or []
+
+        columns: List[Column] = []
+        for col_json in columns_json:
+            if not isinstance(col_json, Mapping):
+                continue
+            summary = col_json.get("dsv:summaryStatistics") or col_json.get("summaryStatistics")
+            column_stats = SummaryStatistics.from_jsonld(summary) if isinstance(summary, Mapping) else None
+            col_prop_json = col_json.get("dsv:columnProperty") or col_json.get("columnProperty")
+            col_prop = ColumnProperty.from_jsonld(col_prop_json) if isinstance(col_prop_json, Mapping) else None
+            columns.append(
+                Column(
+                    name=col_json.get("schema:name") or col_json.get("name"),
+                    titles=col_json.get("csvw:titles") or col_json.get("titles") or col_json.get("dcterms:title"),
+                    description=col_json.get("dcterms:description"),
+                    about=col_json.get("schema:about"),
+                    hadRole=col_json.get("prov:hadRole"),
+                    identifier=col_json.get("schema:identifier"),
+                    defaultValue=col_json.get("schema:defaultValue"),
+                    columnProperty=col_prop,
+                    summaryStatistics=column_stats,
+                )
+            )
+
+        dataset_schema = DatasetSchema(columns=columns)
+
+        return cls(
+            datasetSchema=dataset_schema,
+            summaryStatistics=ds_stats,
+            title=_get("dcterms:title"),
+            description=_get("dcterms:description"),
+            abstract=_get("dcterms:abstract"),
+            purpose=_get("dcterms:purpose"),
+            landingPage=_get("dcat:landingPage"),
+            tableOfContents=_get("dcterms:tableOfContents"),
+            citation=_get("schema:citation"),
+            provider=_get("dcterms:creator", "prov:wasAttributedTo"),
+            identifier=_get("dcterms:identifier"),
+            funding=_get("schema:funding"),
+            populationType=_get("schema:populationType"),
+            accessRights=_get("dcterms:accessRights"),
+        )
+
+    def to_privacy_frame(self, inferred: Mapping[str, str]) -> "pd.DataFrame":
+        """Build a privacy metadata dataframe from SemMap content.
+
+        The privacy metrics expect roles such as ``qi`` and ``sensitive`` and a
+        coarse type mapping (``numeric``/``categorical``/``datetime``). This
+        helper normalizes SemMap roles to those expectations and uses
+        ``statisticalDataType`` or codebooks to infer the variable types,
+        falling back to the provided ``inferred`` mapping when semantics are
+        absent.
+
+        Args:
+            inferred: Mapping of column names to inferred types (``discrete`` or
+                ``continuous``) used as fallback when semantics are missing.
+
+        Returns:
+            Dataframe with ``variable``, ``role`` and ``type`` columns.
+        """
+
+        import pandas as pd
+
+        def _normalize_role(raw: Optional[str]) -> str:
+            if not raw:
+                return "qi"
+            role = raw.strip().lower()
+            if role in {"quasiidentifier", "quasi-identifier", "quasi_identifier"}:
+                return "qi"
+            if role in {"sensitive", "sensitive_attribute"}:
+                return "sensitive"
+            if role in {"identifier", "id", "primary_key"}:
+                return "id"
+            if role in {"ignore", "drop", "exclude"}:
+                return "ignore"
+            if role in {"target", "label", "outcome"}:
+                return "target"
+            if role in {"feature", "predictor"}:
+                return "qi"
+            return role
+
+        rows = []
+        for col in self.datasetSchema.columns:
+            role = _normalize_role(col.hadRole)
+            dtype = None
+            stats_nodes = [col.summaryStatistics, getattr(col, "columnProperty", None)]
+            for node in stats_nodes:
+                stat_node = node.summaryStatistics if getattr(node, "summaryStatistics", None) else node
+                if isinstance(stat_node, SummaryStatistics) and stat_node.statisticalDataType:
+                    dtype = stat_node.statisticalDataType.value
+                    break
+                if isinstance(stat_node, ColumnProperty) and stat_node.hasCodeBook:
+                    dtype = "dsv:NominalDataType"
+                    break
+            inferred_kind = inferred.get(col.name, "continuous")
+            mapped_dtype = "numeric" if inferred_kind == "continuous" else "categorical"
+            if dtype:
+                lowered = dtype.lower()
+                if "nominal" in lowered or "ordinal" in lowered:
+                    mapped_dtype = "categorical"
+                elif "interval" in lowered or "ratio" in lowered or "numerical" in lowered:
+                    mapped_dtype = "numeric"
+            rows.append({"variable": col.name, "role": role, "type": mapped_dtype})
+        return pd.DataFrame(rows)
+
+    def update_completeness_from_missingness(
+        self,
+        df: "pd.DataFrame",
+        missingness_model: Optional[Any],
+    ) -> None:
+        """Refresh completeness and missing-value annotations based on fitted models.
+
+        Args:
+            df: Dataframe used to compute dataset completeness.
+            missingness_model: Optional :class:`DataFrameMissingnessModel` instance
+                containing per-column missingness probabilities.
+        """
+
+        import pandas as pd
+
+        if not isinstance(df, pd.DataFrame):
+            return
+
+        n_rows, n_cols = df.shape
+        total_cells = n_rows * n_cols
+        nnz = int(df.notna().to_numpy().sum())
+        completeness = nnz / float(total_cells) if total_cells else 1.0
+
+        if not self.summaryStatistics:
+            self.summaryStatistics = SummaryStatistics()
+        self.summaryStatistics.numberOfRows = n_rows
+        self.summaryStatistics.numberOfColumns = n_cols
+        self.summaryStatistics.datasetCompleteness = completeness
+
+        model_map = getattr(missingness_model, "models_", {}) or {}
+        by_name = {col.name: col for col in self.datasetSchema.columns}
+        for col_name, col in by_name.items():
+            model = model_map.get(col_name)
+            if model is None:
+                rate = float(df[col_name].isna().mean()) if col_name in df.columns else 0.0
+            else:
+                rate = float(getattr(model, "p_missing_", 0.0) or 0.0)
+            completeness_val = 1.0 - rate
+            if not col.summaryStatistics:
+                col.summaryStatistics = SummaryStatistics()
+            col.summaryStatistics.columnCompleteness = completeness_val
+
+    def to_jsonld(self) -> Optional[Dict[str, Any]]:  # type: ignore[override]
+        return super().to_jsonld()
 
 
 # Arrow metadata keys (bytes per Arrow requirements)

@@ -57,6 +57,8 @@ import statsmodels.api as sm
 from statsmodels.imputation import mice
 
 def _schema(meta: Mapping[str, Any]) -> Mapping[str, Any]:
+    if hasattr(meta, "to_jsonld"):
+        meta = meta.to_jsonld() or {}
     schema = meta.get("dsv:datasetSchema") or meta.get("datasetSchema") or {}
     if isinstance(schema, Mapping):
         return schema

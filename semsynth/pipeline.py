@@ -13,6 +13,7 @@ from .backends.base import BackendModule, ensure_backend_contract
 from .mappings import load_mapping_json, resolve_mapping_json
 from .metadata import get_uciml_variable_descriptions
 from .models import ModelConfigBundle, discover_model_runs, load_model_configs
+from .semmap import Metadata
 
 if TYPE_CHECKING:  # pragma: no cover - typing only
     import pandas as pd
@@ -181,6 +182,7 @@ class PreprocessingResult:
     cont_cols: List[str]
     inferred_types: Dict[str, str]
     semmap_export: Optional[Dict[str, Any]]
+    semmap_metadata: Optional[Metadata]
     color_series: Optional["pd.Series"]
     umap_png_real: Optional[Path]
     umap_artifacts: Optional[UmapArtifacts]
@@ -235,15 +237,31 @@ class DatasetPreprocessor:
         self._utils.ensure_dir(str(outdir))
 
         semmap_export: Optional[Dict[str, Any]] = None
+        semmap_metadata: Optional[Metadata] = None
         mapping_path = self._resolve_mapping(dataset_spec)
         if mapping_path is not None:
             logging.info("Applying curated SemMap metadata from %s", mapping_path)
             try:
                 curated = self._load_mapping(mapping_path)
                 df.semmap.from_jsonld(curated, convert_pint=True)
-                semmap_export = df.semmap.to_jsonld()
+                semmap_metadata = df.semmap.dataset_semmap
+                semmap_export = semmap_metadata.to_jsonld() if semmap_metadata else df.semmap.to_jsonld()
             except Exception:
                 logging.exception("Failed to apply SemMap metadata", exc_info=True)
+        elif isinstance(dataset_spec.meta, Metadata):
+            semmap_metadata = dataset_spec.meta
+            df.semmap.from_jsonld(semmap_metadata.to_jsonld())
+            semmap_export = semmap_metadata.to_jsonld()
+        elif isinstance(dataset_spec.meta, dict):
+            try:
+                semmap_metadata = Metadata.from_dcat_dsv(dataset_spec.meta)
+                df.semmap.from_jsonld(semmap_metadata.to_jsonld())
+                semmap_export = semmap_metadata.to_jsonld()
+            except Exception:
+                logging.exception("Failed to apply dataset_spec metadata", exc_info=True)
+        if semmap_metadata is None:
+            semmap_metadata = df.semmap()
+            semmap_export = semmap_metadata.to_jsonld()
 
         disc_cols, cont_cols = self._utils.infer_types(df)
         df_processed = self._utils.coerce_discrete_to_category(df, disc_cols)
@@ -321,6 +339,12 @@ class DatasetPreprocessor:
                     df_processed, random_state=miss_state
                 )
 
+        if semmap_metadata is not None:
+            semmap_metadata.update_completeness_from_missingness(
+                df_processed, missingness_model
+            )
+            semmap_export = semmap_metadata.to_jsonld()
+
         return PreprocessingResult(
             df_processed=df_processed,
             df_no_na=df_no_na,
@@ -329,6 +353,7 @@ class DatasetPreprocessor:
             cont_cols=cont_cols,
             inferred_types=inferred_map,
             semmap_export=semmap_export,
+            semmap_metadata=semmap_metadata,
             color_series=color_series2,
             umap_png_real=umap_png_real,
             umap_artifacts=umap_artifacts,
@@ -354,6 +379,7 @@ class MetricWriter:
         real_df: "pd.DataFrame",
         inferred: Dict[str, str],
         synth_df: Optional["pd.DataFrame"] = None,
+        metadata: Optional[Metadata] = None,
     ) -> Dict[str, Any]:
         """Write privacy metrics to disk for a backend run.
 
@@ -371,8 +397,12 @@ class MetricWriter:
 
         if synth_df is None:
             synth_df = self._read_synthetic_df(run_dir)
-        metadata = _build_privacy_metadata(real_df, inferred)
-        summary = summarizer(real_df, synth_df, metadata)
+        metadata_df = (
+            metadata.to_privacy_frame(inferred)
+            if isinstance(metadata, Metadata)
+            else _build_privacy_metadata(real_df, inferred)
+        )
+        summary = summarizer(real_df, synth_df, metadata_df)
         payload = asdict(summary)
         (run_dir / "metrics.privacy.json").write_text(
             json.dumps(payload, indent=2), encoding="utf-8"
@@ -386,6 +416,7 @@ class MetricWriter:
         synth_df: "pd.DataFrame",
         inferred: Dict[str, str],
         target_series: Optional["pd.Series"],
+        metadata: Optional[Metadata] = None,
     ) -> Dict[str, Any]:
         """Write downstream metrics comparing synthetic and real data.
 
@@ -419,8 +450,10 @@ class MetricWriter:
             )
             return payload
 
-        meta = _build_downstream_meta(real_df, inferred, target_series)
-        results = comparer(real_df, synth_df, meta)
+        meta_jsonld = metadata.to_jsonld() if isinstance(metadata, Metadata) else None
+        if meta_jsonld is None:
+            meta_jsonld = _build_downstream_meta(real_df, inferred, target_series)
+        results = comparer(real_df, synth_df, meta_jsonld)
         compare = results.get("compare")
         sign_match_rate = float("nan")
         if hasattr(compare, "__getitem__"):
@@ -548,6 +581,7 @@ class BackendExecutor:
                         preprocessed.df_no_na,
                         preprocessed.inferred_types,
                         synth_df,
+                        preprocessed.semmap_metadata,
                     )
                     logging.info("Wrote privacy metrics for %s", label)
                 except ImportError:
@@ -570,6 +604,7 @@ class BackendExecutor:
                         synth_df,
                         preprocessed.inferred_types,
                         target_series,
+                        preprocessed.semmap_metadata,
                     )
                     logging.info("Wrote downstream metrics for %s", label)
                 except ImportError:
@@ -679,6 +714,7 @@ class ReportWriter:
             inferred_types=inferred_types or None,
             variable_descriptions=variable_descriptions or None,
             semmap_jsonld=preprocessed.semmap_export,
+            dataset_metadata=preprocessed.semmap_metadata,
             model_runs=model_runs,
             missingness_summary=missingness_summary,
         )
@@ -728,6 +764,8 @@ def process_dataset(
         generate_umap=generate_umap_flag,
         umap_utils=umap_utils,
     )
+    if preprocessed.semmap_metadata is not None:
+        dataset_spec.meta = preprocessed.semmap_metadata
 
     privacy_summarizer = None
     downstream_compare = None

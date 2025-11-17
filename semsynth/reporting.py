@@ -127,6 +127,7 @@ def write_report_md(
     inferred_types: Optional[dict] = None,
     variable_descriptions: Optional[dict] = None,
     semmap_jsonld: Optional[dict] = None,
+    dataset_metadata: Optional[Any] = None,
     model_runs: Optional[List[ModelRun]] = None,
     missingness_summary: Optional[Dict[str, Any]] = None,
 ) -> None:
@@ -158,8 +159,21 @@ def write_report_md(
     md_path = output_dir / "report.md"
 
     semmap_json_name, semmap_html_name = _write_semmap_artifacts(
-        output_dir, dataset_name, semmap_jsonld
+        output_dir, dataset_title, semmap_jsonld
     )
+
+    metadata_dict: Dict[str, Any] = {}
+    if dataset_metadata is not None:
+        if hasattr(dataset_metadata, "to_jsonld"):
+            metadata_dict = dataset_metadata.to_jsonld() or {}
+        elif isinstance(dataset_metadata, dict):
+            metadata_dict = dataset_metadata
+
+    dataset_description = metadata_dict.get("dcterms:description") or metadata_dict.get("description")
+    dataset_purpose = metadata_dict.get("dcterms:purpose") or metadata_dict.get("purpose")
+    dataset_table = metadata_dict.get("dcterms:tableOfContents") or metadata_dict.get("tableOfContents")
+    dataset_title = metadata_dict.get("dcterms:title") or metadata_dict.get("title") or dataset_name
+    dataset_citation = metadata_dict.get("schema:citation") or metadata_dict.get("citation")
 
     num_rows, num_cols = df.shape
     model_rows = _prepare_model_rows(model_runs or [], output_dir)
@@ -176,7 +190,7 @@ def write_report_md(
     env = _jinja_environment()
     template = env.get_template("report.md.j2")
     md_text = template.render(
-        dataset_name=dataset_name,
+        dataset_name=dataset_title,
         provider_link=_provider_link(dataset_provider, dataset_provider_id),
         semmap_json_name=semmap_json_name,
         semmap_html_name=semmap_html_name,
@@ -190,6 +204,10 @@ def write_report_md(
         real_umap=os.path.basename(umap_png_real) if umap_png_real else None,
         missingness_summary=missingness_summary,
         missingness_table=missingness_table,
+        dataset_description=dataset_description,
+        dataset_purpose=dataset_purpose,
+        dataset_table=dataset_table,
+        dataset_citation=dataset_citation,
     )
     md_path.write_text(md_text, encoding="utf-8")
     logging.info("Wrote report: %s", md_path)
@@ -197,7 +215,7 @@ def write_report_md(
     html_path = output_dir / "index.html"
     html_body = markdown.markdown(md_text, extensions=["extra", "md_in_html"])
     html_body = textwrap.indent(html_body, "    ")
-    report_title = f"Data Report — {dataset_name}"
+    report_title = f"Data Report — {dataset_title}"
     css_text = _read_template_text("report_style.css")
     html_template = _load_html_template(env)
     html_out = html_template.render(

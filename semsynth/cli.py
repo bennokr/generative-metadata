@@ -3,18 +3,20 @@
 from __future__ import annotations
 
 import logging
-import sys
-from typing import TYPE_CHECKING, List, Optional, Literal, Tuple
+from pathlib import Path
+from typing import TYPE_CHECKING, Any, List, Optional, Literal, Tuple
 
-import defopt
+from makeprov import OutPath, rule
 
-__all__ = ["search", "report", "main"]
+__all__ = ["search", "report"]
 
 if TYPE_CHECKING:  # pragma: no cover - imported for typing only
     from .models import ModelConfigBundle, ModelSpec
     from .specs import DatasetSpec
 
 
+
+@rule()
 def search(
     provider: str,
     *,
@@ -23,6 +25,7 @@ def search(
     cat_min: int = 1,
     num_min: int = 1,
     verbose: bool = False,
+    output: OutPath = OutPath("output/search.tsv"),
 ) -> None:
     """Search mixed-type datasets on OpenML or the UCI ML Repository.
 
@@ -51,7 +54,10 @@ def search(
         )
     else:
         raise SystemExit("provider must be 'openml' or 'uciml'")
-    print(df.to_csv(sep="\t", index=None))
+    output_text = df.to_csv(sep="\t", index=None)
+    print(output_text)
+    with output.open("w", encoding="utf-8") as handle:
+        handle.write(output_text)
 
 
 Toggle = Literal["auto", "on", "off"]
@@ -68,11 +74,12 @@ def _toggle_value(mode: Toggle) -> Tuple[Optional[bool], bool]:
     raise ValueError(f"Unknown toggle mode: {mode}")
 
 
+@rule()
 def report(
     provider: str = "openml",
     *,
     datasets: List[str] | None = None,
-    outdir: str = "outputs",
+    outdir: OutPath = OutPath("outputs"),
     configs_yaml: str = "",
     area: str = "Health and Medicine",
     verbose: bool = False,
@@ -106,7 +113,8 @@ def report(
     if verbose:
         logging.root.setLevel(logging.INFO)
 
-    ensure_dir(outdir)
+    outdir_path = Path(outdir.path if isinstance(outdir, OutPath) else outdir)
+    ensure_dir(str(outdir_path))
 
     dataset_specs: List[DatasetSpec]
     dataset_specs = specs_from_input(provider=provider, datasets=datasets, area=area)
@@ -143,7 +151,7 @@ def report(
                 meta,
                 df,
                 color,
-                outdir,
+                str(outdir_path),
                 model_bundle=bundle,
                 pipeline_config=cfg,
             )
@@ -154,11 +162,7 @@ def report(
             raise SystemExit(str(exc))
 
 
-def main(argv: Optional[List[str]] = None) -> None:
-    """Entry point used by :mod:`defopt`."""
-
-    defopt.run([search, report], argv=argv)
-
-
 if __name__ == "__main__":
-    main(sys.argv[1:])
+    from makeprov import main
+
+    main()

@@ -9,5 +9,6 @@
 Home <self>
 getting-started
 schema
+provenance
 api
 ```

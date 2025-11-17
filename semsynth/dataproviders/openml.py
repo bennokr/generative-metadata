@@ -9,12 +9,17 @@ import warnings
 from typing import List, Optional, Tuple
 
 import pandas as pd
+from makeprov import OutPath, rule
 
 from ..specs import DatasetSpec
 from ._helpers import clean_dataset_frame
 
 
-def get_default_openml() -> List[DatasetSpec]:
+@rule()
+def get_default_openml(
+    cache_dir: OutPath = OutPath("downloads-cache/openml/defaults.marker"),
+) -> List[DatasetSpec]:
+    _ = cache_dir
     return [
         DatasetSpec("openml", "adult", target="class"),
         DatasetSpec("openml", "credit-g", target="class"),
@@ -23,6 +28,7 @@ def get_default_openml() -> List[DatasetSpec]:
     ]
 
 
+@rule()
 def list_openml(
     name_substr: Optional[str] = None, cat_min: int = 1, num_min: int = 1
 ) -> pd.DataFrame:
@@ -62,8 +68,9 @@ def list_openml(
     return sets.rename(columns=rename)
 
 
+@rule()
 def load_openml_by_name(
-    name: str, cache_dir: pathlib.Path
+    name: str, cache_dir: pathlib.Path | OutPath
 ) -> Tuple[DatasetSpec, pd.DataFrame, Optional[pd.Series]]:
     """Load an OpenML dataset by name, with local caching of the data payload.
 
@@ -74,7 +81,9 @@ def load_openml_by_name(
     On cache hit, returns a minimal metadata dict instead of the OpenML object.
     """
 
-    by_name_dir = cache_dir / "by_name"
+    cache_path = cache_dir if isinstance(cache_dir, pathlib.Path) else cache_dir.path
+    cache_root = cache_path or pathlib.Path(".")
+    by_name_dir = cache_root / "by_name"
     by_name_dir.mkdir(parents=True, exist_ok=True)
 
     spec = DatasetSpec(provider="openml", name=name)
@@ -120,7 +129,7 @@ def load_openml_by_name(
 
     # Persist cache
     try:
-        data_path = cache_dir / f"{spec.id}.csv.gz"
+        data_path = cache_root / f"{spec.id}.csv.gz"
         df_all.to_csv(data_path, index=False, compression="infer")
         by_name_meta.write_text(
             json.dumps(

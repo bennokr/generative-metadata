@@ -9,6 +9,8 @@ import logging
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional, TYPE_CHECKING, cast
 
+from makeprov import OutPath, rule
+
 from .backends.base import BackendModule, ensure_backend_contract
 from .mappings import load_mapping_json, resolve_mapping_json
 from .metadata import get_uciml_variable_descriptions
@@ -203,6 +205,7 @@ class DatasetPreprocessor:
         self._load_mapping = load_mapping
         self._resolve_mapping = resolve_mapping
 
+    @rule()
     def preprocess(
         self,
         dataset_spec: "DatasetSpec",
@@ -373,6 +376,7 @@ class MetricWriter:
         self._privacy_summarizer = privacy_summarizer
         self._downstream_compare = downstream_compare
 
+    @rule()
     def write_privacy(
         self,
         run_dir: Path,
@@ -409,6 +413,7 @@ class MetricWriter:
         )
         return payload
 
+    @rule()
     def write_downstream(
         self,
         run_dir: Path,
@@ -489,6 +494,7 @@ class BackendExecutor:
         self._load_backend = load_backend
         self._metric_writer = metric_writer
 
+    @rule()
     def run_models(
         self,
         dataset_spec: "DatasetSpec",
@@ -623,12 +629,14 @@ class ReportWriter:
         self._reporting = reporting_module
         self._umap_utils = umap_utils
 
+    @rule()
     def generate_synthetic_umaps(
         self,
         model_runs: Iterable[Any],
         dataset_spec: "DatasetSpec",
         preprocessed: PreprocessingResult,
         cfg: PipelineConfig,
+        marker: OutPath = OutPath("output/umaps.marker"),
     ) -> None:
         """Create UMAP visualisations for synthetic datasets if required.
 
@@ -664,12 +672,18 @@ class ReportWriter:
             except Exception:
                 logging.exception("Failed to generate UMAP for %s", run.run_dir)
 
+        marker_path = marker.path if isinstance(marker, OutPath) else None
+        if marker_path is not None:
+            marker_path.parent.mkdir(parents=True, exist_ok=True)
+            marker_path.touch(exist_ok=True)
+
     @staticmethod
     def _read_synthetic_df(run: Any) -> "pd.DataFrame":
         import pandas as pd
 
         return pd.read_csv(run.synthetic_csv).convert_dtypes()
 
+    @rule()
     def write_report(
         self,
         *,
@@ -719,6 +733,8 @@ class ReportWriter:
             missingness_summary=missingness_summary,
         )
 
+
+@rule()
 def process_dataset(
     dataset_spec: "DatasetSpec",
     df: "pd.DataFrame",

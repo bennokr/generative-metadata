@@ -4,7 +4,7 @@ from typing import Dict, List, Optional
 from dataclasses import dataclass, field
 
 
-from .jsonld import JSONLDMixin
+from makeprov import JSONLDMixin
 
 JSONLD_CONTEXT = {
     "@context": {

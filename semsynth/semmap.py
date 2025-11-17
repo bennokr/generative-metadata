@@ -4,7 +4,7 @@ from typing import Any, Dict, List, Mapping, Optional, Union
 from enum import Enum
 from dataclasses import dataclass
 
-from .jsonld import JSONLDMixin
+from makeprov import JSONLDMixin
 
 import pandas as pd
 import pyarrow as pa

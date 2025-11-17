@@ -1,0 +1,176 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Provenance workflow guide &mdash; semsynth  documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="API reference" href="api.html" />
+    <link rel="prev" title="SemMap metadata schema" href="schema.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            semsynth
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="index.html">Home</a></li>
+<li class="toctree-l1"><a class="reference internal" href="getting-started.html">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="schema.html">SemMap metadata schema</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Provenance workflow guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#reference-links">Reference links</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#configuration-and-entry-points">Configuration and entry points</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#dataset-discovery-and-acquisition-rules">Dataset discovery and acquisition rules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#pipeline-orchestration-rules">Pipeline orchestration rules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#provenance-outputs-and-validation">Provenance outputs and validation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#practical-usage-patterns">Practical usage patterns</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">semsynth</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Provenance workflow guide</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/provenance.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="provenance-workflow-guide">
+<h1>Provenance workflow guide<a class="headerlink" href="#provenance-workflow-guide" title="Link to this heading"></a></h1>
+<p>This document explains how SemSynth’s provenance-aware build graph is assembled with <a class="reference external" href="https://github.com/bennokr/makeprov">makeprov</a> and how it emits W3C <a class="reference external" href="https://www.w3.org/TR/prov-o/">PROV-O</a> metadata alongside the reports you generate. It points to the concrete rules, helper functions, and configuration files that control provenance so you can trace every cached download, visualization, and metric back to its source.</p>
+<section id="reference-links">
+<h2>Reference links<a class="headerlink" href="#reference-links" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/bennokr/makeprov#readme">makeprov README</a> and the published <a class="reference external" href="https://pypi.org/project/makeprov/">API documentation</a> for decorator semantics, CLI commands, and configuration keys.</p></li>
+<li><p><a class="reference external" href="https://raw.githubusercontent.com/bennokr/makeprov/refs/heads/main/tests/prov_shapes.ttl">makeprov SHACL shapes</a> that validate the generated PROV graphs.</p></li>
+<li><p><a class="reference external" href="https://www.w3.org/TR/prov-o/">PROV-O primer</a> for the underlying ontology used in emitted <code class="docutils literal notranslate"><span class="pre">.trig</span></code>/<code class="docutils literal notranslate"><span class="pre">.json</span></code> bundles.</p></li>
+<li><p>SemSynth CLI module <a class="reference internal" href="#./cli.py"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">semsynth/cli.py</span></code></span></a> where makeprov’s <code class="docutils literal notranslate"><span class="pre">COMMANDS</span></code> are exposed alongside SemSynth-specific commands.</p></li>
+</ul>
+</section>
+<section id="configuration-and-entry-points">
+<h2>Configuration and entry points<a class="headerlink" href="#configuration-and-entry-points" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><strong>Default settings</strong> live in <a class="reference download internal" download="" href="_downloads/1ad6bb3ae8d8d6b4e324e4ac5c2f3c96/prov-config.toml"><span class="xref download myst"><code class="docutils literal notranslate"><span class="pre">prov-config.toml</span></code></span></a>, which sets the base IRI (<code class="docutils literal notranslate"><span class="pre">https://w3id.org/semsynth/demo#</span></code>) and the provenance output directory. You can pass an alternate file to the <code class="docutils literal notranslate"><span class="pre">prov_conf</span></code> argument on any CLI command to override <code class="docutils literal notranslate"><span class="pre">base_iri</span></code>, <code class="docutils literal notranslate"><span class="pre">prov_dir</span></code>, <code class="docutils literal notranslate"><span class="pre">force</span></code>, or <code class="docutils literal notranslate"><span class="pre">dry_run</span></code> through makeprov’s <code class="docutils literal notranslate"><span class="pre">GLOBAL_CONFIG</span></code>.</p></li>
+<li><p><strong>CLI integration</strong>: <code class="docutils literal notranslate"><span class="pre">search</span></code> and <code class="docutils literal notranslate"><span class="pre">report</span></code> (both in <a class="reference internal" href="#./cli.py"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">semsynth/cli.py</span></code></span></a>) are wrapped with <code class="docutils literal notranslate"><span class="pre">&#64;rule()</span></code> decorators. When you invoke <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">semsynth_reports_cli.py</span> <span class="pre">search</span> <span class="pre">...</span></code> or <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">semsynth_reports_cli.py</span> <span class="pre">report</span> <span class="pre">...</span></code>, defopt exposes every makeprov command (e.g., <code class="docutils literal notranslate"><span class="pre">build</span></code>, <code class="docutils literal notranslate"><span class="pre">graph</span></code>) alongside SemSynth’s commands so you can run <code class="docutils literal notranslate"><span class="pre">build</span> <span class="pre">&lt;target&gt;</span></code> to materialize missing outputs.</p></li>
+<li><p><strong>File parameters</strong>: Inputs such as <code class="docutils literal notranslate"><span class="pre">prov_conf</span></code> use <code class="docutils literal notranslate"><span class="pre">InPath</span></code>, while outputs like <code class="docutils literal notranslate"><span class="pre">output</span></code> or <code class="docutils literal notranslate"><span class="pre">outdir</span></code> use <code class="docutils literal notranslate"><span class="pre">OutPath</span></code>. makeprov registers these as graph nodes, so running <code class="docutils literal notranslate"><span class="pre">build</span> <span class="pre">outputs/&lt;dataset&gt;/index.html</span></code> will trigger the dependent rules that generate that file.</p></li>
+</ul>
+</section>
+<section id="dataset-discovery-and-acquisition-rules">
+<h2>Dataset discovery and acquisition rules<a class="headerlink" href="#dataset-discovery-and-acquisition-rules" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">specs_from_input</span></code> and <code class="docutils literal notranslate"><span class="pre">load_dataset</span></code> in <a class="reference internal" href="#./datasets.py"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">semsynth/datasets.py</span></code></span></a> are annotated with <code class="docutils literal notranslate"><span class="pre">&#64;rule(out_params=[&quot;openml_cache_dir&quot;,</span> <span class="pre">&quot;uciml_cache_dir&quot;])</span></code> so the cache roots under <code class="docutils literal notranslate"><span class="pre">downloads-cache/</span></code> are explicit outputs. Provider-specific helpers (<code class="docutils literal notranslate"><span class="pre">load_openml_by_name</span></code>, <code class="docutils literal notranslate"><span class="pre">load_uciml_by_id</span></code>, and their search counterparts in <code class="docutils literal notranslate"><span class="pre">semsynth/dataproviders/openml.py</span></code> and <code class="docutils literal notranslate"><span class="pre">semsynth/dataproviders/uciml.py</span></code>) are wrapped too, ensuring that API queries and downloaded CSVs populate the graph via <code class="docutils literal notranslate"><span class="pre">OutPath</span></code> markers.</p></li>
+<li><p>Because the cache directories are modeled as outputs, makeprov can decide whether to re-run downloads based on whether the files under <code class="docutils literal notranslate"><span class="pre">downloads-cache/openml/</span></code> or <code class="docutils literal notranslate"><span class="pre">downloads-cache/uciml/</span></code> already exist. This is especially useful when combining <code class="docutils literal notranslate"><span class="pre">build</span></code> with the <code class="docutils literal notranslate"><span class="pre">--force</span></code> toggle from the configuration file.</p></li>
+</ul>
+</section>
+<section id="pipeline-orchestration-rules">
+<h2>Pipeline orchestration rules<a class="headerlink" href="#pipeline-orchestration-rules" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>The reporting pipeline in <a class="reference internal" href="#./pipeline.py"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">semsynth/pipeline.py</span></code></span></a> is rule-aware at every stage:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">process_dataset</span></code> drives the end-to-end build for a dataset and declares the dataset-level <code class="docutils literal notranslate"><span class="pre">outdir</span></code> as a provenance output.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">DatasetPreprocessor.preprocess</span></code> marks preprocessing artifacts such as missingness models, semmap exports, and UMAP PNGs as outputs, tying them to upstream cache downloads.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">BackendExecutor.run_models</span></code> (called per backend) and downstream writers like <code class="docutils literal notranslate"><span class="pre">MetricWriter.write_privacy</span></code> / <code class="docutils literal notranslate"><span class="pre">MetricWriter.write_downstream</span></code> register model run directories, metric CSVs, and JSON summaries as outputs so they participate in dependency resolution.</p></li>
+<li><p>Report assembly (<code class="docutils literal notranslate"><span class="pre">ReportWriter.write_summary</span></code>, <code class="docutils literal notranslate"><span class="pre">ReportWriter.write_markdown</span></code>, <code class="docutils literal notranslate"><span class="pre">ReportWriter.write_html</span></code>) and manifest helpers (<code class="docutils literal notranslate"><span class="pre">discover_model_runs</span></code> in <a class="reference internal" href="#./models.py"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">semsynth/models.py</span></code></span></a>) are likewise wrapped, meaning UMAP snapshots, manifest JSON, and HTML/Markdown reports show up as targets in the provenance DAG.</p></li>
+</ul>
+</li>
+<li><p>These rule annotations mirror the tangible file system effects (PNG visualizations, metrics, manifests) so makeprov can construct a consistent dependency graph rather than treating orchestration functions as opaque side effects.</p></li>
+</ul>
+</section>
+<section id="provenance-outputs-and-validation">
+<h2>Provenance outputs and validation<a class="headerlink" href="#provenance-outputs-and-validation" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>Running any rule emits provenance metadata into the configured <code class="docutils literal notranslate"><span class="pre">prov_dir</span></code> (defaults in <code class="docutils literal notranslate"><span class="pre">prov-config.toml</span></code>). Each execution records inputs (<code class="docutils literal notranslate"><span class="pre">InPath</span></code>) and outputs (<code class="docutils literal notranslate"><span class="pre">OutPath</span></code>), plus returned Python objects where applicable, serialized into <code class="docutils literal notranslate"><span class="pre">.trig</span></code>/<code class="docutils literal notranslate"><span class="pre">.json</span></code> files aligned with <a class="reference external" href="https://www.w3.org/TR/prov-o/">PROV-O</a>.</p></li>
+<li><p>The SHACL shapes shipped with makeprov (<a class="reference external" href="https://github.com/bennokr/makeprov/tree/main/makeprov/shacl"><code class="docutils literal notranslate"><span class="pre">makeprov/shacl</span></code></a>) can be used to validate these graphs. Point a SHACL engine at the generated <code class="docutils literal notranslate"><span class="pre">.trig</span></code>/<code class="docutils literal notranslate"><span class="pre">.json</span></code> bundle to confirm class/property constraints before publishing provenance artifacts.</p></li>
+<li><p>When debugging, you can render the DAG with <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">semsynth_reports_cli.py</span> <span class="pre">graph</span> <span class="pre">--conf</span> <span class="pre">&#64;prov-config.toml</span></code> (exposed via makeprov <code class="docutils literal notranslate"><span class="pre">COMMANDS</span></code>) to visualize how cached downloads, preprocessing artifacts, model outputs, and reports depend on one another.</p></li>
+</ul>
+</section>
+<section id="practical-usage-patterns">
+<h2>Practical usage patterns<a class="headerlink" href="#practical-usage-patterns" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><strong>Rebuild a missing artifact</strong>: If a report HTML is missing, run <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">semsynth_reports_cli.py</span> <span class="pre">build</span> <span class="pre">outputs/&lt;dataset&gt;/index.html</span> <span class="pre">--conf</span> <span class="pre">&#64;prov-config.toml</span></code> to regenerate upstream dependencies automatically.</p></li>
+<li><p><strong>Dry runs and forcing recomputation</strong>: Pass <code class="docutils literal notranslate"><span class="pre">--conf</span> <span class="pre">&#64;prov-config.toml</span> <span class="pre">--dry-run</span></code> to inspect the DAG without executing, or set <code class="docutils literal notranslate"><span class="pre">force=true</span></code> in the TOML to rerun every rule regardless of existing outputs.</p></li>
+<li><p><strong>Extending the workflow</strong>: When adding new provider helpers or report writers, wrap them with <code class="docutils literal notranslate"><span class="pre">&#64;rule()</span></code> and annotate file inputs/outputs with <code class="docutils literal notranslate"><span class="pre">InPath</span></code>/<code class="docutils literal notranslate"><span class="pre">OutPath</span></code> to keep provenance complete. Refer to the decorator examples in the <a class="reference external" href="https://github.com/bennokr/makeprov#readme">makeprov README</a> and ensure new artifacts respect PROV-O semantics for activities and entities.</p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="schema.html" class="btn btn-neutral float-left" title="SemMap metadata schema" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="api.html" class="btn btn-neutral float-right" title="API reference" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright .</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

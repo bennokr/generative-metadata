@@ -45,6 +45,8 @@
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Home</a></li>
 <li class="toctree-l1"><a class="reference internal" href="getting-started.html">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="schema.html">SemMap metadata schema</a></li>
+<li class="toctree-l1"><a class="reference internal" href="provenance.html">Provenance workflow guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="api.html">API reference</a></li>
 </ul>
 
@@ -78,51 +80,73 @@
 <section id="features">
 <h2>✨ Features<a class="headerlink" href="#features" title="Link to this heading"></a></h2>
 <ul class="simple">
-<li><p>Unified model interface: run both PyBNesian and SynthCity models from a single YAML.</p></li>
+<li><p>Unified model interface: run PyBNesian, SynthCity, and MetaSyn models from a single YAML.</p></li>
 <li><p>Uniform outputs: each model writes artifacts under <code class="docutils literal notranslate"><span class="pre">dataset/models/&lt;model-name&gt;/</span></code>.</p></li>
-<li><p>Optional MetaSyn baseline: enable or disable per report.</p></li>
+<li><p>Optional MetaSyn baseline: enable or disable per report via the config bundle.</p></li>
 <li><p>Provider-aware metadata and UMAP visuals.</p></li>
 </ul>
 </section>
 <section id="quick-start">
 <h2>🔎 Quick start<a class="headerlink" href="#quick-start" title="Link to this heading"></a></h2>
-<ol class="arabic simple">
+<ol class="arabic">
 <li><p>Search datasets</p>
 <ul class="simple">
 <li><p>OpenML: <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">semsynth_reports_cli.py</span> <span class="pre">search</span> <span class="pre">openml</span> <span class="pre">--name-substr</span> <span class="pre">adult</span></code></p></li>
 <li><p>UCI ML: <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">semsynth_reports_cli.py</span> <span class="pre">search</span> <span class="pre">uciml</span> <span class="pre">--area</span> <span class="pre">&quot;Health</span> <span class="pre">and</span> <span class="pre">Medicine&quot;</span> <span class="pre">--name-substr</span> <span class="pre">heart</span></code></p></li>
 </ul>
-</li>
-<li><p>Minimal report (no models, no MetaSyn) 🧪</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">search</span></code> command accepts:</p>
 <ul class="simple">
-<li><p>Use the empty config: <code class="docutils literal notranslate"><span class="pre">configs/empty.yaml</span></code></p></li>
-<li><p>Run: <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">semsynth_reports_cli.py</span> <span class="pre">report</span> <span class="pre">uciml</span> <span class="pre">-d</span> <span class="pre">45</span> <span class="pre">--configs-yaml</span> <span class="pre">configs/empty.yaml</span> <span class="pre">--metasyn</span> <span class="pre">false</span></code></p></li>
-<li><p>Outputs go to <code class="docutils literal notranslate"><span class="pre">docs/&lt;Dataset</span> <span class="pre">Name&gt;/</span></code> and include metadata, a UMAP of the real data, and a compact HTML report.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--name-substr</span></code> (substring filter applied case-insensitively)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--area</span></code> (UCI ML topic area, ignored for OpenML)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--cat-min</span></code> / <code class="docutils literal notranslate"><span class="pre">--num-min</span></code> (minimum categorical/numeric columns)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--verbose</span></code> (emits info logs while querying providers)</p></li>
 </ul>
 </li>
-<li><p>Report with models 🤖</p>
+<li><p>Minimal report (metadata only) 🧪</p>
 <ul class="simple">
-<li><p>Default models: <code class="docutils literal notranslate"><span class="pre">configs/default_config.yaml</span></code> (two PyBNesian models)</p></li>
-<li><p>Mixed models: <code class="docutils literal notranslate"><span class="pre">configs/advanced_models.yaml</span></code> (PyBNesian + SynthCity)</p></li>
-<li><p>Example: <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">semsynth_reports_cli.py</span> <span class="pre">report</span> <span class="pre">openml</span> <span class="pre">-d</span> <span class="pre">adult</span> <span class="pre">--configs-yaml</span> <span class="pre">configs/advanced_models.yaml</span></code></p></li>
+<li><p>Leave <code class="docutils literal notranslate"><span class="pre">--configs-yaml</span></code> empty to skip model execution.</p></li>
+<li><p>Example: <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">semsynth_reports_cli.py</span> <span class="pre">report</span> <span class="pre">uciml</span> <span class="pre">--datasets</span> <span class="pre">45</span> <span class="pre">-v</span></code></p></li>
+<li><p>Optional flags for reports:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">--datasets</span></code> (one or more dataset identifiers)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--outdir</span></code> (defaults to <code class="docutils literal notranslate"><span class="pre">outputs/</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--configs-yaml</span></code> (path to a YAML bundle; omit for metadata-only runs)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--generate-umap</span></code> / <code class="docutils literal notranslate"><span class="pre">--compute-privacy</span></code> / <code class="docutils literal notranslate"><span class="pre">--compute-downstream</span></code> (each accepts <code class="docutils literal notranslate"><span class="pre">auto</span></code>, <code class="docutils literal notranslate"><span class="pre">on</span></code>, or <code class="docutils literal notranslate"><span class="pre">off</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--overwrite-umap</span></code> (regenerate even if projections exist)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--verbose</span></code> (turn on info logging)</p></li>
 </ul>
 </li>
-<li><p>Single-dataset synthesis 🧬</p>
-<ul class="simple">
-<li><p>SynthCity: <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">semsynth_reports_cli.py</span> <span class="pre">synth</span> <span class="pre">1590</span> <span class="pre">--provider</span> <span class="pre">openml</span> <span class="pre">--backend</span> <span class="pre">synthcity</span> <span class="pre">--generator</span> <span class="pre">ctgan</span> <span class="pre">--gen-params-json</span> <span class="pre">'{&quot;epochs&quot;:</span> <span class="pre">5}'</span> <span class="pre">--rows</span> <span class="pre">1000</span> <span class="pre">--outdir</span> <span class="pre">outputs</span></code></p></li>
-<li><p>PyBNesian: <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">semsynth_reports_cli.py</span> <span class="pre">synth</span> <span class="pre">1590</span> <span class="pre">--provider</span> <span class="pre">openml</span> <span class="pre">--backend</span> <span class="pre">pybnesian</span> <span class="pre">--generator</span> <span class="pre">clg</span> <span class="pre">--gen-params-json</span> <span class="pre">'{&quot;score&quot;:&quot;bic&quot;,&quot;operators&quot;:[&quot;arcs&quot;],&quot;max_indegree&quot;:2}'</span> <span class="pre">--rows</span> <span class="pre">1000</span> <span class="pre">--outdir</span> <span class="pre">outputs</span></code></p></li>
 </ul>
+<p>With the command above you receive dataset metadata, a real-data UMAP projection, and HTML/Markdown reports under <code class="docutils literal notranslate"><span class="pre">outputs/&lt;Dataset</span> <span class="pre">Name&gt;/</span></code>.</p>
+</li>
+<li><p>Full report with synthetic models 🤖</p>
+<ul class="simple">
+<li><p>Pick a configuration bundle from <code class="docutils literal notranslate"><span class="pre">configs/</span></code>:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">configs/simple_config.yaml</span></code> (MetaSyn + two PyBNesian models)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">configs/advanced_config.yaml</span></code> (MetaSyn, PyBNesian, and SynthCity models)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">configs/maximal_config.yaml</span></code> (enables UMAP, privacy, downstream metrics, and the broadest mix of MetaSyn, PyBNesian, and SynthCity generators)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">configs/only_metasyn_config.yaml</span></code> (MetaSyn baseline only)</p></li>
+</ul>
+</li>
+<li><p>Example: <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">semsynth_reports_cli.py</span> <span class="pre">report</span> <span class="pre">openml</span> <span class="pre">--datasets</span> <span class="pre">adult</span> <span class="pre">--configs-yaml</span> <span class="pre">configs/advanced_config.yaml</span> <span class="pre">--generate-umap</span> <span class="pre">on</span> <span class="pre">--compute-privacy</span> <span class="pre">on</span> <span class="pre">--compute-downstream</span> <span class="pre">on</span></code></p></li>
+</ul>
+<p>Report toggles accept <code class="docutils literal notranslate"><span class="pre">auto</span></code> (respect YAML defaults), <code class="docutils literal notranslate"><span class="pre">on</span></code>, or <code class="docutils literal notranslate"><span class="pre">off</span></code>. Use <code class="docutils literal notranslate"><span class="pre">auto</span></code> when your YAML sets global defaults for <code class="docutils literal notranslate"><span class="pre">generate_umap</span></code>, <code class="docutils literal notranslate"><span class="pre">compute_privacy</span></code>, or <code class="docutils literal notranslate"><span class="pre">compute_downstream</span></code>.</p>
 </li>
 </ol>
 </section>
 <section id="unified-yaml-format">
 <h2>📄 Unified YAML format<a class="headerlink" href="#unified-yaml-format" title="Link to this heading"></a></h2>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">configs/default_config.yaml</span></code> is used when you don’t pass <code class="docutils literal notranslate"><span class="pre">--configs-yaml</span></code>.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">configs/advanced_models.yaml</span></code> mixes multiple backends.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">configs/simple_config.yaml</span></code> mixes MetaSyn with two PyBNesian baselines.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">configs/advanced_config.yaml</span></code> extends the simple bundle with SynthCity generators.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">configs/maximal_config.yaml</span></code> enables every optional report toggle and includes the widest selection of MetaSyn, PyBNesian, and SynthCity generators.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">configs/only_metasyn_config.yaml</span></code> keeps MetaSyn as the single synthetic data baseline.</p></li>
 </ul>
 <p>Example:</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">configs</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">metasyn</span>
+<span class="w">    </span><span class="nt">backend</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">metasyn</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">clg_mi2</span>
 <span class="w">    </span><span class="nt">backend</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">pybnesian</span>
 <span class="w">    </span><span class="nt">model</span><span class="p">:</span>
@@ -134,10 +158,9 @@
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ctgan_fast</span>
 <span class="w">    </span><span class="nt">backend</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">synthcity</span>
 <span class="w">    </span><span class="nt">model</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ctgan</span>
-<span class="w">      </span><span class="nt">params</span><span class="p">:</span>
-<span class="w">        </span><span class="nt">epochs</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5</span>
-<span class="w">        </span><span class="nt">batch_size</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">256</span>
+<span class="w">      </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ctgan</span>
+<span class="w">      </span><span class="nt">epochs</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5</span>
+<span class="w">      </span><span class="nt">batch_size</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">256</span>
 <span class="w">    </span><span class="nt">rows</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1000</span>
 <span class="w">    </span><span class="nt">seed</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">42</span>
 </pre></div>
@@ -146,7 +169,7 @@
 <section id="outputs">
 <h2>📦 Outputs<a class="headerlink" href="#outputs" title="Link to this heading"></a></h2>
 <ul class="simple">
-<li><p>Per dataset (e.g., <code class="docutils literal notranslate"><span class="pre">docs/Heart</span> <span class="pre">Disease/</span></code>):</p>
+<li><p>Per dataset (e.g., <code class="docutils literal notranslate"><span class="pre">outputs/Heart</span> <span class="pre">Disease/</span></code>):</p>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">dataset.json</span></code> (<a class="reference external" href="http://schema.org/Dataset">schema.org/Dataset</a> JSON-LD)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">dataset.semmap.json</span></code> (optional, if curated metadata is found)</p></li>
@@ -154,7 +177,7 @@
 <li><p><code class="docutils literal notranslate"><span class="pre">umap_real.png</span></code> and optional <code class="docutils literal notranslate"><span class="pre">umap_metasyn.png</span></code></p></li>
 </ul>
 </li>
-<li><p>Per model (e.g., <code class="docutils literal notranslate"><span class="pre">docs/Heart</span> <span class="pre">Disease/models/&lt;name&gt;/</span></code>):</p>
+<li><p>Per model (e.g., <code class="docutils literal notranslate"><span class="pre">outputs/Heart</span> <span class="pre">Disease/models/&lt;name&gt;/</span></code>):</p>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">synthetic.csv</span></code>, <code class="docutils literal notranslate"><span class="pre">per_variable_metrics.csv</span></code>, <code class="docutils literal notranslate"><span class="pre">metrics.json</span></code>, <code class="docutils literal notranslate"><span class="pre">umap.png</span></code></p></li>
 <li><p>PyBNesian-only extras: <code class="docutils literal notranslate"><span class="pre">bn_&lt;name&gt;.png</span></code>, <code class="docutils literal notranslate"><span class="pre">structure_&lt;name&gt;.graphml</span></code>, <code class="docutils literal notranslate"><span class="pre">model_&lt;name&gt;.pickle</span></code></p></li>
@@ -163,24 +186,74 @@
 </li>
 </ul>
 </section>
+<section id="metadata-templates-column-mappings">
+<h2>🧰 Metadata templates &amp; column mappings<a class="headerlink" href="#metadata-templates-column-mappings" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">uci_template.py</span></code> turns the JSON payloads cached under <code class="docutils literal notranslate"><span class="pre">uciml-cache/</span></code> (sometimes referenced as <code class="docutils literal notranslate"><span class="pre">uci-cache/</span></code> in earlier docs) into DCAT + DSV JSON-LD that downstream tools can ingest.</p></li>
+<li><p>Scripts under <code class="docutils literal notranslate"><span class="pre">map_columns/</span></code> take that JSON-LD and suggest or write terminology mappings (see <code class="docutils literal notranslate"><span class="pre">map_columns/README.md</span></code>).</p></li>
+</ul>
+<section id="example-uci-dataset-45-heart-disease">
+<h3>Example: UCI dataset 45 (Heart Disease)<a class="headerlink" href="#example-uci-dataset-45-heart-disease" title="Link to this heading"></a></h3>
+<ol class="arabic">
+<li><p>Fetch the dataset metadata. Any command that touches the UCI provider will populate <code class="docutils literal notranslate"><span class="pre">uciml-cache/&lt;id&gt;.json</span></code>. For example:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>semsynth_reports_cli.py<span class="w"> </span>report<span class="w"> </span>uciml<span class="w"> </span>-d<span class="w"> </span><span class="m">45</span><span class="w"> </span>--configs-yaml<span class="w"> </span>configs/empty.yaml<span class="w"> </span>--metasyn<span class="w"> </span><span class="nb">false</span>
+</pre></div>
+</div>
+<p>This creates <code class="docutils literal notranslate"><span class="pre">uciml-cache/45.json</span></code> alongside the cached CSV/metadata used by the reporting pipeline.</p>
+</li>
+<li><p>Convert the cached metadata into DCAT + DSV JSON-LD:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>uci_template.py<span class="w"> </span>uciml-cache/45.json<span class="w"> </span>heart-dataset.jsonld
+</pre></div>
+</div>
+<p>The resulting <code class="docutils literal notranslate"><span class="pre">heart-dataset.jsonld</span></code> contains dataset-level <code class="docutils literal notranslate"><span class="pre">dcat:Dataset</span></code> fields plus a <code class="docutils literal notranslate"><span class="pre">dsv:datasetSchema</span></code> block with each variable from the Heart Disease dataset.</p>
+</li>
+<li><p>Suggest terminology mappings for every variable description using the keyword search helper:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>map_columns/kwd_map_columns.py<span class="w"> </span>heart-dataset.jsonld<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--datasette-db-url<span class="w"> </span>http://127.0.0.1:8001/terminology<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--table<span class="w"> </span>codes<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--limit<span class="w"> </span><span class="m">5</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--verbose
+</pre></div>
+</div>
+<p>Swap in <code class="docutils literal notranslate"><span class="pre">map_columns/llm_map_columns.py</span></code> to drive an LLM-backed workflow that writes an <code class="docutils literal notranslate"><span class="pre">*.sssom.tsv</span></code> file (see <code class="docutils literal notranslate"><span class="pre">map_columns/README.md</span></code> for details).</p>
+</li>
+</ol>
+</section>
+</section>
 <section id="notes">
 <h2>📝 Notes<a class="headerlink" href="#notes" title="Link to this heading"></a></h2>
 <ul class="simple">
-<li><p>Minimal report: use <code class="docutils literal notranslate"><span class="pre">configs/empty.yaml</span></code> and <code class="docutils literal notranslate"><span class="pre">--metasyn</span> <span class="pre">false</span></code>.</p></li>
+<li><p>Metadata-only reports require no YAML file; pass <code class="docutils literal notranslate"><span class="pre">--configs-yaml</span></code> to opt into synthetic runs.</p></li>
 <li><p>All models are treated uniformly in the report; UMAPs share the same projection trained on real data.</p></li>
 </ul>
 </section>
 <section id="documentation">
 <h2>📚 Documentation<a class="headerlink" href="#documentation" title="Link to this heading"></a></h2>
 <ul class="simple">
-<li><p>Build the Sphinx site (Markdown powered) with <code class="docutils literal notranslate"><span class="pre">sphinx-build</span> <span class="pre">-b</span> <span class="pre">html</span> <span class="pre">docs/sphinx</span> <span class="pre">docs/sphinx/_build/html</span></code>.</p></li>
-<li><p>Generated API docs currently focus on <code class="docutils literal notranslate"><span class="pre">semsynth.utils</span></code>; expand the toctree as additional modules stabilise.</p></li>
+<li><p>Build the Sphinx site with <code class="docutils literal notranslate"><span class="pre">sphinx-build</span> <span class="pre">-b</span> <span class="pre">html</span> <span class="pre">sphinx</span> <span class="pre">docs</span></code>.</p></li>
 </ul>
 <div class="toctree-wrapper compound">
 <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Home</a></li>
 <li class="toctree-l1"><a class="reference internal" href="getting-started.html">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="schema.html">SemMap metadata schema</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="schema.html#core-objects">Core objects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="schema.html#creation-and-ingestion">Creation and ingestion</a></li>
+<li class="toctree-l2"><a class="reference internal" href="schema.html#updates-during-preprocessing">Updates during preprocessing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="schema.html#use-in-analytics">Use in analytics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="schema.html#reporting-and-exports">Reporting and exports</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="provenance.html">Provenance workflow guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="provenance.html#reference-links">Reference links</a></li>
+<li class="toctree-l2"><a class="reference internal" href="provenance.html#configuration-and-entry-points">Configuration and entry points</a></li>
+<li class="toctree-l2"><a class="reference internal" href="provenance.html#dataset-discovery-and-acquisition-rules">Dataset discovery and acquisition rules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="provenance.html#pipeline-orchestration-rules">Pipeline orchestration rules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="provenance.html#provenance-outputs-and-validation">Provenance outputs and validation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="provenance.html#practical-usage-patterns">Practical usage patterns</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="api.html">API reference</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="_autosummary/semsynth.html">semsynth</a></li>
 </ul>

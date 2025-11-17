@@ -1,0 +1,697 @@
+{
+  "@context": {
+    "id": "@id",
+    "type": "@type",
+    "dcat": "http://www.w3.org/ns/dcat#",
+    "dct": "http://purl.org/dc/terms/",
+    "prov": "http://www.w3.org/ns/prov#",
+    "xsd": "http://www.w3.org/2001/XMLSchema#",
+    "title": "dct:title",
+    "description": "dct:description",
+    "identifier": "dct:identifier",
+    "keywords": "dcat:keyword",
+    "modified": {
+      "@id": "dct:modified",
+      "@type": "xsd:dateTime"
+    },
+    "issued": {
+      "@id": "dct:issued",
+      "@type": "xsd:dateTime"
+    },
+    "landing_page": {
+      "@id": "dcat:landingPage",
+      "@type": "@id"
+    },
+    "datasets": {
+      "@id": "dcat:dataset"
+    },
+    "distributions": {
+      "@id": "dcat:distribution"
+    },
+    "access_url": {
+      "@id": "dcat:accessURL",
+      "@type": "@id"
+    },
+    "download_url": {
+      "@id": "dcat:downloadURL",
+      "@type": "@id"
+    },
+    "media_type": "dcat:mediaType",
+    "format": "dct:format",
+    "byte_size": {
+      "@id": "dcat:byteSize",
+      "@type": "xsd:integer"
+    },
+    "wasGeneratedBy": {
+      "@id": "prov:wasGeneratedBy",
+      "@type": "@id"
+    },
+    "wasDerivedFrom": {
+      "@id": "prov:wasDerivedFrom",
+      "@type": "@id"
+    }
+  },
+  "id": "urn:catalog:semsynth-demo",
+  "type": [
+    "dcat:Catalog"
+  ],
+  "title": "SemSynth Synthetic Data Catalog",
+  "description": "DCAT catalog of SemSynth reports and synthetic datasets.",
+  "modified": "2025-11-17T15:24:53.002323+00:00",
+  "datasets": [
+    {
+      "id": "urn:dataset:cdc-diabetes-health-indicators",
+      "type": [
+        "dcat:Dataset"
+      ],
+      "identifier": "cdc-diabetes-health-indicators",
+      "title": "CDC Diabetes Health Indicators",
+      "description": "Source: UCI dataset 891 \u2014 synthetic assets curated by SemSynth.",
+      "keywords": [
+        "CDC Diabetes Health Indicators",
+        "synthetic data",
+        "SemMap",
+        "SemSynth"
+      ],
+      "landing_page": "https://w3id.org/semsynth/demo#/output/CDC Diabetes Health Indicators/index.html",
+      "modified": "2025-10-13T11:30:36.825126+00:00",
+      "issued": "2025-10-13T08:34:38.017522+00:00",
+      "wasDerivedFrom": [
+        {
+          "id": "https://w3id.org/semsynth/demo#/output/CDC Diabetes Health Indicators/models/clg_mi2/synthetic.csv"
+        },
+        {
+          "id": "https://w3id.org/semsynth/demo#/output/CDC Diabetes Health Indicators/models/clg_mi2/synthetic.semmap.parquet"
+        },
+        {
+          "id": "https://w3id.org/semsynth/demo#/output/CDC Diabetes Health Indicators/models/ctgan_fast/synthetic.csv"
+        },
+        {
+          "id": "https://w3id.org/semsynth/demo#/output/CDC Diabetes Health Indicators/models/ctgan_fast/synthetic.semmap.parquet"
+        },
+        {
+          "id": "https://w3id.org/semsynth/demo#/output/CDC Diabetes Health Indicators/models/metasyn/synthetic.csv"
+        },
+        {
+          "id": "https://w3id.org/semsynth/demo#/output/CDC Diabetes Health Indicators/models/metasyn/synthetic_metasyn.semmap.parquet"
+        },
+        {
+          "id": "https://w3id.org/semsynth/demo#/output/CDC Diabetes Health Indicators/models/semi_mi5/synthetic.csv"
+        },
+        {
+          "id": "https://w3id.org/semsynth/demo#/output/CDC Diabetes Health Indicators/models/semi_mi5/synthetic.semmap.parquet"
+        }
+      ],
+      "distributions": [
+        {
+          "id": "urn:distribution:cdc-diabetes-health-indicators-cdc-diabetes-health-indicators-models-semi-mi5-synthetic-csv",
+          "type": [
+            "dcat:Distribution"
+          ],
+          "title": "CDC Diabetes Health Indicators synthetic data (semi_mi5, csv)",
+          "access_url": "https://w3id.org/semsynth/demo#/output/CDC Diabetes Health Indicators/models/semi_mi5/synthetic.csv",
+          "download_url": "https://w3id.org/semsynth/demo#/output/CDC Diabetes Health Indicators/models/semi_mi5/synthetic.csv",
+          "media_type": "text/csv",
+          "format": "CSV",
+          "byte_size": 94681,
+          "modified": "2025-10-13T08:34:38.017522+00:00",
+          "issued": "2025-10-13T08:34:38.017522+00:00"
+        },
+        {
+          "id": "urn:distribution:cdc-diabetes-health-indicators-cdc-diabetes-health-indicators-models-metasyn-synthetic-csv",
+          "type": [
+            "dcat:Distribution"
+          ],
+          "title": "CDC Diabetes Health Indicators synthetic data (metasyn, csv)",
+          "access_url": "https://w3id.org/semsynth/demo#/output/CDC Diabetes Health Indicators/models/metasyn/synthetic.csv",
+          "download_url": "https://w3id.org/semsynth/demo#/output/CDC Diabetes Health Indicators/models/metasyn/synthetic.csv",
+          "media_type": "text/csv",
+          "format": "CSV",
+          "byte_size": 94229,
+          "modified": "2025-10-13T11:30:36.824223+00:00",
+          "issued": "2025-10-13T11:30:36.824223+00:00"
+        },
+        {
+          "id": "urn:distribution:cdc-diabetes-health-indicators-cdc-diabetes-health-indicators-models-clg-mi2-synthetic-csv",
+          "type": [
+            "dcat:Distribution"
+          ],
+          "title": "CDC Diabetes Health Indicators synthetic data (clg_mi2, csv)",
+          "access_url": "https://w3id.org/semsynth/demo#/output/CDC Diabetes Health Indicators/models/clg_mi2/synthetic.csv",
+          "download_url": "https://w3id.org/semsynth/demo#/output/CDC Diabetes Health Indicators/models/clg_mi2/synthetic.csv",
+          "media_type": "text/csv",
+          "format": "CSV",
+          "byte_size": 94659,
+          "modified": "2025-10-13T11:30:36.818612+00:00",
+          "issued": "2025-10-13T11:30:36.818612+00:00"
+        },
+        {
+          "id": "urn:distribution:cdc-diabetes-health-indicators-cdc-diabetes-health-indicators-models-ctgan-fast-synthetic-csv",
+          "type": [
+            "dcat:Distribution"
+          ],
+          "title": "CDC Diabetes Health Indicators synthetic data (ctgan_fast, csv)",
+          "access_url": "https://w3id.org/semsynth/demo#/output/CDC Diabetes Health Indicators/models/ctgan_fast/synthetic.csv",
+          "download_url": "https://w3id.org/semsynth/demo#/output/CDC Diabetes Health Indicators/models/ctgan_fast/synthetic.csv",
+          "media_type": "text/csv",
+          "format": "CSV",
+          "byte_size": 93609,
+          "modified": "2025-10-10T14:40:56.930024+00:00",
+          "issued": "2025-10-10T14:40:56.930024+00:00"
+        },
+        {
+          "id": "urn:distribution:cdc-diabetes-health-indicators-cdc-diabetes-health-indicators-models-semi-mi5-synthetic-semmap-parquet",
+          "type": [
+            "dcat:Distribution"
+          ],
+          "title": "CDC Diabetes Health Indicators synthetic data (semi_mi5, parquet)",
+          "access_url": "https://w3id.org/semsynth/demo#/output/CDC Diabetes Health Indicators/models/semi_mi5/synthetic.semmap.parquet",
+          "download_url": "https://w3id.org/semsynth/demo#/output/CDC Diabetes Health Indicators/models/semi_mi5/synthetic.semmap.parquet",
+          "format": "PARQUET",
+          "byte_size": 72306,
+          "modified": "2025-10-13T08:34:38.043658+00:00",
+          "issued": "2025-10-13T08:34:38.043658+00:00"
+        },
+        {
+          "id": "urn:distribution:cdc-diabetes-health-indicators-cdc-diabetes-health-indicators-models-metasyn-synthetic-metasyn-semmap-parquet",
+          "type": [
+            "dcat:Distribution"
+          ],
+          "title": "CDC Diabetes Health Indicators synthetic data (metasyn, parquet)",
+          "access_url": "https://w3id.org/semsynth/demo#/output/CDC Diabetes Health Indicators/models/metasyn/synthetic_metasyn.semmap.parquet",
+          "download_url": "https://w3id.org/semsynth/demo#/output/CDC Diabetes Health Indicators/models/metasyn/synthetic_metasyn.semmap.parquet",
+          "format": "PARQUET",
+          "byte_size": 72338,
+          "modified": "2025-10-13T11:30:36.825126+00:00",
+          "issued": "2025-10-13T11:30:36.825126+00:00"
+        },
+        {
+          "id": "urn:distribution:cdc-diabetes-health-indicators-cdc-diabetes-health-indicators-models-clg-mi2-synthetic-semmap-parquet",
+          "type": [
+            "dcat:Distribution"
+          ],
+          "title": "CDC Diabetes Health Indicators synthetic data (clg_mi2, parquet)",
+          "access_url": "https://w3id.org/semsynth/demo#/output/CDC Diabetes Health Indicators/models/clg_mi2/synthetic.semmap.parquet",
+          "download_url": "https://w3id.org/semsynth/demo#/output/CDC Diabetes Health Indicators/models/clg_mi2/synthetic.semmap.parquet",
+          "format": "PARQUET",
+          "byte_size": 72299,
+          "modified": "2025-10-13T11:30:36.819612+00:00",
+          "issued": "2025-10-13T11:30:36.819612+00:00"
+        },
+        {
+          "id": "urn:distribution:cdc-diabetes-health-indicators-cdc-diabetes-health-indicators-models-ctgan-fast-synthetic-semmap-parquet",
+          "type": [
+            "dcat:Distribution"
+          ],
+          "title": "CDC Diabetes Health Indicators synthetic data (ctgan_fast, parquet)",
+          "access_url": "https://w3id.org/semsynth/demo#/output/CDC Diabetes Health Indicators/models/ctgan_fast/synthetic.semmap.parquet",
+          "download_url": "https://w3id.org/semsynth/demo#/output/CDC Diabetes Health Indicators/models/ctgan_fast/synthetic.semmap.parquet",
+          "format": "PARQUET",
+          "byte_size": 45806,
+          "modified": "2025-10-10T14:40:56.952946+00:00",
+          "issued": "2025-10-10T14:40:56.952946+00:00"
+        }
+      ]
+    },
+    {
+      "id": "urn:dataset:chronic-kidney-disease",
+      "type": [
+        "dcat:Dataset"
+      ],
+      "identifier": "chronic-kidney-disease",
+      "title": "Chronic Kidney Disease",
+      "description": "Source: UCI dataset 336 \u2014 synthetic assets curated by SemSynth.",
+      "keywords": [
+        "Chronic Kidney Disease",
+        "synthetic data",
+        "SemMap",
+        "SemSynth"
+      ],
+      "landing_page": "https://w3id.org/semsynth/demo#/output/Chronic Kidney Disease/index.html",
+      "modified": "2025-09-24T17:23:06.590121+00:00",
+      "issued": "2025-09-24T17:21:58.444134+00:00",
+      "wasDerivedFrom": [
+        {
+          "id": "https://w3id.org/semsynth/demo#/output/Chronic Kidney Disease/dataset.semmap.json"
+        },
+        {
+          "id": "https://w3id.org/semsynth/demo#/output/Chronic Kidney Disease/models/clg_mi2/synthetic.csv"
+        },
+        {
+          "id": "https://w3id.org/semsynth/demo#/output/Chronic Kidney Disease/models/clg_mi2/synthetic.semmap.parquet"
+        },
+        {
+          "id": "https://w3id.org/semsynth/demo#/output/Chronic Kidney Disease/models/ctgan_fast/synthetic.csv"
+        },
+        {
+          "id": "https://w3id.org/semsynth/demo#/output/Chronic Kidney Disease/models/ctgan_fast/synthetic.semmap.parquet"
+        },
+        {
+          "id": "https://w3id.org/semsynth/demo#/output/Chronic Kidney Disease/models/semi_mi5/synthetic.csv"
+        },
+        {
+          "id": "https://w3id.org/semsynth/demo#/output/Chronic Kidney Disease/models/semi_mi5/synthetic.semmap.parquet"
+        },
+        {
+          "id": "https://w3id.org/semsynth/demo#/output/Chronic Kidney Disease/models/tvae_quick/synthetic.csv"
+        },
+        {
+          "id": "https://w3id.org/semsynth/demo#/output/Chronic Kidney Disease/models/tvae_quick/synthetic.semmap.parquet"
+        },
+        {
+          "id": "https://w3id.org/semsynth/demo#/output/Chronic Kidney Disease/synthetic_metasyn.semmap.parquet"
+        }
+      ],
+      "distributions": [
+        {
+          "id": "urn:distribution:chronic-kidney-disease:semmap-json",
+          "type": [
+            "dcat:Distribution"
+          ],
+          "title": "Chronic Kidney Disease SemMap JSON-LD",
+          "access_url": "https://w3id.org/semsynth/demo#/output/Chronic Kidney Disease/dataset.semmap.json",
+          "download_url": "https://w3id.org/semsynth/demo#/output/Chronic Kidney Disease/dataset.semmap.json",
+          "media_type": "application/ld+json",
+          "format": "JSON-LD",
+          "byte_size": 1735,
+          "modified": "2025-09-24T17:21:58.444134+00:00",
+          "issued": "2025-09-24T17:21:58.444134+00:00"
+        },
+        {
+          "id": "urn:distribution:chronic-kidney-disease-chronic-kidney-disease-models-semi-mi5-synthetic-csv",
+          "type": [
+            "dcat:Distribution"
+          ],
+          "title": "Chronic Kidney Disease synthetic data (semi_mi5, csv)",
+          "access_url": "https://w3id.org/semsynth/demo#/output/Chronic Kidney Disease/models/semi_mi5/synthetic.csv",
+          "download_url": "https://w3id.org/semsynth/demo#/output/Chronic Kidney Disease/models/semi_mi5/synthetic.csv",
+          "media_type": "text/csv",
+          "format": "CSV",
+          "byte_size": 40843,
+          "modified": "2025-09-24T17:22:00.015824+00:00",
+          "issued": "2025-09-24T17:22:00.015824+00:00"
+        },
+        {
+          "id": "urn:distribution:chronic-kidney-disease-chronic-kidney-disease-models-tvae-quick-synthetic-csv",
+          "type": [
+            "dcat:Distribution"
+          ],
+          "title": "Chronic Kidney Disease synthetic data (tvae_quick, csv)",
+          "access_url": "https://w3id.org/semsynth/demo#/output/Chronic Kidney Disease/models/tvae_quick/synthetic.csv",
+          "download_url": "https://w3id.org/semsynth/demo#/output/Chronic Kidney Disease/models/tvae_quick/synthetic.csv",
+          "media_type": "text/csv",
+          "format": "CSV",
+          "byte_size": 265369,
+          "modified": "2025-09-24T17:22:59.575787+00:00",
+          "issued": "2025-09-24T17:22:59.575787+00:00"
+        },
+        {
+          "id": "urn:distribution:chronic-kidney-disease-chronic-kidney-disease-models-clg-mi2-synthetic-csv",
+          "type": [
+            "dcat:Distribution"
+          ],
+          "title": "Chronic Kidney Disease synthetic data (clg_mi2, csv)",
+          "access_url": "https://w3id.org/semsynth/demo#/output/Chronic Kidney Disease/models/clg_mi2/synthetic.csv",
+          "download_url": "https://w3id.org/semsynth/demo#/output/Chronic Kidney Disease/models/clg_mi2/synthetic.csv",
+          "media_type": "text/csv",
+          "format": "CSV",
+          "byte_size": 40783,
+          "modified": "2025-09-24T17:21:59.216946+00:00",
+          "issued": "2025-09-24T17:21:59.216946+00:00"
+        },
+        {
+          "id": "urn:distribution:chronic-kidney-disease-chronic-kidney-disease-models-ctgan-fast-synthetic-csv",
+          "type": [
+            "dcat:Distribution"
+          ],
+          "title": "Chronic Kidney Disease synthetic data (ctgan_fast, csv)",
+          "access_url": "https://w3id.org/semsynth/demo#/output/Chronic Kidney Disease/models/ctgan_fast/synthetic.csv",
+          "download_url": "https://w3id.org/semsynth/demo#/output/Chronic Kidney Disease/models/ctgan_fast/synthetic.csv",
+          "media_type": "text/csv",
+          "format": "CSV",
+          "byte_size": 197876,
+          "modified": "2025-09-24T17:22:02.414852+00:00",
+          "issued": "2025-09-24T17:22:02.414852+00:00"
+        },
+        {
+          "id": "urn:distribution:chronic-kidney-disease-chronic-kidney-disease-synthetic-metasyn-semmap-parquet",
+          "type": [
+            "dcat:Distribution"
+          ],
+          "title": "Chronic Kidney Disease synthetic data (metasyn, parquet)",
+          "access_url": "https://w3id.org/semsynth/demo#/output/Chronic Kidney Disease/synthetic_metasyn.semmap.parquet",
+          "download_url": "https://w3id.org/semsynth/demo#/output/Chronic Kidney Disease/synthetic_metasyn.semmap.parquet",
+          "format": "PARQUET",
+          "byte_size": 144494,
+          "modified": "2025-09-24T17:23:06.590121+00:00",
+          "issued": "2025-09-24T17:23:06.590121+00:00"
+        },
+        {
+          "id": "urn:distribution:chronic-kidney-disease-chronic-kidney-disease-models-semi-mi5-synthetic-semmap-parquet",
+          "type": [
+            "dcat:Distribution"
+          ],
+          "title": "Chronic Kidney Disease synthetic data (semi_mi5, parquet)",
+          "access_url": "https://w3id.org/semsynth/demo#/output/Chronic Kidney Disease/models/semi_mi5/synthetic.semmap.parquet",
+          "download_url": "https://w3id.org/semsynth/demo#/output/Chronic Kidney Disease/models/semi_mi5/synthetic.semmap.parquet",
+          "format": "PARQUET",
+          "byte_size": 32404,
+          "modified": "2025-09-24T17:22:00.026050+00:00",
+          "issued": "2025-09-24T17:22:00.026050+00:00"
+        },
+        {
+          "id": "urn:distribution:chronic-kidney-disease-chronic-kidney-disease-models-tvae-quick-synthetic-semmap-parquet",
+          "type": [
+            "dcat:Distribution"
+          ],
+          "title": "Chronic Kidney Disease synthetic data (tvae_quick, parquet)",
+          "access_url": "https://w3id.org/semsynth/demo#/output/Chronic Kidney Disease/models/tvae_quick/synthetic.semmap.parquet",
+          "download_url": "https://w3id.org/semsynth/demo#/output/Chronic Kidney Disease/models/tvae_quick/synthetic.semmap.parquet",
+          "format": "PARQUET",
+          "byte_size": 111170,
+          "modified": "2025-09-24T17:22:59.587925+00:00",
+          "issued": "2025-09-24T17:22:59.587925+00:00"
+        },
+        {
+          "id": "urn:distribution:chronic-kidney-disease-chronic-kidney-disease-models-clg-mi2-synthetic-semmap-parquet",
+          "type": [
+            "dcat:Distribution"
+          ],
+          "title": "Chronic Kidney Disease synthetic data (clg_mi2, parquet)",
+          "access_url": "https://w3id.org/semsynth/demo#/output/Chronic Kidney Disease/models/clg_mi2/synthetic.semmap.parquet",
+          "download_url": "https://w3id.org/semsynth/demo#/output/Chronic Kidney Disease/models/clg_mi2/synthetic.semmap.parquet",
+          "format": "PARQUET",
+          "byte_size": 32414,
+          "modified": "2025-09-24T17:21:59.226582+00:00",
+          "issued": "2025-09-24T17:21:59.226582+00:00"
+        },
+        {
+          "id": "urn:distribution:chronic-kidney-disease-chronic-kidney-disease-models-ctgan-fast-synthetic-semmap-parquet",
+          "type": [
+            "dcat:Distribution"
+          ],
+          "title": "Chronic Kidney Disease synthetic data (ctgan_fast, parquet)",
+          "access_url": "https://w3id.org/semsynth/demo#/output/Chronic Kidney Disease/models/ctgan_fast/synthetic.semmap.parquet",
+          "download_url": "https://w3id.org/semsynth/demo#/output/Chronic Kidney Disease/models/ctgan_fast/synthetic.semmap.parquet",
+          "format": "PARQUET",
+          "byte_size": 33249,
+          "modified": "2025-09-24T17:22:02.428520+00:00",
+          "issued": "2025-09-24T17:22:02.428520+00:00"
+        }
+      ]
+    },
+    {
+      "id": "urn:dataset:heart-disease",
+      "type": [
+        "dcat:Dataset"
+      ],
+      "identifier": "heart-disease",
+      "title": "Heart Disease",
+      "description": "Source: UCI dataset 45 \u2014 synthetic assets curated by SemSynth.",
+      "keywords": [
+        "Heart Disease",
+        "synthetic data",
+        "SemMap",
+        "SemSynth"
+      ],
+      "landing_page": "https://w3id.org/semsynth/demo#/output/Heart Disease/index.html",
+      "modified": "2025-11-13T11:34:18.176497+00:00",
+      "issued": "2025-11-13T11:34:18.176497+00:00",
+      "wasDerivedFrom": [
+        {
+          "id": "https://w3id.org/semsynth/demo#/output/Heart Disease/dataset.semmap.json"
+        },
+        {
+          "id": "https://w3id.org/semsynth/demo#/output/Heart Disease/models/clg_mi2/synthetic.csv"
+        },
+        {
+          "id": "https://w3id.org/semsynth/demo#/output/Heart Disease/models/clg_mi2/synthetic.semmap.parquet"
+        },
+        {
+          "id": "https://w3id.org/semsynth/demo#/output/Heart Disease/models/ctgan_fast/synthetic.csv"
+        },
+        {
+          "id": "https://w3id.org/semsynth/demo#/output/Heart Disease/models/ctgan_fast/synthetic.semmap.parquet"
+        },
+        {
+          "id": "https://w3id.org/semsynth/demo#/output/Heart Disease/models/metasyn/synthetic.csv"
+        },
+        {
+          "id": "https://w3id.org/semsynth/demo#/output/Heart Disease/models/metasyn/synthetic_metasyn.semmap.parquet"
+        },
+        {
+          "id": "https://w3id.org/semsynth/demo#/output/Heart Disease/models/semi_mi5/synthetic.csv"
+        },
+        {
+          "id": "https://w3id.org/semsynth/demo#/output/Heart Disease/models/semi_mi5/synthetic.semmap.parquet"
+        },
+        {
+          "id": "https://w3id.org/semsynth/demo#/output/Heart Disease/models/tvae_quick/synthetic.csv"
+        },
+        {
+          "id": "https://w3id.org/semsynth/demo#/output/Heart Disease/models/tvae_quick/synthetic.semmap.parquet"
+        }
+      ],
+      "distributions": [
+        {
+          "id": "urn:distribution:heart-disease:semmap-json",
+          "type": [
+            "dcat:Distribution"
+          ],
+          "title": "Heart Disease SemMap JSON-LD",
+          "access_url": "https://w3id.org/semsynth/demo#/output/Heart Disease/dataset.semmap.json",
+          "download_url": "https://w3id.org/semsynth/demo#/output/Heart Disease/dataset.semmap.json",
+          "media_type": "application/ld+json",
+          "format": "JSON-LD",
+          "byte_size": 14046,
+          "modified": "2025-11-13T11:34:18.176497+00:00",
+          "issued": "2025-11-13T11:34:18.176497+00:00"
+        },
+        {
+          "id": "urn:distribution:heart-disease-heart-disease-models-semi-mi5-synthetic-csv",
+          "type": [
+            "dcat:Distribution"
+          ],
+          "title": "Heart Disease synthetic data (semi_mi5, csv)",
+          "access_url": "https://w3id.org/semsynth/demo#/output/Heart Disease/models/semi_mi5/synthetic.csv",
+          "download_url": "https://w3id.org/semsynth/demo#/output/Heart Disease/models/semi_mi5/synthetic.csv",
+          "media_type": "text/csv",
+          "format": "CSV",
+          "byte_size": 33814,
+          "modified": "2025-11-13T10:50:55.758842+00:00",
+          "issued": "2025-11-13T10:50:55.758842+00:00"
+        },
+        {
+          "id": "urn:distribution:heart-disease-heart-disease-models-metasyn-synthetic-csv",
+          "type": [
+            "dcat:Distribution"
+          ],
+          "title": "Heart Disease synthetic data (metasyn, csv)",
+          "access_url": "https://w3id.org/semsynth/demo#/output/Heart Disease/models/metasyn/synthetic.csv",
+          "download_url": "https://w3id.org/semsynth/demo#/output/Heart Disease/models/metasyn/synthetic.csv",
+          "media_type": "text/csv",
+          "format": "CSV",
+          "byte_size": 33803,
+          "modified": "2025-11-13T10:50:51.325169+00:00",
+          "issued": "2025-11-13T10:50:51.325169+00:00"
+        },
+        {
+          "id": "urn:distribution:heart-disease-heart-disease-models-tvae-quick-synthetic-csv",
+          "type": [
+            "dcat:Distribution"
+          ],
+          "title": "Heart Disease synthetic data (tvae_quick, csv)",
+          "access_url": "https://w3id.org/semsynth/demo#/output/Heart Disease/models/tvae_quick/synthetic.csv",
+          "download_url": "https://w3id.org/semsynth/demo#/output/Heart Disease/models/tvae_quick/synthetic.csv",
+          "media_type": "text/csv",
+          "format": "CSV",
+          "byte_size": 114622,
+          "modified": "2025-09-24T17:21:45.276214+00:00",
+          "issued": "2025-09-24T17:21:45.276214+00:00"
+        },
+        {
+          "id": "urn:distribution:heart-disease-heart-disease-models-clg-mi2-synthetic-csv",
+          "type": [
+            "dcat:Distribution"
+          ],
+          "title": "Heart Disease synthetic data (clg_mi2, csv)",
+          "access_url": "https://w3id.org/semsynth/demo#/output/Heart Disease/models/clg_mi2/synthetic.csv",
+          "download_url": "https://w3id.org/semsynth/demo#/output/Heart Disease/models/clg_mi2/synthetic.csv",
+          "media_type": "text/csv",
+          "format": "CSV",
+          "byte_size": 33814,
+          "modified": "2025-11-13T10:50:51.478291+00:00",
+          "issued": "2025-11-13T10:50:51.478291+00:00"
+        },
+        {
+          "id": "urn:distribution:heart-disease-heart-disease-models-ctgan-fast-synthetic-csv",
+          "type": [
+            "dcat:Distribution"
+          ],
+          "title": "Heart Disease synthetic data (ctgan_fast, csv)",
+          "access_url": "https://w3id.org/semsynth/demo#/output/Heart Disease/models/ctgan_fast/synthetic.csv",
+          "download_url": "https://w3id.org/semsynth/demo#/output/Heart Disease/models/ctgan_fast/synthetic.csv",
+          "media_type": "text/csv",
+          "format": "CSV",
+          "byte_size": 73038,
+          "modified": "2025-09-24T17:20:52.872935+00:00",
+          "issued": "2025-09-24T17:20:52.872935+00:00"
+        },
+        {
+          "id": "urn:distribution:heart-disease-heart-disease-models-semi-mi5-synthetic-semmap-parquet",
+          "type": [
+            "dcat:Distribution"
+          ],
+          "title": "Heart Disease synthetic data (semi_mi5, parquet)",
+          "access_url": "https://w3id.org/semsynth/demo#/output/Heart Disease/models/semi_mi5/synthetic.semmap.parquet",
+          "download_url": "https://w3id.org/semsynth/demo#/output/Heart Disease/models/semi_mi5/synthetic.semmap.parquet",
+          "format": "PARQUET",
+          "byte_size": 27723,
+          "modified": "2025-09-24T17:20:17.383122+00:00",
+          "issued": "2025-09-24T17:20:17.383122+00:00"
+        },
+        {
+          "id": "urn:distribution:heart-disease-heart-disease-models-metasyn-synthetic-metasyn-semmap-parquet",
+          "type": [
+            "dcat:Distribution"
+          ],
+          "title": "Heart Disease synthetic data (metasyn, parquet)",
+          "access_url": "https://w3id.org/semsynth/demo#/output/Heart Disease/models/metasyn/synthetic_metasyn.semmap.parquet",
+          "download_url": "https://w3id.org/semsynth/demo#/output/Heart Disease/models/metasyn/synthetic_metasyn.semmap.parquet",
+          "format": "PARQUET",
+          "byte_size": 78759,
+          "modified": "2025-09-24T17:21:48.567163+00:00",
+          "issued": "2025-11-12T16:09:57.983845+00:00"
+        },
+        {
+          "id": "urn:distribution:heart-disease-heart-disease-models-tvae-quick-synthetic-semmap-parquet",
+          "type": [
+            "dcat:Distribution"
+          ],
+          "title": "Heart Disease synthetic data (tvae_quick, parquet)",
+          "access_url": "https://w3id.org/semsynth/demo#/output/Heart Disease/models/tvae_quick/synthetic.semmap.parquet",
+          "download_url": "https://w3id.org/semsynth/demo#/output/Heart Disease/models/tvae_quick/synthetic.semmap.parquet",
+          "format": "PARQUET",
+          "byte_size": 60282,
+          "modified": "2025-09-24T17:21:45.287543+00:00",
+          "issued": "2025-09-24T17:21:45.287543+00:00"
+        },
+        {
+          "id": "urn:distribution:heart-disease-heart-disease-models-clg-mi2-synthetic-semmap-parquet",
+          "type": [
+            "dcat:Distribution"
+          ],
+          "title": "Heart Disease synthetic data (clg_mi2, parquet)",
+          "access_url": "https://w3id.org/semsynth/demo#/output/Heart Disease/models/clg_mi2/synthetic.semmap.parquet",
+          "download_url": "https://w3id.org/semsynth/demo#/output/Heart Disease/models/clg_mi2/synthetic.semmap.parquet",
+          "format": "PARQUET",
+          "byte_size": 27723,
+          "modified": "2025-09-24T17:20:16.802571+00:00",
+          "issued": "2025-09-24T17:20:16.802571+00:00"
+        },
+        {
+          "id": "urn:distribution:heart-disease-heart-disease-models-ctgan-fast-synthetic-semmap-parquet",
+          "type": [
+            "dcat:Distribution"
+          ],
+          "title": "Heart Disease synthetic data (ctgan_fast, parquet)",
+          "access_url": "https://w3id.org/semsynth/demo#/output/Heart Disease/models/ctgan_fast/synthetic.semmap.parquet",
+          "download_url": "https://w3id.org/semsynth/demo#/output/Heart Disease/models/ctgan_fast/synthetic.semmap.parquet",
+          "format": "PARQUET",
+          "byte_size": 19851,
+          "modified": "2025-09-24T17:20:52.885585+00:00",
+          "issued": "2025-09-24T17:20:52.885585+00:00"
+        }
+      ]
+    },
+    {
+      "id": "urn:dataset:hepatitis",
+      "type": [
+        "dcat:Dataset"
+      ],
+      "identifier": "hepatitis",
+      "title": "Hepatitis",
+      "description": "Source: UCI dataset 46 \u2014 synthetic assets curated by SemSynth.",
+      "keywords": [
+        "Hepatitis",
+        "synthetic data",
+        "SemMap",
+        "SemSynth"
+      ],
+      "landing_page": "https://w3id.org/semsynth/demo#/output/Hepatitis/index.html",
+      "modified": "2025-10-17T11:36:52.239287+00:00",
+      "issued": "2025-10-17T10:10:03.365622+00:00",
+      "wasDerivedFrom": [
+        {
+          "id": "https://w3id.org/semsynth/demo#/output/Hepatitis/models/clg_mi2/synthetic.csv"
+        },
+        {
+          "id": "https://w3id.org/semsynth/demo#/output/Hepatitis/models/metasyn/synthetic.csv"
+        },
+        {
+          "id": "https://w3id.org/semsynth/demo#/output/Hepatitis/models/metasyn/synthetic_metasyn.semmap.parquet"
+        },
+        {
+          "id": "https://w3id.org/semsynth/demo#/output/Hepatitis/models/semi_mi5/synthetic.csv"
+        }
+      ],
+      "distributions": [
+        {
+          "id": "urn:distribution:hepatitis-hepatitis-models-semi-mi5-synthetic-csv",
+          "type": [
+            "dcat:Distribution"
+          ],
+          "title": "Hepatitis synthetic data (semi_mi5, csv)",
+          "access_url": "https://w3id.org/semsynth/demo#/output/Hepatitis/models/semi_mi5/synthetic.csv",
+          "download_url": "https://w3id.org/semsynth/demo#/output/Hepatitis/models/semi_mi5/synthetic.csv",
+          "media_type": "text/csv",
+          "format": "CSV",
+          "byte_size": 21634,
+          "modified": "2025-10-17T10:10:03.365622+00:00",
+          "issued": "2025-10-17T10:10:03.365622+00:00"
+        },
+        {
+          "id": "urn:distribution:hepatitis-hepatitis-models-metasyn-synthetic-csv",
+          "type": [
+            "dcat:Distribution"
+          ],
+          "title": "Hepatitis synthetic data (metasyn, csv)",
+          "access_url": "https://w3id.org/semsynth/demo#/output/Hepatitis/models/metasyn/synthetic.csv",
+          "download_url": "https://w3id.org/semsynth/demo#/output/Hepatitis/models/metasyn/synthetic.csv",
+          "media_type": "text/csv",
+          "format": "CSV",
+          "byte_size": 21636,
+          "modified": "2025-10-17T11:36:52.178925+00:00",
+          "issued": "2025-10-17T11:36:52.178925+00:00"
+        },
+        {
+          "id": "urn:distribution:hepatitis-hepatitis-models-clg-mi2-synthetic-csv",
+          "type": [
+            "dcat:Distribution"
+          ],
+          "title": "Hepatitis synthetic data (clg_mi2, csv)",
+          "access_url": "https://w3id.org/semsynth/demo#/output/Hepatitis/models/clg_mi2/synthetic.csv",
+          "download_url": "https://w3id.org/semsynth/demo#/output/Hepatitis/models/clg_mi2/synthetic.csv",
+          "media_type": "text/csv",
+          "format": "CSV",
+          "byte_size": 21620,
+          "modified": "2025-10-17T10:10:02.644064+00:00",
+          "issued": "2025-10-17T10:10:02.644064+00:00"
+        },
+        {
+          "id": "urn:distribution:hepatitis-hepatitis-models-metasyn-synthetic-metasyn-semmap-parquet",
+          "type": [
+            "dcat:Distribution"
+          ],
+          "title": "Hepatitis synthetic data (metasyn, parquet)",
+          "access_url": "https://w3id.org/semsynth/demo#/output/Hepatitis/models/metasyn/synthetic_metasyn.semmap.parquet",
+          "download_url": "https://w3id.org/semsynth/demo#/output/Hepatitis/models/metasyn/synthetic_metasyn.semmap.parquet",
+          "format": "PARQUET",
+          "byte_size": 42621,
+          "modified": "2025-10-17T11:36:52.239287+00:00",
+          "issued": "2025-10-17T11:36:52.239287+00:00"
+        }
+      ]
+    }
+  ]
+}

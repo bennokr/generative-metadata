@@ -49,6 +49,7 @@ SemSynth is a compact toolkit to profile tabular datasets, synthesize data with 
 - `configs/only_metasyn_config.yaml` keeps MetaSyn as the single synthetic data baseline.
 
 Example:
+
 ```yaml
 configs:
   - name: metasyn
@@ -88,16 +89,19 @@ configs:
 
 ### Example: UCI dataset 45 (Heart Disease)
 1. Fetch the dataset metadata. Any command that touches the UCI provider will populate `uciml-cache/<id>.json`. For example:
+   
    ```bash
    python semsynth_reports_cli.py report uciml -d 45 --configs-yaml configs/empty.yaml --metasyn false
    ```
    This creates `uciml-cache/45.json` alongside the cached CSV/metadata used by the reporting pipeline.
 2. Convert the cached metadata into DCAT + DSV JSON-LD:
+   
    ```bash
    python uci_template.py uciml-cache/45.json heart-dataset.jsonld
    ```
    The resulting `heart-dataset.jsonld` contains dataset-level `dcat:Dataset` fields plus a `dsv:datasetSchema` block with each variable from the Heart Disease dataset.
 3. Suggest terminology mappings for every variable description using the keyword search helper:
+   
    ```bash
    python map_columns/kwd_map_columns.py heart-dataset.jsonld \
        --datasette-db-url http://127.0.0.1:8001/terminology \

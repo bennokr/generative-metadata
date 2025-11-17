@@ -1,0 +1,208 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SemMap metadata schema &mdash; semsynth  documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Provenance workflow guide" href="provenance.html" />
+    <link rel="prev" title="Getting started" href="getting-started.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            semsynth
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="index.html">Home</a></li>
+<li class="toctree-l1"><a class="reference internal" href="getting-started.html">Getting started</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">SemMap metadata schema</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#core-objects">Core objects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#creation-and-ingestion">Creation and ingestion</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#updates-during-preprocessing">Updates during preprocessing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#use-in-analytics">Use in analytics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#reporting-and-exports">Reporting and exports</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="provenance.html">Provenance workflow guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">semsynth</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">SemMap metadata schema</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/schema.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="semmap-metadata-schema">
+<h1>SemMap metadata schema<a class="headerlink" href="#semmap-metadata-schema" title="Link to this heading"></a></h1>
+<p>This project represents dataset semantics using a SemMap-flavoured JSON-LD
+profile that blends <a class="reference external" href="https://www.w3.org/TR/vocab-dcat-3/">DCAT</a>/<a class="reference external" href="https://w3id.org/dsv-ontology">DSV</a>,
+<a class="reference external" href="https://www.w3.org/TR/tabular-data-model/">CSVW</a>, <a class="reference external" href="https://www.w3.org/TR/prov-o/">PROV</a>,
+<a class="reference external" href="https://qudt.org/">QUDT</a>/<a class="reference external" href="https://ucum.org/">UCUM</a>, and
+<a class="reference external" href="https://www.w3.org/TR/skos-reference/">SKOS</a> mappings. The
+canonical definitions live in <code class="docutils literal notranslate"><span class="pre">semsynth.semmap</span></code> and power every stage of the
+pipeline, from ingestion to reporting.</p>
+<section id="core-objects">
+<h2>Core objects<a class="headerlink" href="#core-objects" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><strong>Metadata</strong>: Root document that carries dataset-level <a class="reference external" href="https://www.w3.org/TR/vocab-dcat-3/">DCAT</a>
+information
+(title, description, purpose, landing page, citations, identifiers, funding,
+access rights) plus <code class="docutils literal notranslate"><span class="pre">summaryStatistics</span></code> such as dataset completeness and row
+counts. It contains a <code class="docutils literal notranslate"><span class="pre">DatasetSchema</span></code>.</p></li>
+<li><p><strong>DatasetSchema</strong>: Holds an ordered list of <code class="docutils literal notranslate"><span class="pre">Column</span></code> nodes.</p></li>
+<li><p><strong>Column</strong>: Captures <a class="reference external" href="https://www.w3.org/TR/tabular-data-model/">CSVW</a>/<a class="reference external" href="https://w3id.org/dsv-ontology">DSV</a>
+fields (<code class="docutils literal notranslate"><span class="pre">name</span></code>, <code class="docutils literal notranslate"><span class="pre">titles</span></code>, descriptions,
+<code class="docutils literal notranslate"><span class="pre">prov:hadRole</span></code>, defaults) and optional <code class="docutils literal notranslate"><span class="pre">summaryStatistics</span></code> with declared
+<code class="docutils literal notranslate"><span class="pre">statisticalDataType</span></code>, completeness, missing-value formats, and numeric
+aggregates. Columns may embed a <code class="docutils literal notranslate"><span class="pre">ColumnProperty</span></code>.</p></li>
+<li><p><strong>ColumnProperty</strong>: Encodes richer semantics including units
+(<a class="reference external" href="https://ucum.org/">UCUM</a>/<a class="reference external" href="https://qudt.org/">QUDT</a>), codebooks
+(<code class="docutils literal notranslate"><span class="pre">hasCodeBook</span></code> with <a class="reference external" href="https://www.w3.org/TR/skos-reference/">SKOS</a> concepts),
+links to variable definitions, provenance (<code class="docutils literal notranslate"><span class="pre">source</span></code>), and
+<a class="reference external" href="https://www.w3.org/TR/skos-reference/">SKOS</a> mappings
+(<code class="docutils literal notranslate"><span class="pre">exactMatch</span></code>, <code class="docutils literal notranslate"><span class="pre">closeMatch</span></code>, etc.).</p></li>
+<li><p><strong>CodeBook/CodeConcept</strong>: Capture enumerations or codelists, each
+<a class="reference external" href="https://www.w3.org/TR/skos-reference/">SKOS</a> concept
+supporting mappings to external ontologies. Presence of a codebook implies a
+categorical type for privacy metadata.</p></li>
+</ul>
+<p>Every dataclass inherits <code class="docutils literal notranslate"><span class="pre">JSONLDMixin</span></code>, enabling round-trips via
+<code class="docutils literal notranslate"><span class="pre">to_jsonld()/from_jsonld</span></code> and storage inside parquet files through the
+pandas <code class="docutils literal notranslate"><span class="pre">semmap</span></code> accessor.</p>
+</section>
+<section id="creation-and-ingestion">
+<h2>Creation and ingestion<a class="headerlink" href="#creation-and-ingestion" title="Link to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p><strong>Templates</strong>: <code class="docutils literal notranslate"><span class="pre">uci_template.py</span></code> emits <a class="reference external" href="https://www.w3.org/TR/vocab-dcat-3/">DCAT</a>/<a class="reference external" href="https://w3id.org/dsv-ontology">DSV</a>
+JSON-LD that matches the SemMap dataclasses. The same layout is loaded by
+<code class="docutils literal notranslate"><span class="pre">Metadata.from_dcat_dsv</span></code>.</p></li>
+<li><p><strong>Column mapping</strong>: <code class="docutils literal notranslate"><span class="pre">map_columns/shared.py</span></code> parses curated metadata for LLM
+prompts and returns a <code class="docutils literal notranslate"><span class="pre">Metadata</span></code> instance; <code class="docutils literal notranslate"><span class="pre">map_columns/sssom_to_semmap.py</span></code>
+merges <a class="reference external" href="https://w3id.org/sssom/">SSSOM</a> mapping files into <code class="docutils literal notranslate"><span class="pre">ColumnProperty</span></code>
+<a class="reference external" href="https://www.w3.org/TR/skos-reference/">SKOS</a> relationships to
+keep column mappings aligned with downstream semantics.</p></li>
+<li><p><strong>Pipeline loading</strong>: <code class="docutils literal notranslate"><span class="pre">semsynth.pipeline.Preprocessor</span></code> applies curated
+metadata (<code class="docutils literal notranslate"><span class="pre">DatasetSpec.meta</span></code> or JSON-LD files) to incoming dataframes through
+the pandas SemMap accessor, producing a shared <code class="docutils literal notranslate"><span class="pre">Metadata</span></code> object and
+JSON-LD export for later stages.</p></li>
+</ol>
+</section>
+<section id="updates-during-preprocessing">
+<h2>Updates during preprocessing<a class="headerlink" href="#updates-during-preprocessing" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><strong>Type inference</strong>: Inferred discrete/continuous hints are stored alongside
+metadata and used as fallbacks when semantics are incomplete.</p></li>
+<li><p><strong>Missingness</strong>: When missingness wrapping is enabled, <code class="docutils literal notranslate"><span class="pre">Metadata</span></code> is updated
+via <code class="docutils literal notranslate"><span class="pre">update_completeness_from_missingness</span></code> to refresh dataset/column
+completeness and missing-value annotations derived from the fitted model.</p></li>
+<li><p><strong>Persistence</strong>: The updated metadata is carried through
+<code class="docutils literal notranslate"><span class="pre">PreprocessingResult.semmap_metadata</span></code> and stored with artifacts for each run.</p></li>
+</ul>
+</section>
+<section id="use-in-analytics">
+<h2>Use in analytics<a class="headerlink" href="#use-in-analytics" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><strong>Privacy metrics</strong>: <code class="docutils literal notranslate"><span class="pre">Metadata.to_privacy_frame</span></code> normalizes SemMap roles to
+the privacy expectations (<code class="docutils literal notranslate"><span class="pre">qi</span></code>, <code class="docutils literal notranslate"><span class="pre">sensitive</span></code>, <code class="docutils literal notranslate"><span class="pre">id</span></code>, <code class="docutils literal notranslate"><span class="pre">ignore</span></code>, <code class="docutils literal notranslate"><span class="pre">target</span></code>) and
+maps <code class="docutils literal notranslate"><span class="pre">statisticalDataType</span></code> or codebooks to coarse types
+(<code class="docutils literal notranslate"><span class="pre">numeric</span></code>/<code class="docutils literal notranslate"><span class="pre">categorical</span></code>). The resulting dataframe is passed to
+<code class="docutils literal notranslate"><span class="pre">privacy_metrics.summarize_privacy_synthcity</span></code>, ensuring curated roles and
+types drive quasi-identifier selection and sensitive feature handling. When
+SemMap metadata is unavailable, the pipeline falls back to the inferred type
+map.</p></li>
+<li><p><strong>Downstream fidelity</strong>: The same <code class="docutils literal notranslate"><span class="pre">Metadata</span></code> instance is serialized to JSON-LD
+and provided to <code class="docutils literal notranslate"><span class="pre">downstream_fidelity.compare_real_vs_synth</span></code>, allowing role and
+codebook semantics to guide modeling and encoding.</p></li>
+</ul>
+</section>
+<section id="reporting-and-exports">
+<h2>Reporting and exports<a class="headerlink" href="#reporting-and-exports" title="Link to this heading"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">semsynth.reporting.write_report_md</span></code> receives the shared <code class="docutils literal notranslate"><span class="pre">Metadata</span></code> and renders
+human-readable dataset descriptions, citations, and completeness figures that
+match the SemMap export stored alongside backend outputs. This keeps reports,
+privacy metrics, and SemMap artifacts consistent.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="getting-started.html" class="btn btn-neutral float-left" title="Getting started" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="provenance.html" class="btn btn-neutral float-right" title="Provenance workflow guide" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright .</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -27,6 +27,7 @@ import textwrap
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 from markupsafe import Markup
 import pandas as pd
+from makeprov import rule
 
 from .jsonld_to_rdfa import SCHEMA_ORG, render_rdfa
 from .models import ModelRun
@@ -112,6 +113,7 @@ def _write_semmap_artifacts(
     return json_name, html_name
 
 
+@rule()
 def write_report_md(
     outdir: str,
     dataset_name: str,
@@ -157,6 +159,7 @@ def write_report_md(
     output_dir = Path(outdir)
     output_dir.mkdir(parents=True, exist_ok=True)
     md_path = output_dir / "report.md"
+    dataset_title = dataset_name
 
     semmap_json_name, semmap_html_name = _write_semmap_artifacts(
         output_dir, dataset_title, semmap_jsonld
@@ -172,7 +175,7 @@ def write_report_md(
     dataset_description = metadata_dict.get("dcterms:description") or metadata_dict.get("description")
     dataset_purpose = metadata_dict.get("dcterms:purpose") or metadata_dict.get("purpose")
     dataset_table = metadata_dict.get("dcterms:tableOfContents") or metadata_dict.get("tableOfContents")
-    dataset_title = metadata_dict.get("dcterms:title") or metadata_dict.get("title") or dataset_name
+    dataset_title = metadata_dict.get("dcterms:title") or metadata_dict.get("title") or dataset_title
     dataset_citation = metadata_dict.get("schema:citation") or metadata_dict.get("citation")
 
     num_rows, num_cols = df.shape

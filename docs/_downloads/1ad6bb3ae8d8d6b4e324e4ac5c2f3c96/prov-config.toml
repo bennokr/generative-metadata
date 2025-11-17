@@ -1,0 +1,4 @@
+base_iri = "https://w3id.org/semsynth/demo#"
+prov_dir = "prov"
+force = false
+dry_run = false

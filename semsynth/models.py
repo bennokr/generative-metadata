@@ -8,6 +8,8 @@ import logging
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
+from makeprov import rule
+
 if False:  # pragma: no cover - imported for type checking only
     from typing import TypedDict  # noqa: F401  # pylint: disable=unused-import
 
@@ -99,6 +101,7 @@ def _extract_globals(data: Any) -> Tuple[List[Dict[str, Any]], Dict[str, Optiona
     return items, {}
 
 
+@rule()
 def load_model_configs(yaml_path: Optional[str]) -> ModelConfigBundle:
     """Load model specifications and global flags from YAML.
 
@@ -157,12 +160,14 @@ def load_model_configs(yaml_path: Optional[str]) -> ModelConfigBundle:
     )
 
 
+@rule()
 def model_run_root(dataset_outdir: Path) -> Path:
     root = dataset_outdir / "models"
     root.mkdir(parents=True, exist_ok=True)
     return root
 
 
+@rule()
 def model_run_dir(dataset_outdir: Path, name: str) -> Path:
     root = model_run_root(dataset_outdir)
     run_dir = root / str(name)
@@ -170,11 +175,13 @@ def model_run_dir(dataset_outdir: Path, name: str) -> Path:
     return run_dir
 
 
+@rule()
 def write_manifest(run_dir: Path, manifest: Dict[str, Any]) -> None:
     (run_dir / "manifest.json").write_text(json.dumps(manifest, indent=2), encoding="utf-8")
     logging.debug("Wrote manifest to %s", run_dir / "manifest.json")
 
 
+@rule()
 def discover_model_runs(dataset_outdir: str | Path) -> List[ModelRun]:
     root = Path(dataset_outdir) / "models"
     if not root.exists():

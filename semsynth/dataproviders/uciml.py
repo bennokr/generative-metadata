@@ -10,16 +10,20 @@ from typing import List, Optional, Tuple
 
 import pandas as pd
 import requests
+from makeprov import OutPath, rule
 
 from ..specs import DatasetSpec
 from ._helpers import clean_dataset_frame
 
 
+@rule()
 def list_uciml(
     area: str = "Health and Medicine",
     name_substr: Optional[str] = None,
     cat_min: int = 1,
     num_min: int = 1,
+    *,
+    cachedir: OutPath = OutPath("uciml-cache"),
 ) -> pd.DataFrame:
     """Return (id, name, n_instances, n_categorical, n_numeric) for mixed datasets in area.
 
@@ -38,11 +42,11 @@ def list_uciml(
         pairs = [(i, n) for i, n in pairs if name_substr.lower() in n.lower()]
 
     data_url = "https://archive.ics.uci.edu/api/dataset"
-    cachedir = pathlib.Path(".") / "uciml-cache"
-    cachedir.mkdir(exist_ok=True)
+    cache_root = cachedir.path if isinstance(cachedir, OutPath) else pathlib.Path(cachedir)
+    cache_root.mkdir(exist_ok=True)
     rows = []
     for i, name in pairs:
-        cache = cachedir / f"{i}.json"
+        cache = cache_root / f"{i}.json"
         if not cache.exists():
             with cache.open("w") as fw:
                 logging.info(f"Requesting UCI ML metadata {i} ({name})")
@@ -69,13 +73,17 @@ def list_uciml(
     return pd.DataFrame(rows)
 
 
-def get_default_uciml(area: str = "Health and Medicine") -> List[DatasetSpec]:
-    df = list_uciml(area=area)
+@rule()
+def get_default_uciml(
+    area: str = "Health and Medicine", *, cache_dir: OutPath = OutPath("uciml-cache")
+) -> List[DatasetSpec]:
+    df = list_uciml(area=area, cachedir=cache_dir)
     return [DatasetSpec("uciml", name=r.name, id=r.id) for r in df.itertuples()]
 
 
+@rule()
 def load_uciml_by_id(
-    dataset_id: int, cache_dir: pathlib.Path
+    dataset_id: int, cache_dir: pathlib.Path | OutPath
 ) -> Tuple[DatasetSpec, pd.DataFrame, Optional[pd.Series]]:
     """Load a UCI ML dataset by ID, with local caching of the data payload.
 
@@ -83,8 +91,10 @@ def load_uciml_by_id(
       - {cache_dir}/{id}.csv.gz: cached tabular data
       - {cache_dir}/{id}.meta.json: minimal metadata (name, color column)
     """
-    data_path = cache_dir / f"{dataset_id}.csv.gz"
-    meta_path = cache_dir / f"{dataset_id}.meta.json"
+    cache_root = cache_dir if isinstance(cache_dir, pathlib.Path) else cache_dir.path
+    cache_base = cache_root or pathlib.Path(".")
+    data_path = cache_base / f"{dataset_id}.csv.gz"
+    meta_path = cache_base / f"{dataset_id}.meta.json"
 
     spec = DatasetSpec(provider="uciml", id=dataset_id)
 

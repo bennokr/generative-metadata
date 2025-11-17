@@ -19,6 +19,7 @@ dependencies = [
   "openml",
   "pandas",
   "pint-pandas",
+  "makeprov",
   "pyarrow",
   "pyyaml",
   "requests",

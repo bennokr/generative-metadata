@@ -3,20 +3,17 @@
 
 from __future__ import annotations
 
-import argparse
 import json
 import logging
 import mimetypes
 import re
-import subprocess
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from hashlib import sha256
 from pathlib import Path
 from typing import Dict, Iterable, List, Optional, Sequence, Set, Tuple
 
-from semsynth.jsonld import JSONLDMixin
-from semsynth.prov import Activity, Agent, DEFAULT_CONTEXT, FileEntity, Plan
+from makeprov import rule, InPath, OutPath, JSONLDMixin, main, GLOBAL_CONFIG
 
 
 LOGGER = logging.getLogger(__name__)
@@ -203,9 +200,8 @@ def sha256_digest(path: Path) -> str:
             hsh.update(chunk)
     return hsh.hexdigest()
 
-
 def collect_distributions(
-    dataset_name: str, dataset_dir: Path, mapper: PathURLMapper
+    dataset_name: str, dataset_dir: InPath, mapper: PathURLMapper
 ) -> Tuple[List[CatalogDistribution], Set[Path]]:
     """Collect SemMap and synthetic distributions for a dataset."""
 
@@ -306,208 +302,53 @@ def collect_datasets(
 
     return datasets, inputs
 
+def write_readme(readme_path: Path, dataset_dirs: Sequence[Path]) -> None:
+    """Rewrite output/README.md with dataset links."""
 
-def git_command(args: Sequence[str]) -> Optional[str]:
-    """Run a git command and capture its output."""
-
-    try:
-        result = subprocess.run(args, check=True, capture_output=True, text=True)
-        return result.stdout.strip() or None
-    except (subprocess.CalledProcessError, FileNotFoundError):
-        return None
-
-
-def build_catalog(
-    base_dir: Path, dataset_dirs: Sequence[Path], mapper: PathURLMapper
-) -> Tuple[DataCatalog, Set[Path]]:
-    """Construct the DCAT catalog and collect provenance inputs."""
-
-    datasets, inputs = collect_datasets(base_dir, dataset_dirs, mapper)
-    now = datetime.now(timezone.utc)
-    catalog = DataCatalog(
-        id="urn:catalog:semsynth-docs",
-        title="SemSynth Synthetic Data Catalog",
-        description="DCAT catalog of SemSynth reports and synthetic datasets.",
-        modified=to_iso(now),
-        datasets=datasets,
-    )
-    return catalog, inputs
-
-
-def build_provenance(
-    catalog: DataCatalog,
-    inputs: Iterable[Path],
-    activity_id: str,
-    start_time: datetime,
-    end_time: datetime,
-    mapper: PathURLMapper,
-) -> Tuple[Activity, Agent, Plan, List[FileEntity]]:
-    """Create PROV components describing the catalog generation."""
-
-    agent_id = "urn:agent:semsynth_reports_index.py"
-    plan_id = "urn:plan:semsynth_reports_index.py"
-
-    commit = git_command(["git", "rev-parse", "HEAD"])
-    origin = git_command(["git", "config", "--get", "remote.origin.url"])
-
-    activity = Activity(
-        id=activity_id,
-        startedAtTime=to_iso(start_time),
-        endedAtTime=to_iso(end_time),
-        wasAssociatedWith={"id": agent_id},
-        used=[{"id": plan_id}] + [{"id": mapper.for_path(path)} for path in sorted(inputs)],
-    )
-
-    agent = Agent(id=agent_id, label="semsynth_reports_index.py")
-    plan = Plan(
-        id=plan_id,
-        label="Generate SemSynth reports catalog",
-        hasVersion=commit,
-        source={"id": origin} if origin else None,
-    )
-
-    files: List[FileEntity] = []
-    for path in sorted(inputs):
-        try:
-            stat = path.stat()
-        except FileNotFoundError:
-            continue
-        files.append(
-            FileEntity(
-                id=mapper.for_path(path),
-                format=mimetype_for(path) or "application/octet-stream",
-                extent=stat.st_size,
-                modified=to_iso(datetime.fromtimestamp(stat.st_mtime, tz=timezone.utc)),
-                identifier=f"sha256:{sha256_digest(path)}",
-            )
-        )
-
-    catalog.wasGeneratedBy = {"id": activity.id}
-
-    return activity, agent, plan, files
-
-
-def write_readme(base_dir: Path, dataset_dirs: Sequence[Path]) -> None:
-    """Rewrite docs/README.md with dataset links."""
-
-    readme_path = base_dir / "README.md"
     lines = ["# Data Reports", ""]
     for directory in dataset_dirs:
         lines.append(f"- [{directory.name}]({directory.name}/)")
     readme_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
     LOGGER.info("Updated %s", readme_path)
 
+@rule()
+def build_catalog(
+    base_dir: InPath = InPath('output'), 
+    base_url: str = "https://w3id.org/semsynth/demo#",
+    out_path: OutPath = OutPath('output/catalog.json'),
+    readme_path: OutPath = OutPath('output/README.md')
+):
+    """Construct the DCAT catalog
+    
+    Arguments:
+        base_dir: The base directory that holds all SemSynth reports
+        base_url: The base url for creating IRIs
+        out_path: Write catalog here
+    """
+    GLOBAL_CONFIG.prov_dir = out_path.parent
 
-def select_dataset_dirs(base_dir: Path) -> List[Path]:
-    """Select dataset directories containing reports."""
+    mapper = PathURLMapper(root_dir=base_dir.parent, base_url=base_url)
 
-    dirs = []
+    dataset_dirs = []
     for path in sorted(base_dir.iterdir()):
         if not path.is_dir():
             continue
         if path.name.startswith(".") or path.name.lower() == "semsynth":
             continue
         if (path / "report.md").exists():
-            dirs.append(path)
-    return dirs
+            dataset_dirs.append(path)
 
-
-def write_catalog_document(
-    catalog: DataCatalog,
-    activity: Activity,
-    agent: Agent,
-    plan: Plan,
-    files: Sequence[FileEntity],
-    context: Dict[str, object],
-    output_path: Path,
-    mapper: PathURLMapper,
-) -> None:
-    """Serialize the combined DCAT + PROV JSON-LD document."""
-
-    graph = [
-        catalog.to_jsonld(with_context=False),
-        activity.to_jsonld(with_context=False),
-        agent.to_jsonld(with_context=False),
-        plan.to_jsonld(with_context=False),
-        *[file.to_jsonld(with_context=False) for file in files],
-    ]
-
-    document = {"@context": context, "@graph": graph}
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    output_path.write_text(json.dumps(document, ensure_ascii=False, indent=2), encoding="utf-8")
-    LOGGER.info("Wrote %s", output_path)
-
-    # Append output file entity with size and checksum.
-    stat = output_path.stat()
-    catalog_file = FileEntity(
-        id=mapper.for_path(output_path),
-        format="application/ld+json",
-        extent=stat.st_size,
-        modified=to_iso(datetime.fromtimestamp(stat.st_mtime, tz=timezone.utc)),
-        identifier=f"sha256:{sha256_digest(output_path)}",
-        wasGeneratedBy={"id": activity.id},
+    datasets, inputs = collect_datasets(base_dir, dataset_dirs, mapper)
+    now = datetime.now(timezone.utc)
+    catalog = DataCatalog(
+        id="urn:catalog:semsynth-demo",
+        title="SemSynth Synthetic Data Catalog",
+        description="DCAT catalog of SemSynth reports and synthetic datasets.",
+        modified=to_iso(now),
+        datasets=datasets,
     )
-    graph.append(catalog_file.to_jsonld(with_context=False))
-    output_path.write_text(json.dumps({"@context": context, "@graph": graph}, ensure_ascii=False, indent=2), encoding="utf-8")
-
-
-def parse_args(argv: Optional[Sequence[str]] = None) -> argparse.Namespace:
-    """Parse command line arguments."""
-
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("directory", type=Path, help="Path to the docs directory with reports")
-    parser.add_argument(
-        "--base-url",
-        dest="base_url",
-        type=str,
-        default=None,
-        help="Base URL where generated artifacts are published.",
-    )
-    parser.add_argument(
-        "--output",
-        dest="output",
-        type=Path,
-        default=Path("output/catalog.jsonld"),
-        help="Path for the generated catalog JSON-LD document.",
-    )
-    return parser.parse_args(argv)
-
-
-def main(argv: Optional[Sequence[str]] = None) -> None:
-    """Entry point for CLI usage."""
-
-    args = parse_args(argv)
-    base_dir = args.directory
-    if not base_dir.is_dir():
-        raise SystemExit(f"{base_dir} is not a directory")
-    base_dir = base_dir.resolve()
-    root_dir = base_dir.parent
-
-    logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
-
-    mapper = PathURLMapper(root_dir=root_dir, base_url=args.base_url)
-
-    dataset_dirs = select_dataset_dirs(base_dir)
-    write_readme(base_dir, dataset_dirs)
-
-    start_time = datetime.now(timezone.utc)
-    catalog, inputs = build_catalog(base_dir, dataset_dirs, mapper)
-    end_time = datetime.now(timezone.utc)
-
-    activity_id = f"urn:activity:semsynth_reports_index:{start_time.strftime('%Y%m%dT%H%M%S')}"
-    activity, agent, plan, file_entities = build_provenance(
-        catalog, inputs, activity_id, start_time, end_time, mapper
-    )
-
-    context = {**DEFAULT_CONTEXT, **DCAT_CONTEXT}
-    output_path = args.output
-    if not output_path.is_absolute():
-        output_path = (root_dir / output_path).resolve()
-    else:
-        output_path = output_path.resolve()
-    write_catalog_document(
-        catalog, activity, agent, plan, file_entities, context, output_path, mapper
-    )
+    write_readme(readme_path, dataset_dirs)
+    out_path.write_text(json.dumps(catalog.to_jsonld(), indent=2))
 
 
 if __name__ == "__main__":

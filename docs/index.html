@@ -189,7 +189,7 @@
 <section id="metadata-templates-column-mappings">
 <h2>🧰 Metadata templates &amp; column mappings<a class="headerlink" href="#metadata-templates-column-mappings" title="Link to this heading"></a></h2>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">uci_template.py</span></code> turns the JSON payloads cached under <code class="docutils literal notranslate"><span class="pre">uciml-cache/</span></code> (sometimes referenced as <code class="docutils literal notranslate"><span class="pre">uci-cache/</span></code> in earlier docs) into DCAT + DSV JSON-LD that downstream tools can ingest.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">semsynth/dataproviders/uciml.py</span></code> exposes a CLI that turns the JSON payloads cached under <code class="docutils literal notranslate"><span class="pre">uciml-cache/</span></code> (sometimes referenced as <code class="docutils literal notranslate"><span class="pre">uci-cache/</span></code> in earlier docs) into DCAT + DSV JSON-LD that downstream tools can ingest.</p></li>
 <li><p>Scripts under <code class="docutils literal notranslate"><span class="pre">map_columns/</span></code> take that JSON-LD and suggest or write terminology mappings (see <code class="docutils literal notranslate"><span class="pre">map_columns/README.md</span></code>).</p></li>
 </ul>
 <section id="example-uci-dataset-45-heart-disease">
@@ -202,7 +202,7 @@
 <p>This creates <code class="docutils literal notranslate"><span class="pre">uciml-cache/45.json</span></code> alongside the cached CSV/metadata used by the reporting pipeline.</p>
 </li>
 <li><p>Convert the cached metadata into DCAT + DSV JSON-LD:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>uci_template.py<span class="w"> </span>uciml-cache/45.json<span class="w"> </span>heart-dataset.jsonld
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>semsynth/dataproviders/uciml.py<span class="w"> </span>uciml-cache/45.json<span class="w"> </span>heart-dataset.jsonld
 </pre></div>
 </div>
 <p>The resulting <code class="docutils literal notranslate"><span class="pre">heart-dataset.jsonld</span></code> contains dataset-level <code class="docutils literal notranslate"><span class="pre">dcat:Dataset</span></code> fields plus a <code class="docutils literal notranslate"><span class="pre">dsv:datasetSchema</span></code> block with each variable from the Heart Disease dataset.</p>

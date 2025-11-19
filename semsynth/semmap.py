@@ -188,7 +188,7 @@ class Metadata(JSONLDMixin):
         """Build a :class:`Metadata` instance from a DCAT/DSV JSON-LD payload.
 
         Args:
-            payload: Raw JSON-LD mapping created by :mod:`uci_template`.
+            payload: Raw JSON-LD mapping created by :mod:`semsynth.dataproviders.uciml`.
 
         Returns:
             Parsed metadata with dataset- and column-level attributes populated.
@@ -218,7 +218,14 @@ class Metadata(JSONLDMixin):
             if not isinstance(col_json, Mapping):
                 continue
             summary = col_json.get("dsv:summaryStatistics") or col_json.get("summaryStatistics")
-            column_stats = SummaryStatistics.from_jsonld(summary) if isinstance(summary, Mapping) else None
+            if isinstance(summary, Mapping):
+                normalized_summary = {}
+                for key, value in summary.items():
+                    clean_key = key.split(":", maxsplit=1)[-1] if key.startswith("dsv:") else key
+                    normalized_summary[clean_key] = value
+                column_stats = SummaryStatistics.from_jsonld(normalized_summary)
+            else:
+                column_stats = None
             col_prop_json = col_json.get("dsv:columnProperty") or col_json.get("columnProperty")
             col_prop = ColumnProperty.from_jsonld(col_prop_json) if isinstance(col_prop_json, Mapping) else None
             columns.append(
@@ -382,6 +389,8 @@ class SemMapSeriesAccessor:
         # Derive unit_text from UCUM if needed
         if not self.col_semmap: return
         col_prop = self.col_semmap.columnProperty
+        if col_prop is None:
+            return
         ucum_code = col_prop.hasUnit.ucumCode if col_prop.hasUnit else None
         
         if col_prop.unitText is None and ucum_code is not None:
@@ -639,11 +648,23 @@ class SemMapFrameAccessor:
         else:
             meta_jsonld = metadata
 
+        if hasattr(meta_jsonld, "to_jsonld"):
+            meta_jsonld = meta_jsonld.to_jsonld()
+
         # Attach dataset semantics verbatim (round-trip equality)
         self.dataset_semmap = Metadata.from_jsonld(meta_jsonld)
 
         # Apply per-column metadata if present
-        cols = (((meta_jsonld or {}).get("datasetSchema") or {}).get("columns")) or []
+        schema_json = (
+            (meta_jsonld or {}).get("datasetSchema")
+            or (meta_jsonld or {}).get("dsv:datasetSchema")
+            or {}
+        )
+        if hasattr(schema_json, "to_jsonld"):
+            schema_json = schema_json.to_jsonld()
+        cols = []
+        if isinstance(schema_json, Mapping):
+            cols = (schema_json.get("columns") or schema_json.get("dsv:column") or [])
         by_name = {
             c.get("name"): c for c in cols if isinstance(c, dict) and "name" in c
         }

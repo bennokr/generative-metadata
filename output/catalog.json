@@ -57,7 +57,7 @@
   ],
   "title": "SemSynth Synthetic Data Catalog",
   "description": "DCAT catalog of SemSynth reports and synthetic datasets.",
-  "modified": "2025-11-17T15:24:53.002323+00:00",
+  "modified": "2025-11-19T10:24:48.542045+00:00",
   "datasets": [
     {
       "id": "urn:dataset:cdc-diabetes-health-indicators",

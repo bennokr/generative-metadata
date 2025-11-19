@@ -248,18 +248,24 @@ class DatasetPreprocessor:
                 curated = self._load_mapping(mapping_path)
                 df.semmap.from_jsonld(curated, convert_pint=True)
                 semmap_metadata = df.semmap.dataset_semmap
-                semmap_export = semmap_metadata.to_jsonld() if semmap_metadata else df.semmap.to_jsonld()
+                semmap_export = (
+                    semmap_metadata.to_jsonld()
+                    if semmap_metadata
+                    else df.semmap.to_jsonld()
+                )
             except Exception:
                 logging.exception("Failed to apply SemMap metadata", exc_info=True)
         elif isinstance(dataset_spec.meta, Metadata):
             semmap_metadata = dataset_spec.meta
-            df.semmap.from_jsonld(semmap_metadata.to_jsonld())
-            semmap_export = semmap_metadata.to_jsonld()
+            meta_jsonld = semmap_metadata.to_jsonld()
+            df.semmap.from_jsonld(meta_jsonld)
+            semmap_export = meta_jsonld
         elif isinstance(dataset_spec.meta, dict):
             try:
                 semmap_metadata = Metadata.from_dcat_dsv(dataset_spec.meta)
-                df.semmap.from_jsonld(semmap_metadata.to_jsonld())
-                semmap_export = semmap_metadata.to_jsonld()
+                meta_jsonld = semmap_metadata.to_jsonld()
+                df.semmap.from_jsonld(meta_jsonld)
+                semmap_export = meta_jsonld
             except Exception:
                 logging.exception("Failed to apply dataset_spec metadata", exc_info=True)
         if semmap_metadata is None:

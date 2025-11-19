@@ -1,20 +1,20 @@
 {
   "provenance": [
     {
-      "id": "http://example.org/run/build_catalog/20251117T152452",
+      "id": "http://example.org/run/build_catalog/20251119T102448",
       "type": "prov:Activity",
-      "startedAtTime": "2025-11-17T15:24:52.970687+00:00",
-      "endedAtTime": "2025-11-17T15:24:53.005452+00:00",
+      "startedAtTime": "2025-11-19T10:24:48.513501+00:00",
+      "endedAtTime": "2025-11-19T10:24:48.544636+00:00",
       "wasAssociatedWith": "http://example.org/agent/semsynth_reports_index.py",
       "used": [
         {
           "id": "http://example.org/src/output",
           "type": "prov:Entity",
           "format": "application/octet-stream",
-          "extent": 288,
-          "modified": "2025-11-17T15:24:53.005123+00:00"
+          "extent": 320,
+          "modified": "2025-11-19T10:17:15.109223+00:00"
         },
-        "http://example.org/env/20251117T152452"
+        "http://example.org/env/20251119T102448"
       ]
     },
     {
@@ -24,7 +24,7 @@
         "prov:SoftwareAgent"
       ],
       "label": "semsynth_reports_index.py",
-      "hasVersion": "59085372c6548672cfd8caa344392ffa1560f7ab",
+      "hasVersion": "c00c3db3c8480cc1c8b8a6b2718857940b1d9a9b",
       "source": "https://github.com/bennokr/generative-metadata.git"
     },
     {
@@ -32,19 +32,19 @@
       "type": "prov:Entity",
       "format": "application/json",
       "extent": 31924,
-      "modified": "2025-11-17T15:24:53.005331+00:00",
-      "wasGeneratedBy": "http://example.org/run/build_catalog/20251117T152452"
+      "modified": "2025-11-19T10:24:48.544547+00:00",
+      "wasGeneratedBy": "http://example.org/run/build_catalog/20251119T102448"
     },
     {
-      "id": "http://example.org/out/output/README.md",
+      "id": "http://example.org/out/output/index.html",
       "type": "prov:Entity",
-      "format": "application/octet-stream",
-      "extent": 196,
-      "modified": "2025-11-17T15:24:53.002659+00:00",
-      "wasGeneratedBy": "http://example.org/run/build_catalog/20251117T152452"
+      "format": "text/html",
+      "extent": 371,
+      "modified": "2025-11-19T10:24:48.542329+00:00",
+      "wasGeneratedBy": "http://example.org/run/build_catalog/20251119T102448"
     },
     {
-      "id": "http://example.org/env/20251117T152452",
+      "id": "http://example.org/env/20251119T102448",
       "type": [
         "prov:Entity",
         "prov:Collection"

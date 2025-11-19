@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build README index and DCAT catalog for SemSynth reports."""
+"""Build index index and DCAT catalog for SemSynth reports."""
 
 from __future__ import annotations
 
@@ -302,21 +302,23 @@ def collect_datasets(
 
     return datasets, inputs
 
-def write_readme(readme_path: Path, dataset_dirs: Sequence[Path]) -> None:
-    """Rewrite output/README.md with dataset links."""
+def write_index(index_path: Path, dataset_dirs: Sequence[Path]) -> None:
+    """Rewrite output/index.html with dataset links."""
 
-    lines = ["# Data Reports", ""]
+    lines = ['<head><link rel="stylesheet" href="../templates/report_style.css"></head>']
+    lines += ["<main>", "<h1>Data Reports</h1>", "", "<ul>"]
     for directory in dataset_dirs:
-        lines.append(f"- [{directory.name}]({directory.name}/)")
-    readme_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
-    LOGGER.info("Updated %s", readme_path)
+        lines.append(f'<li><a href="{directory.name}">{directory.name}</a></li>')
+    lines += ["</li>", "</main>"]
+    index_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    LOGGER.info("Updated %s", index_path)
 
 @rule()
 def build_catalog(
     base_dir: InPath = InPath('output'), 
     base_url: str = "https://w3id.org/semsynth/demo#",
     out_path: OutPath = OutPath('output/catalog.json'),
-    readme_path: OutPath = OutPath('output/README.md')
+    index_path: OutPath = OutPath('output/index.html')
 ):
     """Construct the DCAT catalog
     
@@ -347,7 +349,7 @@ def build_catalog(
         modified=to_iso(now),
         datasets=datasets,
     )
-    write_readme(readme_path, dataset_dirs)
+    write_index(index_path, dataset_dirs)
     out_path.write_text(json.dumps(catalog.to_jsonld(), indent=2))
 
 

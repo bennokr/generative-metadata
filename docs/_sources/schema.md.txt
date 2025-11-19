@@ -38,7 +38,7 @@ pandas `semmap` accessor.
 
 ## Creation and ingestion
 
-1. **Templates**: `uci_template.py` emits [DCAT](https://www.w3.org/TR/vocab-dcat-3/)/[DSV](https://w3id.org/dsv-ontology)
+1. **Templates**: `semsynth/dataproviders/uciml.py` emits [DCAT](https://www.w3.org/TR/vocab-dcat-3/)/[DSV](https://w3id.org/dsv-ontology)
    JSON-LD that matches the SemMap dataclasses. The same layout is loaded by
    `Metadata.from_dcat_dsv`.
 2. **Column mapping**: `map_columns/shared.py` parses curated metadata for LLM

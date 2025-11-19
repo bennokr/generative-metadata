@@ -84,7 +84,7 @@ configs:
   - `synthetic.semmap.parquet` (when SemMap metadata is available)
 
 ## 🧰 Metadata templates & column mappings
-- `uci_template.py` turns the JSON payloads cached under `uciml-cache/` (sometimes referenced as `uci-cache/` in earlier docs) into DCAT + DSV JSON-LD that downstream tools can ingest.
+- `semsynth/dataproviders/uciml.py` exposes a CLI that turns the JSON payloads cached under `uciml-cache/` (sometimes referenced as `uci-cache/` in earlier docs) into DCAT + DSV JSON-LD that downstream tools can ingest.
 - Scripts under `map_columns/` take that JSON-LD and suggest or write terminology mappings (see `map_columns/README.md`).
 
 ### Example: UCI dataset 45 (Heart Disease)
@@ -95,9 +95,9 @@ configs:
    ```
    This creates `uciml-cache/45.json` alongside the cached CSV/metadata used by the reporting pipeline.
 2. Convert the cached metadata into DCAT + DSV JSON-LD:
-   
+
    ```bash
-   python uci_template.py uciml-cache/45.json heart-dataset.jsonld
+   python semsynth/dataproviders/uciml.py uciml-cache/45.json heart-dataset.jsonld
    ```
    The resulting `heart-dataset.jsonld` contains dataset-level `dcat:Dataset` fields plus a `dsv:datasetSchema` block with each variable from the Heart Disease dataset.
 3. Suggest terminology mappings for every variable description using the keyword search helper:

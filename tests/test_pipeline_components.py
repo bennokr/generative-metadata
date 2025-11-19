@@ -376,6 +376,115 @@ def test_uciml_cached_uses_helper(monkeypatch: pytest.MonkeyPatch, tmp_path: Pat
     assert spec.target == "target"
 
 
+def test_uciml_cached_semmap_metadata(tmp_path: Path):
+    dataset_id = 789
+    cache_dir = tmp_path / "uciml"
+    cache_dir.mkdir(parents=True, exist_ok=True)
+    meta_path = cache_dir / f"{dataset_id}.meta.json"
+    data_path = cache_dir / f"{dataset_id}.csv.gz"
+
+    df = pd.DataFrame({"feature": [1, 2], "target": ["x", "y"]})
+    df.to_csv(data_path, index=False, compression="infer")
+
+    dcat_dsv = {
+        "dcterms:identifier": dataset_id,
+        "dcterms:title": "Demo UCI",
+        "dcterms:description": "Example dataset",
+        "dcat:landingPage": "https://example.invalid/demo",
+        "dcat:distribution": [
+            {
+                "@type": "dcat:Distribution",
+                "dcat:downloadURL": "https://example.invalid/demo.csv",
+            }
+        ],
+        "dsv:summaryStatistics": {
+            "dsv:numberOfRows": 2,
+            "dsv:numberOfColumns": 2,
+        },
+        "dsv:datasetSchema": {
+            "dsv:column": [
+                {
+                    "schema:name": "feature",
+                    "prov:hadRole": "qi",
+                    "dsv:summaryStatistics": {
+                        "dsv:statisticalDataType": "dsv:NumericalDataType"
+                    },
+                },
+                {
+                    "schema:name": "target",
+                    "prov:hadRole": "target",
+                    "dsv:summaryStatistics": {
+                        "dsv:statisticalDataType": "dsv:CategoricalDataType"
+                    },
+                },
+            ]
+        },
+    }
+    meta_path.write_text(
+        json.dumps(
+            {
+                "id": dataset_id,
+                "name": "Demo UCI",
+                "target": "target",
+                "dcat_dsv": dcat_dsv,
+            }
+        )
+    )
+
+    spec, df_loaded, color_series = load_uciml_by_id(dataset_id, cache_dir)
+
+    utils_stub = _StubUtils()
+    preprocessor = DatasetPreprocessor(
+        utils_module=utils_stub,
+        load_mapping=lambda path: {},
+        resolve_mapping=lambda _: None,
+    )
+    cfg = PipelineConfig(generate_umap=False)
+    rng = utils_stub.seed_all(cfg.random_state)
+
+    preprocessed = preprocessor.preprocess(
+        spec,
+        df_loaded,
+        color_series,
+        tmp_path / "out",
+        cfg,
+        rng,
+        generate_umap=False,
+        umap_utils=None,
+    )
+
+    assert preprocessed.semmap_metadata is not None
+    assert preprocessed.semmap_metadata.datasetSchema.columns
+    assert any(
+        col.hadRole == "target" and col.name == "target"
+        for col in preprocessed.semmap_metadata.datasetSchema.columns
+    )
+    export_schema = preprocessed.semmap_export.get("dsv:datasetSchema") or preprocessed.semmap_export.get("datasetSchema")
+    assert export_schema
+    export_columns = export_schema.get("dsv:column") or export_schema.get("columns")
+    assert any(
+        col.get("prov:hadRole") == "target" or col.get("hadRole") == "target"
+        for col in export_columns
+    )
+    assert any(
+        (
+            col.get("dsv:summaryStatistics", {}).get("dsv:statisticalDataType")
+            == "dsv:NumericalDataType"
+        )
+        or (
+            col.get("summaryStatistics", {})
+            and (
+                col["summaryStatistics"].get("statisticalDataType")
+                == "dsv:NumericalDataType"
+                or col["summaryStatistics"].get("dsv:statisticalDataType")
+                == "dsv:NumericalDataType"
+            )
+        )
+        for col in export_columns
+        if col.get("schema:name") == "feature" or col.get("name") == "feature"
+    )
+
+
 def test_backend_executor_runs_models(tmp_path):
     df = pd.DataFrame({"category": pd.Categorical(["a", "b"]), "value": [1.0, 2.0]})
     spec = DatasetSpec(provider="demo", name="example", target="value")

@@ -1,0 +1,188 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>semsynth.metrics &mdash; semsynth  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="semsynth.missingness" href="semsynth.missingness.html" />
+    <link rel="prev" title="semsynth.metadata" href="semsynth.metadata.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            semsynth
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../index.html">Home</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting-started.html">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../schema.html">SemMap metadata schema</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../provenance.html">Provenance workflow guide</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../api.html">API reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="semsynth.html">semsynth</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="semsynth.html#semsynth.get_version"><code class="docutils literal notranslate"><span class="pre">get_version()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="semsynth.backends.html">semsynth.backends</a></li>
+<li class="toctree-l3"><a class="reference internal" href="semsynth.cli.html">semsynth.cli</a></li>
+<li class="toctree-l3"><a class="reference internal" href="semsynth.downstream_fidelity.html">semsynth.downstream_fidelity</a></li>
+<li class="toctree-l3"><a class="reference internal" href="semsynth.jsonld_to_rdfa.html">semsynth.jsonld_to_rdfa</a></li>
+<li class="toctree-l3"><a class="reference internal" href="semsynth.mappings.html">semsynth.mappings</a></li>
+<li class="toctree-l3"><a class="reference internal" href="semsynth.metadata.html">semsynth.metadata</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">semsynth.metrics</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#semsynth.metrics.heldout_loglik"><code class="docutils literal notranslate"><span class="pre">heldout_loglik()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#semsynth.metrics.js_divergence_discrete"><code class="docutils literal notranslate"><span class="pre">js_divergence_discrete()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#semsynth.metrics.per_variable_distances"><code class="docutils literal notranslate"><span class="pre">per_variable_distances()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#semsynth.metrics.summarize_distance_metrics"><code class="docutils literal notranslate"><span class="pre">summarize_distance_metrics()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="semsynth.missingness.html">semsynth.missingness</a></li>
+<li class="toctree-l3"><a class="reference internal" href="semsynth.privacy_metrics.html">semsynth.privacy_metrics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="semsynth.semmap.html">semsynth.semmap</a></li>
+<li class="toctree-l3"><a class="reference internal" href="semsynth.specs.html">semsynth.specs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="semsynth.torch_compat.html">semsynth.torch_compat</a></li>
+<li class="toctree-l3"><a class="reference internal" href="semsynth.umap_utils.html">semsynth.umap_utils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="semsynth.utils.html">semsynth.utils</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">semsynth</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../api.html">API reference</a></li>
+          <li class="breadcrumb-item"><a href="semsynth.html">semsynth</a></li>
+      <li class="breadcrumb-item active">semsynth.metrics</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/_autosummary/semsynth.metrics.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-semsynth.metrics">
+<span id="semsynth-metrics"></span><h1>semsynth.metrics<a class="headerlink" href="#module-semsynth.metrics" title="Link to this heading"></a></h1>
+<p class="rubric">Functions</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#semsynth.metrics.heldout_loglik" title="semsynth.metrics.heldout_loglik"><code class="xref py py-obj docutils literal notranslate"><span class="pre">heldout_loglik</span></code></a>(model, df_test)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">jensenshannon</span></code>(p, q[, base, axis, keepdims])</p></td>
+<td><p>Compute the Jensen-Shannon distance (metric) between two probability arrays.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#semsynth.metrics.js_divergence_discrete" title="semsynth.metrics.js_divergence_discrete"><code class="xref py py-obj docutils literal notranslate"><span class="pre">js_divergence_discrete</span></code></a>(p, q)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">ks_2samp</span></code>(data1, data2[, alternative, ...])</p></td>
+<td><p>Performs the two-sample Kolmogorov-Smirnov test for goodness of fit.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#semsynth.metrics.per_variable_distances" title="semsynth.metrics.per_variable_distances"><code class="xref py py-obj docutils literal notranslate"><span class="pre">per_variable_distances</span></code></a>(real_df, synth_df, ...)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#semsynth.metrics.summarize_distance_metrics" title="semsynth.metrics.summarize_distance_metrics"><code class="xref py py-obj docutils literal notranslate"><span class="pre">summarize_distance_metrics</span></code></a>(distances)</p></td>
+<td><p>Compute aggregate statistics for per-variable distance metrics.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">wasserstein_distance</span></code>(u_values, v_values[, ...])</p></td>
+<td><p>Compute the Wasserstein-1 distance between two 1D discrete distributions.</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py function">
+<dt class="sig sig-object py" id="semsynth.metrics.heldout_loglik">
+<span class="sig-prename descclassname"><span class="pre">semsynth.metrics.</span></span><span class="sig-name descname"><span class="pre">heldout_loglik</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df_test</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#semsynth.metrics.heldout_loglik" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="semsynth.metrics.js_divergence_discrete">
+<span class="sig-prename descclassname"><span class="pre">semsynth.metrics.</span></span><span class="sig-name descname"><span class="pre">js_divergence_discrete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Series</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Series</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#semsynth.metrics.js_divergence_discrete" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="semsynth.metrics.per_variable_distances">
+<span class="sig-prename descclassname"><span class="pre">semsynth.metrics.</span></span><span class="sig-name descname"><span class="pre">per_variable_distances</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">real_df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">synth_df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">discrete_cols</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">continuous_cols</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="headerlink" href="#semsynth.metrics.per_variable_distances" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="semsynth.metrics.summarize_distance_metrics">
+<span class="sig-prename descclassname"><span class="pre">semsynth.metrics.</span></span><span class="sig-name descname"><span class="pre">summarize_distance_metrics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">distances</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#semsynth.metrics.summarize_distance_metrics" title="Link to this definition"></a></dt>
+<dd><p>Compute aggregate statistics for per-variable distance metrics.</p>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="semsynth.metadata.html" class="btn btn-neutral float-left" title="semsynth.metadata" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="semsynth.missingness.html" class="btn btn-neutral float-right" title="semsynth.missingness" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright .</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

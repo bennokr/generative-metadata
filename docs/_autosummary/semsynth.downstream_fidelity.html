@@ -1,0 +1,263 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>semsynth.downstream_fidelity &mdash; semsynth  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="semsynth.jsonld_to_rdfa" href="semsynth.jsonld_to_rdfa.html" />
+    <link rel="prev" title="semsynth.cli" href="semsynth.cli.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            semsynth
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../index.html">Home</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting-started.html">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../schema.html">SemMap metadata schema</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../provenance.html">Provenance workflow guide</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../api.html">API reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="semsynth.html">semsynth</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="semsynth.html#semsynth.get_version"><code class="docutils literal notranslate"><span class="pre">get_version()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="semsynth.backends.html">semsynth.backends</a></li>
+<li class="toctree-l3"><a class="reference internal" href="semsynth.cli.html">semsynth.cli</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">semsynth.downstream_fidelity</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#semsynth.downstream_fidelity.auto_formula"><code class="docutils literal notranslate"><span class="pre">auto_formula()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#semsynth.downstream_fidelity.compare_real_vs_synth"><code class="docutils literal notranslate"><span class="pre">compare_real_vs_synth()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#semsynth.downstream_fidelity.fit_with_mi"><code class="docutils literal notranslate"><span class="pre">fit_with_mi()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#semsynth.downstream_fidelity.formula_from_selected"><code class="docutils literal notranslate"><span class="pre">formula_from_selected()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#semsynth.downstream_fidelity.generate_candidates"><code class="docutils literal notranslate"><span class="pre">generate_candidates()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#semsynth.downstream_fidelity.screen_terms"><code class="docutils literal notranslate"><span class="pre">screen_terms()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="semsynth.jsonld_to_rdfa.html">semsynth.jsonld_to_rdfa</a></li>
+<li class="toctree-l3"><a class="reference internal" href="semsynth.mappings.html">semsynth.mappings</a></li>
+<li class="toctree-l3"><a class="reference internal" href="semsynth.metadata.html">semsynth.metadata</a></li>
+<li class="toctree-l3"><a class="reference internal" href="semsynth.metrics.html">semsynth.metrics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="semsynth.missingness.html">semsynth.missingness</a></li>
+<li class="toctree-l3"><a class="reference internal" href="semsynth.privacy_metrics.html">semsynth.privacy_metrics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="semsynth.semmap.html">semsynth.semmap</a></li>
+<li class="toctree-l3"><a class="reference internal" href="semsynth.specs.html">semsynth.specs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="semsynth.torch_compat.html">semsynth.torch_compat</a></li>
+<li class="toctree-l3"><a class="reference internal" href="semsynth.umap_utils.html">semsynth.umap_utils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="semsynth.utils.html">semsynth.utils</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">semsynth</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../api.html">API reference</a></li>
+          <li class="breadcrumb-item"><a href="semsynth.html">semsynth</a></li>
+      <li class="breadcrumb-item active">semsynth.downstream_fidelity</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/_autosummary/semsynth.downstream_fidelity.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-semsynth.downstream_fidelity">
+<span id="semsynth-downstream-fidelity"></span><h1>semsynth.downstream_fidelity<a class="headerlink" href="#module-semsynth.downstream_fidelity" title="Link to this heading"></a></h1>
+<p>Measure downstream fidelity of a synthetic dataset by training regression models.</p>
+<p># Example usage (sketch)</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">meta</span> <span class="o">=</span> <span class="p">{</span>
+<span class="gp">&gt;&gt;&gt; </span>  <span class="s2">&quot;dsv:datasetSchema&quot;</span><span class="p">:</span> <span class="p">{</span>
+<span class="gp">&gt;&gt;&gt; </span>      <span class="s2">&quot;dsv:column&quot;</span><span class="p">:</span> <span class="p">[</span>
+<span class="gp">&gt;&gt;&gt; </span>          <span class="p">{</span>
+<span class="gp">&gt;&gt;&gt; </span>              <span class="s2">&quot;schema:name&quot;</span><span class="p">:</span> <span class="s2">&quot;target&quot;</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>              <span class="s2">&quot;prov:hadRole&quot;</span><span class="p">:</span> <span class="s2">&quot;target&quot;</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>              <span class="s2">&quot;dsv:summaryStatistics&quot;</span><span class="p">:</span> <span class="p">{</span>
+<span class="gp">&gt;&gt;&gt; </span>                  <span class="s2">&quot;dsv:statisticalDataType&quot;</span><span class="p">:</span> <span class="s2">&quot;dsv:NominalDataType&quot;</span>
+<span class="gp">&gt;&gt;&gt; </span>              <span class="p">},</span>
+<span class="gp">&gt;&gt;&gt; </span>              <span class="s2">&quot;schema:defaultValue&quot;</span><span class="p">:</span> <span class="s2">&quot;0&quot;</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>              <span class="s2">&quot;dsv:columnProperty&quot;</span><span class="p">:</span> <span class="p">{</span>
+<span class="gp">&gt;&gt;&gt; </span>                  <span class="s2">&quot;dsv:hasCodeBook&quot;</span><span class="p">:</span> <span class="p">{</span>
+<span class="gp">&gt;&gt;&gt; </span>                      <span class="s2">&quot;skos:hasTopConcept&quot;</span><span class="p">:</span> <span class="p">[</span>
+<span class="gp">&gt;&gt;&gt; </span>                          <span class="p">{</span><span class="s2">&quot;skos:notation&quot;</span><span class="p">:</span> <span class="s2">&quot;0&quot;</span><span class="p">},</span>
+<span class="gp">&gt;&gt;&gt; </span>                          <span class="p">{</span><span class="s2">&quot;skos:notation&quot;</span><span class="p">:</span> <span class="s2">&quot;1&quot;</span><span class="p">},</span>
+<span class="gp">&gt;&gt;&gt; </span>                      <span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span>                  <span class="p">}</span>
+<span class="gp">&gt;&gt;&gt; </span>              <span class="p">}</span>
+<span class="gp">&gt;&gt;&gt; </span>          <span class="p">},</span>
+<span class="gp">&gt;&gt;&gt; </span>          <span class="p">{</span>
+<span class="gp">&gt;&gt;&gt; </span>              <span class="s2">&quot;schema:name&quot;</span><span class="p">:</span> <span class="s2">&quot;age&quot;</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>              <span class="s2">&quot;prov:hadRole&quot;</span><span class="p">:</span> <span class="s2">&quot;predictor&quot;</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>              <span class="s2">&quot;dsv:summaryStatistics&quot;</span><span class="p">:</span> <span class="p">{</span>
+<span class="gp">&gt;&gt;&gt; </span>                  <span class="s2">&quot;dsv:statisticalDataType&quot;</span><span class="p">:</span> <span class="s2">&quot;dsv:QuantitativeDataType&quot;</span>
+<span class="gp">&gt;&gt;&gt; </span>              <span class="p">}</span>
+<span class="gp">&gt;&gt;&gt; </span>          <span class="p">},</span>
+<span class="gp">&gt;&gt;&gt; </span>      <span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span>  <span class="p">}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">}</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">out</span> <span class="o">=</span> <span class="n">compare_real_vs_synth</span><span class="p">(</span>
+<span class="gp">&gt;&gt;&gt; </span>  <span class="n">df_real</span><span class="p">,</span> <span class="n">df_synth</span><span class="p">,</span> <span class="n">meta</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>  <span class="n">m</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">burnin</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">max_interactions</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">cv</span><span class="o">=</span><span class="mi">5</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">out</span><span class="p">[</span><span class="s2">&quot;formula&quot;</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">out</span><span class="p">[</span><span class="s2">&quot;compare&quot;</span><span class="p">])</span>
+</pre></div>
+</div>
+<p class="rubric">Functions</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#semsynth.downstream_fidelity.auto_formula" title="semsynth.downstream_fidelity.auto_formula"><code class="xref py py-obj docutils literal notranslate"><span class="pre">auto_formula</span></code></a>(df, meta, *[, max_interactions, cv])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#semsynth.downstream_fidelity.compare_real_vs_synth" title="semsynth.downstream_fidelity.compare_real_vs_synth"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compare_real_vs_synth</span></code></a>(df_real, df_synth, meta, *)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#semsynth.downstream_fidelity.fit_with_mi" title="semsynth.downstream_fidelity.fit_with_mi"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit_with_mi</span></code></a>(df, formula, meta, *[, m, burnin])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#semsynth.downstream_fidelity.formula_from_selected" title="semsynth.downstream_fidelity.formula_from_selected"><code class="xref py py-obj docutils literal notranslate"><span class="pre">formula_from_selected</span></code></a>(yname, selected_terms)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#semsynth.downstream_fidelity.generate_candidates" title="semsynth.downstream_fidelity.generate_candidates"><code class="xref py py-obj docutils literal notranslate"><span class="pre">generate_candidates</span></code></a>(df, meta[, max_interactions])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#semsynth.downstream_fidelity.screen_terms" title="semsynth.downstream_fidelity.screen_terms"><code class="xref py py-obj docutils literal notranslate"><span class="pre">screen_terms</span></code></a>(df, yname, target_type, ...[, cv])</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Classes</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">Any</span></code>(*args, **kwargs)</p></td>
+<td><p>Special type indicating an unconstrained type.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GridSearchCV</span></code>(estimator, param_grid, *[, ...])</p></td>
+<td><p>Exhaustive search over specified parameter values for an estimator.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">LassoCV</span></code>(*[, eps, n_alphas, alphas, ...])</p></td>
+<td><p>Lasso linear model with iterative fitting along a regularization path.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">LogisticRegressionCV</span></code>(*[, Cs, fit_intercept, ...])</p></td>
+<td><p>Logistic Regression CV (aka logit, MaxEnt) classifier.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">PoissonRegressor</span></code>(*[, alpha, fit_intercept, ...])</p></td>
+<td><p>Generalized Linear Model with a Poisson distribution.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">SimpleImputer</span></code>(*[, missing_values, strategy, ...])</p></td>
+<td><p>Univariate imputer for completing missing values with simple strategies.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">StandardScaler</span></code>(*[, copy, with_mean, with_std])</p></td>
+<td><p>Standardize features by removing the mean and scaling to unit variance.</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py function">
+<dt class="sig sig-object py" id="semsynth.downstream_fidelity.auto_formula">
+<span class="sig-prename descclassname"><span class="pre">semsynth.downstream_fidelity.</span></span><span class="sig-name descname"><span class="pre">auto_formula</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">meta</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_interactions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cv</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#semsynth.downstream_fidelity.auto_formula" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="semsynth.downstream_fidelity.compare_real_vs_synth">
+<span class="sig-prename descclassname"><span class="pre">semsynth.downstream_fidelity.</span></span><span class="sig-name descname"><span class="pre">compare_real_vs_synth</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df_real</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df_synth</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">meta</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">m</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">burnin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_interactions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cv</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#semsynth.downstream_fidelity.compare_real_vs_synth" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="semsynth.downstream_fidelity.fit_with_mi">
+<span class="sig-prename descclassname"><span class="pre">semsynth.downstream_fidelity.</span></span><span class="sig-name descname"><span class="pre">fit_with_mi</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">formula</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">meta</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">m</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">burnin</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#semsynth.downstream_fidelity.fit_with_mi" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="semsynth.downstream_fidelity.formula_from_selected">
+<span class="sig-prename descclassname"><span class="pre">semsynth.downstream_fidelity.</span></span><span class="sig-name descname"><span class="pre">formula_from_selected</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">yname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">selected_terms</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#semsynth.downstream_fidelity.formula_from_selected" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="semsynth.downstream_fidelity.generate_candidates">
+<span class="sig-prename descclassname"><span class="pre">semsynth.downstream_fidelity.</span></span><span class="sig-name descname"><span class="pre">generate_candidates</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">meta</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_interactions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#semsynth.downstream_fidelity.generate_candidates" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="semsynth.downstream_fidelity.screen_terms">
+<span class="sig-prename descclassname"><span class="pre">semsynth.downstream_fidelity.</span></span><span class="sig-name descname"><span class="pre">screen_terms</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">full_formula</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">cv</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#semsynth.downstream_fidelity.screen_terms" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="semsynth.cli.html" class="btn btn-neutral float-left" title="semsynth.cli" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="semsynth.jsonld_to_rdfa.html" class="btn btn-neutral float-right" title="semsynth.jsonld_to_rdfa" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright .</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

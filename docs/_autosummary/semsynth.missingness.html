@@ -1,0 +1,392 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>semsynth.missingness &mdash; semsynth  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="semsynth.privacy_metrics" href="semsynth.privacy_metrics.html" />
+    <link rel="prev" title="semsynth.metrics" href="semsynth.metrics.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            semsynth
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../index.html">Home</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting-started.html">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../schema.html">SemMap metadata schema</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../provenance.html">Provenance workflow guide</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../api.html">API reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="semsynth.html">semsynth</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="semsynth.html#semsynth.get_version"><code class="docutils literal notranslate"><span class="pre">get_version()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="semsynth.backends.html">semsynth.backends</a></li>
+<li class="toctree-l3"><a class="reference internal" href="semsynth.cli.html">semsynth.cli</a></li>
+<li class="toctree-l3"><a class="reference internal" href="semsynth.downstream_fidelity.html">semsynth.downstream_fidelity</a></li>
+<li class="toctree-l3"><a class="reference internal" href="semsynth.jsonld_to_rdfa.html">semsynth.jsonld_to_rdfa</a></li>
+<li class="toctree-l3"><a class="reference internal" href="semsynth.mappings.html">semsynth.mappings</a></li>
+<li class="toctree-l3"><a class="reference internal" href="semsynth.metadata.html">semsynth.metadata</a></li>
+<li class="toctree-l3"><a class="reference internal" href="semsynth.metrics.html">semsynth.metrics</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">semsynth.missingness</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#semsynth.missingness.ColumnMissingnessModel"><code class="docutils literal notranslate"><span class="pre">ColumnMissingnessModel</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#semsynth.missingness.DataFrameMissingnessModel"><code class="docutils literal notranslate"><span class="pre">DataFrameMissingnessModel</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#semsynth.missingness.MissingnessWrappedGenerator"><code class="docutils literal notranslate"><span class="pre">MissingnessWrappedGenerator</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#semsynth.missingness.apply_missingness_to_outputs"><code class="docutils literal notranslate"><span class="pre">apply_missingness_to_outputs()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#semsynth.missingness.fit_missingness_model"><code class="docutils literal notranslate"><span class="pre">fit_missingness_model()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#semsynth.missingness.summarize_missingness_model"><code class="docutils literal notranslate"><span class="pre">summarize_missingness_model()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="semsynth.privacy_metrics.html">semsynth.privacy_metrics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="semsynth.semmap.html">semsynth.semmap</a></li>
+<li class="toctree-l3"><a class="reference internal" href="semsynth.specs.html">semsynth.specs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="semsynth.torch_compat.html">semsynth.torch_compat</a></li>
+<li class="toctree-l3"><a class="reference internal" href="semsynth.umap_utils.html">semsynth.umap_utils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="semsynth.utils.html">semsynth.utils</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">semsynth</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../api.html">API reference</a></li>
+          <li class="breadcrumb-item"><a href="semsynth.html">semsynth</a></li>
+      <li class="breadcrumb-item active">semsynth.missingness</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/_autosummary/semsynth.missingness.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-semsynth.missingness">
+<span id="semsynth-missingness"></span><h1>semsynth.missingness<a class="headerlink" href="#module-semsynth.missingness" title="Link to this heading"></a></h1>
+<p>Missingness modeling utilities for backend generators.</p>
+<p class="rubric">Functions</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#semsynth.missingness.apply_missingness_to_outputs" title="semsynth.missingness.apply_missingness_to_outputs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">apply_missingness_to_outputs</span></code></a>(*, run_dir, ...)</p></td>
+<td><p>Apply missingness to backend artefacts and refresh derived metrics.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">dataclass</span></code>([cls, init, repr, eq, order, ...])</p></td>
+<td><p>Add dunder methods based on the fields defined in the class.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">field</span></code>(*[, default, default_factory, init, ...])</p></td>
+<td><p>Return an object to identify dataclass fields.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#semsynth.missingness.fit_missingness_model" title="semsynth.missingness.fit_missingness_model"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit_missingness_model</span></code></a>(df, *[, random_state])</p></td>
+<td><p>Fit a dataframe-level missingness model with logging safeguards.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">per_variable_distances</span></code>(real_df, synth_df, ...)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">summarize_distance_metrics</span></code>(distances)</p></td>
+<td><p>Compute aggregate statistics for per-variable distance metrics.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#semsynth.missingness.summarize_missingness_model" title="semsynth.missingness.summarize_missingness_model"><code class="xref py py-obj docutils literal notranslate"><span class="pre">summarize_missingness_model</span></code></a>(missingness_model)</p></td>
+<td><p>Build a reporting-friendly summary of the missingness model.</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Classes</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">Any</span></code>(*args, **kwargs)</p></td>
+<td><p>Special type indicating an unconstrained type.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#semsynth.missingness.ColumnMissingnessModel" title="semsynth.missingness.ColumnMissingnessModel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ColumnMissingnessModel</span></code></a>(col[, p_missing_, ...])</p></td>
+<td><p>Estimate conditional missingness for a single column.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">ColumnTransformer</span></code>(transformers, *[, ...])</p></td>
+<td><p>Applies transformers to columns of an array or pandas DataFrame.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#semsynth.missingness.DataFrameMissingnessModel" title="semsynth.missingness.DataFrameMissingnessModel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DataFrameMissingnessModel</span></code></a>(random_state, ...)</p></td>
+<td><p>Learn and apply missingness patterns across dataframe columns.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">LogisticRegression</span></code>([penalty, dual, tol, C, ...])</p></td>
+<td><p>Logistic Regression (aka logit, MaxEnt) classifier.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#semsynth.missingness.MissingnessWrappedGenerator" title="semsynth.missingness.MissingnessWrappedGenerator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MissingnessWrappedGenerator</span></code></a>(base_generator, ...)</p></td>
+<td><p>Wrap a base generator to inject realistic missing values.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">OneHotEncoder</span></code>(*[, categories, drop, ...])</p></td>
+<td><p>Encode categorical features as a one-hot numeric array.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">Path</span></code>(*args, **kwargs)</p></td>
+<td><p>PurePath subclass that can make system calls.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">Pipeline</span></code>(steps, *[, transform_input, ...])</p></td>
+<td><p>A sequence of data transformers with an optional final predictor.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">SimpleImputer</span></code>(*[, missing_values, strategy, ...])</p></td>
+<td><p>Univariate imputer for completing missing values with simple strategies.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">make_column_selector</span></code>([pattern, ...])</p></td>
+<td><p>Create a callable to select columns to be used with <code class="xref py py-class docutils literal notranslate"><span class="pre">ColumnTransformer</span></code>.</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py class">
+<dt class="sig sig-object py" id="semsynth.missingness.ColumnMissingnessModel">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">semsynth.missingness.</span></span><span class="sig-name descname"><span class="pre">ColumnMissingnessModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">col</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_missing_</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pipeline_</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Pipeline</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#semsynth.missingness.ColumnMissingnessModel" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Estimate conditional missingness for a single column.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="semsynth.missingness.ColumnMissingnessModel.col">
+<span class="sig-name descname"><span class="pre">col</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#semsynth.missingness.ColumnMissingnessModel.col" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="semsynth.missingness.ColumnMissingnessModel.fit">
+<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#semsynth.missingness.ColumnMissingnessModel" title="semsynth.missingness.ColumnMissingnessModel"><span class="pre">ColumnMissingnessModel</span></a></span></span><a class="headerlink" href="#semsynth.missingness.ColumnMissingnessModel.fit" title="Link to this definition"></a></dt>
+<dd><p>Fit the column-level missingness model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>df</strong> – Real dataframe that may contain missing values.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Self after fitting conditional probability estimators.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="semsynth.missingness.ColumnMissingnessModel.p_missing_">
+<span class="sig-name descname"><span class="pre">p_missing_</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.0</span></em><a class="headerlink" href="#semsynth.missingness.ColumnMissingnessModel.p_missing_" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="semsynth.missingness.ColumnMissingnessModel.pipeline_">
+<span class="sig-name descname"><span class="pre">pipeline_</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Pipeline</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#semsynth.missingness.ColumnMissingnessModel.pipeline_" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="semsynth.missingness.ColumnMissingnessModel.sample_mask">
+<span class="sig-name descname"><span class="pre">sample_mask</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Generator</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Series</span></span></span><a class="headerlink" href="#semsynth.missingness.ColumnMissingnessModel.sample_mask" title="Link to this definition"></a></dt>
+<dd><p>Sample a boolean mask indicating where the column should be missing.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> – Synthetic dataframe prior to applying missingness.</p></li>
+<li><p><strong>rng</strong> – Random number generator used for reproducibility.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Boolean series indexed like <code class="docutils literal notranslate"><span class="pre">df</span></code> with <code class="docutils literal notranslate"><span class="pre">True</span></code> for missing values.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="semsynth.missingness.DataFrameMissingnessModel">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">semsynth.missingness.</span></span><span class="sig-name descname"><span class="pre">DataFrameMissingnessModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">random_state:</span> <span class="pre">int</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">models_:</span> <span class="pre">~typing.Dict[str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">~semsynth.missingness.ColumnMissingnessModel]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#semsynth.missingness.DataFrameMissingnessModel" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Learn and apply missingness patterns across dataframe columns.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="semsynth.missingness.DataFrameMissingnessModel.apply">
+<span class="sig-name descname"><span class="pre">apply</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="headerlink" href="#semsynth.missingness.DataFrameMissingnessModel.apply" title="Link to this definition"></a></dt>
+<dd><p>Apply learned missingness patterns to a synthetic dataframe.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>df</strong> – Synthetic dataframe before introducing missing values.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Copy of <code class="docutils literal notranslate"><span class="pre">df</span></code> with missingness injected per fitted distributions.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="semsynth.missingness.DataFrameMissingnessModel.fit">
+<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#semsynth.missingness.DataFrameMissingnessModel" title="semsynth.missingness.DataFrameMissingnessModel"><span class="pre">DataFrameMissingnessModel</span></a></span></span><a class="headerlink" href="#semsynth.missingness.DataFrameMissingnessModel.fit" title="Link to this definition"></a></dt>
+<dd><p>Fit per-column missingness models on the provided dataframe.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>df</strong> – Real dataframe used to learn missingness structure.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Self with fitted column models.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="semsynth.missingness.DataFrameMissingnessModel.models_">
+<span class="sig-name descname"><span class="pre">models_</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#semsynth.missingness.ColumnMissingnessModel" title="semsynth.missingness.ColumnMissingnessModel"><span class="pre">ColumnMissingnessModel</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#semsynth.missingness.DataFrameMissingnessModel.models_" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="semsynth.missingness.DataFrameMissingnessModel.random_state">
+<span class="sig-name descname"><span class="pre">random_state</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#semsynth.missingness.DataFrameMissingnessModel.random_state" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="semsynth.missingness.MissingnessWrappedGenerator">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">semsynth.missingness.</span></span><span class="sig-name descname"><span class="pre">MissingnessWrappedGenerator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base_generator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">DataFrame</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">missingness_model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#semsynth.missingness.DataFrameMissingnessModel" title="semsynth.missingness.DataFrameMissingnessModel"><span class="pre">DataFrameMissingnessModel</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#semsynth.missingness.MissingnessWrappedGenerator" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Wrap a base generator to inject realistic missing values.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="semsynth.missingness.MissingnessWrappedGenerator.from_real_data">
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_real_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base_generator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">DataFrame</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">real_df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_state</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#semsynth.missingness.MissingnessWrappedGenerator" title="semsynth.missingness.MissingnessWrappedGenerator"><span class="pre">MissingnessWrappedGenerator</span></a></span></span><a class="headerlink" href="#semsynth.missingness.MissingnessWrappedGenerator.from_real_data" title="Link to this definition"></a></dt>
+<dd><p>Create a wrapper by fitting missingness to real data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>base_generator</strong> – Callable producing synthetic samples.</p></li>
+<li><p><strong>real_df</strong> – Real dataframe used to estimate missingness.</p></li>
+<li><p><strong>random_state</strong> – Optional RNG seed for reproducibility.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Configured <code class="docutils literal notranslate"><span class="pre">MissingnessWrappedGenerator</span></code> instance.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="semsynth.missingness.MissingnessWrappedGenerator.sample">
+<span class="sig-name descname"><span class="pre">sample</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="headerlink" href="#semsynth.missingness.MissingnessWrappedGenerator.sample" title="Link to this definition"></a></dt>
+<dd><p>Generate <code class="docutils literal notranslate"><span class="pre">n</span></code> samples with realistic missing values applied.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="semsynth.missingness.apply_missingness_to_outputs">
+<span class="sig-prename descclassname"><span class="pre">semsynth.missingness.</span></span><span class="sig-name descname"><span class="pre">apply_missingness_to_outputs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">run_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">synth_df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">missingness_model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#semsynth.missingness.DataFrameMissingnessModel" title="semsynth.missingness.DataFrameMissingnessModel"><span class="pre">DataFrameMissingnessModel</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">real_df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">disc_cols</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cont_cols</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">backend_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">DataFrame</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#semsynth.missingness.apply_missingness_to_outputs" title="Link to this definition"></a></dt>
+<dd><p>Apply missingness to backend artefacts and refresh derived metrics.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>run_dir</strong> – Directory containing backend outputs.</p></li>
+<li><p><strong>synth_df</strong> – Synthetic dataframe prior to missingness injection.</p></li>
+<li><p><strong>missingness_model</strong> – Learned missingness model to apply.</p></li>
+<li><p><strong>real_df</strong> – Real dataframe without missing values for metric refresh.</p></li>
+<li><p><strong>disc_cols</strong> – Iterable of discrete column names.</p></li>
+<li><p><strong>cont_cols</strong> – Iterable of continuous column names.</p></li>
+<li><p><strong>backend_name</strong> – Name of the backend used for logging context.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Tuple of the updated synthetic dataframe and a boolean indicating
+whether missingness was successfully applied.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="semsynth.missingness.fit_missingness_model">
+<span class="sig-prename descclassname"><span class="pre">semsynth.missingness.</span></span><span class="sig-name descname"><span class="pre">fit_missingness_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_state</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#semsynth.missingness.DataFrameMissingnessModel" title="semsynth.missingness.DataFrameMissingnessModel"><span class="pre">DataFrameMissingnessModel</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="headerlink" href="#semsynth.missingness.fit_missingness_model" title="Link to this definition"></a></dt>
+<dd><p>Fit a dataframe-level missingness model with logging safeguards.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> – Dataframe used to estimate missingness behaviour.</p></li>
+<li><p><strong>random_state</strong> – Optional seed for reproducibility.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Fitted <a class="reference internal" href="#semsynth.missingness.DataFrameMissingnessModel" title="semsynth.missingness.DataFrameMissingnessModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrameMissingnessModel</span></code></a> or <code class="docutils literal notranslate"><span class="pre">None</span></code> if fitting failed.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="semsynth.missingness.summarize_missingness_model">
+<span class="sig-prename descclassname"><span class="pre">semsynth.missingness.</span></span><span class="sig-name descname"><span class="pre">summarize_missingness_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">missingness_model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#semsynth.missingness.DataFrameMissingnessModel" title="semsynth.missingness.DataFrameMissingnessModel"><span class="pre">DataFrameMissingnessModel</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="headerlink" href="#semsynth.missingness.summarize_missingness_model" title="Link to this definition"></a></dt>
+<dd><p>Build a reporting-friendly summary of the missingness model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>missingness_model</strong> – Optional fitted missingness model from preprocessing.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Mapping describing fitted column-level missingness rates or <code class="docutils literal notranslate"><span class="pre">None</span></code> if
+no model was provided.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="semsynth.metrics.html" class="btn btn-neutral float-left" title="semsynth.metrics" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="semsynth.privacy_metrics.html" class="btn btn-neutral float-right" title="semsynth.privacy_metrics" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright .</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

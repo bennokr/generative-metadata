@@ -495,6 +495,8 @@ class SemMapSeriesAccessor:
 
     # ---- Introspection -------------------------------------------------------
     def __call__(self) -> Column:
+        if self.col_semmap is None:
+            self.col_semmap = Column(name=str(self._s.name or ""))
         n = len(self._s)
         self.col_semmap.summaryStatistics = SummaryStatistics(
             statisticalDataType=self._infer_statistical_data_type(),

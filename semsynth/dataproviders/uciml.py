@@ -279,7 +279,7 @@ def list_uciml(
         pairs = [(i, n) for i, n in pairs if name_substr.lower() in n.lower()]
 
     data_url = "https://archive.ics.uci.edu/api/dataset"
-    cache_root = cachedir.path if isinstance(cachedir, OutPath) else pathlib.Path(cachedir)
+    cache_root = pathlib.Path(cachedir)
     cache_root.mkdir(exist_ok=True)
     rows = []
     for i, name in pairs:
@@ -328,7 +328,7 @@ def load_uciml_by_id(
       - {cache_dir}/{id}.csv.gz: cached tabular data
       - {cache_dir}/{id}.meta.json: minimal metadata (name, color column)
     """
-    cache_root = cache_dir if isinstance(cache_dir, pathlib.Path) else cache_dir.path
+    cache_root = pathlib.Path(cache_dir)
     cache_base = cache_root or pathlib.Path(".")
     data_path = cache_base / f"{dataset_id}.csv.gz"
     meta_path = cache_base / f"{dataset_id}.meta.json"

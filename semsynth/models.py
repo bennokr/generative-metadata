@@ -8,7 +8,7 @@ import logging
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
-from makeprov import rule
+from makeprov import OutPath, rule
 
 if False:  # pragma: no cover - imported for type checking only
     from typing import TypedDict  # noqa: F401  # pylint: disable=unused-import
@@ -102,11 +102,14 @@ def _extract_globals(data: Any) -> Tuple[List[Dict[str, Any]], Dict[str, Optiona
 
 
 @rule()
-def load_model_configs(yaml_path: Optional[str]) -> ModelConfigBundle:
+def load_model_configs(
+    yaml_path: Optional[str],
+) -> ModelConfigBundle:
     """Load model specifications and global flags from YAML.
 
     If yaml_path is None, return an empty bundle (do not load package default).
     """
+
     if yaml_path is None:
         return ModelConfigBundle(specs=[], generate_umap=None, compute_privacy=None, compute_downstream=None)
 
@@ -168,7 +171,10 @@ def model_run_root(dataset_outdir: Path) -> Path:
 
 
 @rule()
-def model_run_dir(dataset_outdir: Path, name: str) -> Path:
+def model_run_dir(
+    dataset_outdir: Path,
+    name: str
+) -> Path:
     root = model_run_root(dataset_outdir)
     run_dir = root / str(name)
     run_dir.mkdir(parents=True, exist_ok=True)
@@ -176,13 +182,18 @@ def model_run_dir(dataset_outdir: Path, name: str) -> Path:
 
 
 @rule()
-def write_manifest(run_dir: Path, manifest: Dict[str, Any]) -> None:
+def write_manifest(
+    run_dir: Path,
+    manifest: Dict[str, Any],
+) -> None:
     (run_dir / "manifest.json").write_text(json.dumps(manifest, indent=2), encoding="utf-8")
     logging.debug("Wrote manifest to %s", run_dir / "manifest.json")
 
 
 @rule()
-def discover_model_runs(dataset_outdir: str | Path) -> List[ModelRun]:
+def discover_model_runs(
+    dataset_outdir: str | Path
+) -> List[ModelRun]:
     root = Path(dataset_outdir) / "models"
     if not root.exists():
         logging.info("No model runs found under %s", root)

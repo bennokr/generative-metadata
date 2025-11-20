@@ -15,6 +15,7 @@ keywords = ["synthetic-data", "data-profiling", "metadata", "uci"]
 dependencies = [
   "defopt",
   "markdown",
+  "jinja2",
   "numpy",
   "openml",
   "pandas",
@@ -48,8 +49,12 @@ umap = [
   "matplotlib",
   "umap-learn"
 ]
+statsmodels = [
+  "statsmodels"
+]
 all = [
   "metasyn",
+  "statsmodels",
   "graphviz",
   "networkx",
   "pybnesian",

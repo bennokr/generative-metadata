@@ -40,7 +40,9 @@
 >>> print(out["compare"])
 """
 
+import copy
 import itertools
+import re
 from typing import Any, Dict, Iterable, List, Mapping, Optional, Sequence, Tuple
 
 import numpy as np
@@ -48,7 +50,7 @@ import pandas as pd
 
 from sklearn.impute import SimpleImputer
 from sklearn.preprocessing import StandardScaler
-from sklearn.linear_model import LogisticRegressionCV, LassoCV
+from sklearn.linear_model import LogisticRegression, LogisticRegressionCV, LassoCV
 from sklearn.linear_model import PoissonRegressor
 from sklearn.model_selection import GridSearchCV
 
@@ -179,6 +181,84 @@ def _column_lookup(meta: Mapping[str, Any]) -> Dict[str, Mapping[str, Any]]:
         for col in _columns(meta)
         if (name := _column_name(col))
     }
+
+
+def _safe_identifier(name: str, used: set[str]) -> str:
+    candidate = re.sub(r"\W+", "_", str(name)).strip("_")
+    if candidate and candidate[0].isdigit():
+        candidate = f"col_{candidate}"
+    if not candidate:
+        candidate = "col"
+    base = candidate
+    suffix = 1
+    while candidate in used:
+        candidate = f"{base}_{suffix}"
+        suffix += 1
+    used.add(candidate)
+    return candidate
+
+
+def _sanitize_for_formula(
+    df_real: "pd.DataFrame",
+    df_synth: "pd.DataFrame",
+    meta: Mapping[str, Any],
+) -> Tuple["pd.DataFrame", "pd.DataFrame", Mapping[str, Any]]:
+    used: set[str] = set()
+    rename_map: Dict[str, str] = {
+        col: _safe_identifier(col, used) for col in df_real.columns
+    }
+
+    df_real_safe = df_real.rename(columns=rename_map)
+    df_synth_safe = df_synth.rename(columns=rename_map)
+
+    meta_obj: Mapping[str, Any]
+    if hasattr(meta, "to_jsonld"):
+        meta_obj = getattr(meta, "to_jsonld")() or {}
+    else:
+        meta_obj = meta
+    meta_copy: Mapping[str, Any] = copy.deepcopy(meta_obj)
+    if isinstance(meta_copy, Mapping):
+        for col_meta in _columns(meta_copy):
+            name = _column_name(col_meta)
+            if name and name in rename_map:
+                col_meta["schema:name"] = rename_map[name]
+
+    return df_real_safe, df_synth_safe, meta_copy
+
+
+def _fallback_logit_compare(
+    df_real: "pd.DataFrame", df_synth: "pd.DataFrame", meta: Mapping[str, Any]
+) -> Mapping[str, Any]:
+    yname, target_type = _target_info(meta, df_real)
+    if target_type != "binary":
+        raise ValueError("fallback comparison supports binary targets only")
+
+    def _prep(df: "pd.DataFrame") -> Tuple["pd.DataFrame", "pd.Series"]:
+        y = df[yname].astype("category")
+        X = df.drop(columns=[yname])
+        X_enc = pd.get_dummies(X, dummy_na=True)
+        return X_enc, y
+
+    Xr, yr = _prep(df_real.dropna(axis=0, how="any"))
+    Xs, ys = _prep(df_synth.dropna(axis=0, how="any"))
+    all_cols = sorted(set(Xr.columns) | set(Xs.columns))
+    Xr = Xr.reindex(columns=all_cols, fill_value=0)
+    Xs = Xs.reindex(columns=all_cols, fill_value=0)
+
+    model = LogisticRegression(max_iter=200, n_jobs=None)
+    model.fit(Xr, yr)
+    coefs_real = model.coef_.ravel()
+    model.fit(Xs, ys)
+    coefs_synth = model.coef_.ravel()
+
+    compare_df = pd.DataFrame(
+        {
+            "beta_real": coefs_real,
+            "beta_synth": coefs_synth,
+            "sign_match": np.sign(coefs_real) == np.sign(coefs_synth),
+        }
+    )
+    return {"formula": f"{yname} ~ encoded_features", "compare": compare_df}
 
 
 def _target_info(
@@ -501,23 +581,32 @@ def fit_with_mi(
     return res  # has .params, .bse, etc.
 
 def compare_real_vs_synth(df_real, df_synth, meta, *, m=20, burnin=5, max_interactions=5, cv=5):
-    # 1) auto-generate formula on REAL only
-    formula = auto_formula(df_real, meta, max_interactions=max_interactions, cv=cv)
-
-    # 2) pooled MI fits on real and synth with identical formula
-    res_real  = fit_with_mi(df_real,  formula, meta, m=m, burnin=burnin)
-    res_synth = fit_with_mi(df_synth, formula, meta, m=m, burnin=burnin)
-
-    # 3) align coefficients
-    out = (pd.DataFrame({
-                "beta_real":  res_real.params,
-                "se_real":    res_real.bse,
-                "beta_synth": res_synth.params,
-                "se_synth":   res_synth.bse
-           })
-           .assign(sign_match=lambda d: np.sign(d.beta_real) == np.sign(d.beta_synth))
-          )
-
-    return {"formula": formula, "results_real": res_real, "results_synth": res_synth, "compare": out}
+    df_real, df_synth, meta = _sanitize_for_formula(df_real, df_synth, meta)
+    try:
+        formula = auto_formula(df_real, meta, max_interactions=max_interactions, cv=cv)
+        res_real = fit_with_mi(df_real, formula, meta, m=m, burnin=burnin)
+        res_synth = fit_with_mi(df_synth, formula, meta, m=m, burnin=burnin)
+        out = (
+            pd.DataFrame(
+                {
+                    "beta_real": res_real.params,
+                    "se_real": res_real.bse,
+                    "beta_synth": res_synth.params,
+                    "se_synth": res_synth.bse,
+                }
+            ).assign(sign_match=lambda d: np.sign(d.beta_real) == np.sign(d.beta_synth))
+        )
+        return {
+            "formula": formula,
+            "results_real": res_real,
+            "results_synth": res_synth,
+            "compare": out,
+        }
+    except Exception:
+        fallback = _fallback_logit_compare(df_real, df_synth, meta)
+        fallback["results_real"] = None
+        fallback["results_synth"] = None
+        fallback.setdefault("skipped_reason", "fallback_logistic")
+        return fallback
 
 

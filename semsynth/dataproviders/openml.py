@@ -17,9 +17,8 @@ from ._helpers import clean_dataset_frame
 
 @rule()
 def get_default_openml(
-    cache_dir: OutPath = OutPath("downloads-cache/openml/defaults.marker"),
+    cache_dir: OutPath = OutPath("downloads-cache/openml/"),
 ) -> List[DatasetSpec]:
-    _ = cache_dir
     return [
         DatasetSpec("openml", "adult", target="class"),
         DatasetSpec("openml", "credit-g", target="class"),
@@ -30,7 +29,10 @@ def get_default_openml(
 
 @rule()
 def list_openml(
-    name_substr: Optional[str] = None, cat_min: int = 1, num_min: int = 1
+    name_substr: Optional[str] = None,
+    cat_min: int = 1,
+    num_min: int = 1,
+    cache_dir: OutPath = OutPath("downloads-cache/openml/"),
 ) -> pd.DataFrame:
     import openml
 
@@ -81,8 +83,7 @@ def load_openml_by_name(
     On cache hit, returns a minimal metadata dict instead of the OpenML object.
     """
 
-    cache_path = cache_dir if isinstance(cache_dir, pathlib.Path) else cache_dir.path
-    cache_root = cache_path or pathlib.Path(".")
+    cache_root = pathlib.Path(cache_dir)
     by_name_dir = cache_root / "by_name"
     by_name_dir.mkdir(parents=True, exist_ok=True)
 

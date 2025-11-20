@@ -33,9 +33,6 @@ for _d in (_OPENML_CACHE_DIR, _UCIML_CACHE_DIR):
 
 def _as_path(path_like: pathlib.Path | InPath | OutPath | str) -> pathlib.Path:
     """Coerce ``makeprov`` markers or strings into a :class:`~pathlib.Path`."""
-
-    if isinstance(path_like, (InPath, OutPath)):
-        return path_like.path or pathlib.Path(".")
     return pathlib.Path(path_like)
 
 

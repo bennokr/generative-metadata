@@ -9,17 +9,20 @@ import logging
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional, TYPE_CHECKING, cast
 
-from makeprov import OutPath, rule
+import pandas as pd
+import makeprov.core as prov_core
+from makeprov import GLOBAL_CONFIG, OutPath, rule
+from makeprov.prov import write_combined_prov
 
 from .backends.base import BackendModule, ensure_backend_contract
 from .mappings import load_mapping_json, resolve_mapping_json
 from .metadata import get_uciml_variable_descriptions
 from .models import ModelConfigBundle, discover_model_runs, load_model_configs
 from .semmap import Metadata
+from .specs import DatasetSpec
 
 if TYPE_CHECKING:  # pragma: no cover - typing only
-    import pandas as pd
-    from .specs import DatasetSpec
+    from typing import Any as _Any  # noqa: F401  # keep type checker satisfied
 
 
 _BACKEND_MODULE_PATHS = {
@@ -46,6 +49,9 @@ class PipelineConfig:
     generate_umap: bool = True
     compute_privacy: bool = False
     compute_downstream: bool = False
+    override_generate_umap: Optional[bool] = None
+    override_compute_privacy: Optional[bool] = None
+    override_compute_downstream: Optional[bool] = None
     overwrite_umap: bool = False
     enable_missingness_wrapping: bool = False
     missingness_random_state: Optional[int] = None
@@ -137,6 +143,10 @@ def _build_downstream_meta(
     for column in df.columns:
         role = "target" if target_name and column == target_name else "predictor"
         kind = inferred.get(column, "continuous")
+        if column == target_name and target_series is not None and kind == "continuous":
+            unique_values = pd.Series(target_series).dropna().unique()
+            if len(unique_values) <= 10:
+                kind = "categorical"
         col_meta: Dict[str, Any] = {
             "schema:name": column,
             "prov:hadRole": role,
@@ -216,7 +226,7 @@ class DatasetPreprocessor:
         rng: Any,
         *,
         generate_umap: bool,
-        umap_utils: Optional[Any],
+        umap_utils: Optional[Any]
     ) -> PreprocessingResult:
         """Clean data, apply metadata and optionally prepare UMAP artifacts.
 
@@ -389,7 +399,7 @@ class MetricWriter:
         real_df: "pd.DataFrame",
         inferred: Dict[str, str],
         synth_df: Optional["pd.DataFrame"] = None,
-        metadata: Optional[Metadata] = None,
+        metadata: Optional[Metadata] = None
     ) -> Dict[str, Any]:
         """Write privacy metrics to disk for a backend run.
 
@@ -427,7 +437,7 @@ class MetricWriter:
         synth_df: "pd.DataFrame",
         inferred: Dict[str, str],
         target_series: Optional["pd.Series"],
-        metadata: Optional[Metadata] = None,
+        metadata: Optional[Metadata] = None
     ) -> Dict[str, Any]:
         """Write downstream metrics comparing synthetic and real data.
 
@@ -464,7 +474,17 @@ class MetricWriter:
         meta_jsonld = metadata.to_jsonld() if isinstance(metadata, Metadata) else None
         if meta_jsonld is None:
             meta_jsonld = _build_downstream_meta(real_df, inferred, target_series)
-        results = comparer(real_df, synth_df, meta_jsonld)
+        try:
+            results = comparer(real_df, synth_df, meta_jsonld)
+        except ValueError as exc:
+            if "prov:hadRole" in str(exc) and target_series is not None:
+                logging.info(
+                    "Falling back to inferred downstream metadata due to missing target role",
+                )
+                meta_jsonld = _build_downstream_meta(real_df, inferred, target_series)
+                results = comparer(real_df, synth_df, meta_jsonld)
+            else:
+                raise
         compare = results.get("compare")
         sign_match_rate = float("nan")
         if hasattr(compare, "__getitem__"):
@@ -521,15 +541,63 @@ class BackendExecutor:
 
         bundle_specs = bundle.specs if bundle.specs else []
 
+        shared_prov: List[Any] = []
+        if prov_core.PROV_BUFFER is not None:
+            logging.info(
+                "PROV buffer entries available before model runs: %d",
+                len(prov_core.PROV_BUFFER),
+            )
+            shared_prov = list(prov_core.PROV_BUFFER)
+
+        def _write_model_provenance(
+            label: str, run_dir_path: Path, model_prov_start: Optional[int]
+        ) -> None:
+            if prov_core.PROV_BUFFER is None:
+                return
+
+            new_entries: List[Any] = []
+            if model_prov_start is not None:
+                new_entries = list(prov_core.PROV_BUFFER[model_prov_start:])
+            model_entries = list(shared_prov) + new_entries
+            logging.info(
+                "Aggregating provenance for %s: shared=%d new=%d",
+                label,
+                len(shared_prov),
+                len(new_entries),
+            )
+            if not model_entries:
+                logging.info("Skipping provenance write for %s (no entries)", label)
+                return
+
+            prov_path = run_dir_path / "provenance"
+            logging.info(
+                "Writing combined JSON-LD provenance for %s to %s (%d entries)",
+                label,
+                prov_path.with_suffix(".json"),
+                len(model_entries),
+            )
+            write_combined_prov(
+                model_entries,
+                prov_path=prov_path,
+                fmt=GLOBAL_CONFIG.out_fmt,
+                jsonld_with_context=GLOBAL_CONFIG.jsonld_with_context,
+            )
+
         for idx, spec in enumerate(bundle_specs):
             label = spec.name or f"model_{idx + 1}"
             seed = int(spec.seed if spec.seed is not None else self._cfg.random_state)
             backend_name = spec.backend
+            run_dir_path = Path(outdir) / "models" / label
             try:
                 backend_module = self._load_backend(backend_name)
             except Exception:
                 logging.exception("Failed to load backend %s", backend_name)
+                _write_model_provenance(label, run_dir_path, None)
                 continue
+
+            model_prov_start: Optional[int] = None
+            if prov_core.PROV_BUFFER is not None:
+                model_prov_start = len(prov_core.PROV_BUFFER)
 
             rows = spec.rows if spec.rows is not None else self._cfg.synthetic_sample
             try:
@@ -548,6 +616,7 @@ class BackendExecutor:
                 )
             except Exception:
                 logging.exception("%s run failed for %s", backend_name, label)
+                _write_model_provenance(label, run_dir_path, model_prov_start)
                 continue
 
             run_dir_path = Path(run_dir)
@@ -575,13 +644,23 @@ class BackendExecutor:
                         )
                     )
 
+            compute_privacy_default = (
+                self._cfg.override_compute_privacy
+                if self._cfg.override_compute_privacy is not None
+                else self._cfg.compute_privacy
+            )
             compute_privacy_flag = _resolve_flag(
-                self._cfg.compute_privacy,
+                compute_privacy_default,
                 bundle.compute_privacy,
                 spec.compute_privacy,
             )
+            compute_downstream_default = (
+                self._cfg.override_compute_downstream
+                if self._cfg.override_compute_downstream is not None
+                else self._cfg.compute_downstream
+            )
             compute_downstream_flag = _resolve_flag(
-                self._cfg.compute_downstream,
+                compute_downstream_default,
                 bundle.compute_downstream,
                 spec.compute_downstream,
             )
@@ -626,6 +705,7 @@ class BackendExecutor:
                     )
                 except Exception:
                     logging.exception("Failed to compute downstream metrics for %s", label)
+            _write_model_provenance(label, run_dir_path, model_prov_start)
 
 
 class ReportWriter:
@@ -642,7 +722,6 @@ class ReportWriter:
         dataset_spec: "DatasetSpec",
         preprocessed: PreprocessingResult,
         cfg: PipelineConfig,
-        marker: OutPath = OutPath("output/umaps.marker"),
     ) -> None:
         """Create UMAP visualisations for synthetic datasets if required.
 
@@ -677,11 +756,6 @@ class ReportWriter:
                 )
             except Exception:
                 logging.exception("Failed to generate UMAP for %s", run.run_dir)
-
-        marker_path = marker.path if isinstance(marker, OutPath) else None
-        if marker_path is not None:
-            marker_path.parent.mkdir(parents=True, exist_ok=True)
-            marker_path.touch(exist_ok=True)
 
     @staticmethod
     def _read_synthetic_df(run: Any) -> "pd.DataFrame":
@@ -763,8 +837,13 @@ def process_dataset(
     outdir = Path(base_outdir) / dataset_spec.name.replace("/", "_")
     rng = utils.seed_all(cfg.random_state)
 
+    generate_umap_default = (
+        cfg.override_generate_umap
+        if cfg.override_generate_umap is not None
+        else cfg.generate_umap
+    )
     generate_umap_flag = _resolve_flag(
-        cfg.generate_umap,
+        generate_umap_default,
         bundle.generate_umap,
         None,
     )

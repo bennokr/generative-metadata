@@ -27,7 +27,7 @@ import textwrap
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 from markupsafe import Markup
 import pandas as pd
-from makeprov import rule
+from makeprov import OutPath, rule
 
 from .jsonld_to_rdfa import SCHEMA_ORG, render_rdfa
 from .models import ModelRun

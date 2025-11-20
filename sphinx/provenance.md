@@ -14,7 +14,7 @@ This document explains how SemSynth's provenance-aware build graph is assembled 
 - **File parameters**: Inputs such as `prov_conf` use `InPath`, while outputs like `output` or `outdir` use `OutPath`. makeprov registers these as graph nodes, so running `build outputs/<dataset>/index.html` will trigger the dependent rules that generate that file.
 
 ## Dataset discovery and acquisition rules
-- `specs_from_input` and `load_dataset` in [`semsynth/datasets.py`](./datasets.py) are annotated with `@rule(out_params=["openml_cache_dir", "uciml_cache_dir"])` so the cache roots under `downloads-cache/` are explicit outputs. Provider-specific helpers (`load_openml_by_name`, `load_uciml_by_id`, and their search counterparts in `semsynth/dataproviders/openml.py` and `semsynth/dataproviders/uciml.py`) are wrapped too, ensuring that API queries and downloaded CSVs populate the graph via `OutPath` markers.
+- `specs_from_input` and `load_dataset` in [`semsynth/datasets.py`](./datasets.py) are annotated with `@rule(out_params=["openml_cache_dir", "uciml_cache_dir"])` so the cache roots under `downloads-cache/` are explicit outputs. Provider-specific helpers (`load_openml_by_name`, `load_uciml_by_id`, and their search counterparts in `semsynth/dataproviders/openml.py` and `semsynth/dataproviders/uciml.py`) are wrapped too.
 - Because the cache directories are modeled as outputs, makeprov can decide whether to re-run downloads based on whether the files under `downloads-cache/openml/` or `downloads-cache/uciml/` already exist. This is especially useful when combining `build` with the `--force` toggle from the configuration file.
 
 ## Pipeline orchestration rules
